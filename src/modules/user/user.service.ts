@@ -20,4 +20,16 @@ export class UserService {
       return new ServerResponse('Failed', e.message);
     }
   }
+
+  async addPlateToUser(phoneNumber: string, plate: string) {
+    try {
+      await this.userModel.updateOne(
+        { phoneNumber },
+        { $push: { plates: plate } },
+      );
+      return new ServerResponse('Success');
+    } catch (e) {
+      return new ServerResponse('Failed', e.message);
+    }
+  }
 }
