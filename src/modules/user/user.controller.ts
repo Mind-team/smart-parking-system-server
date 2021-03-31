@@ -10,4 +10,10 @@ export class UserController {
   async registerUser(@Body() user: User) {
     return await this.userService.register(user);
   }
+
+  @Post('addPlate')
+  async addPlate(@Body() inr: { phoneNumber: string; plate: string }) {
+    console.log('1');
+    return await this.userService.addPlateToUser(inr.phoneNumber, inr.plate);
+  }
 }
