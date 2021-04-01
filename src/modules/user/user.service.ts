@@ -23,11 +23,16 @@ export class UserService {
 
   async addPlateToUser(phoneNumber: string, plate: string) {
     try {
-      await this.userModel.updateOne(
+      const document = await this.userModel.updateOne(
         { phoneNumber },
         { $push: { plates: plate } },
       );
-      return new ServerResponse('Success');
+      return document.nModified === 0
+        ? new ServerResponse(
+            'Failed',
+            `User with ${phoneNumber} phone number does not exist`,
+          )
+        : new ServerResponse('Success');
     } catch (e) {
       return new ServerResponse('Failed', e.message);
     }
