@@ -4,6 +4,7 @@ import { UserDocument } from '../../schemas/user.schema';
 import { Model } from 'mongoose';
 import { User } from '../../interfaces/user.interface';
 import { ServerResponse } from '../../models/server-response.model';
+import { AddPlateToUserDto } from '../../dtos/add-plate-to-user.dto';
 
 @Injectable()
 export class UserService {
@@ -21,7 +22,7 @@ export class UserService {
     }
   }
 
-  async addPlateToUser(phoneNumber: string, plate: string) {
+  async addPlateToUser({ phoneNumber, plate }: AddPlateToUserDto) {
     try {
       const document = await this.userModel.updateOne(
         { phoneNumber },
