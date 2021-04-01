@@ -13,7 +13,6 @@ export class UserController {
 
   @Post('addPlate')
   async addPlate(@Body() inr: { phoneNumber: string; plate: string }) {
-    console.log('1');
     return await this.userService.addPlateToUser(inr.phoneNumber, inr.plate);
   }
 }
