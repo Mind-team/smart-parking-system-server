@@ -4,6 +4,7 @@ import { UserDocument } from '../../schemas/user.schema';
 import { Model } from 'mongoose';
 import { User } from '../../interfaces/user.interface';
 import { ServerResponse } from '../../models/server-response.model';
+import { AddPlateToUserDto } from '../../dtos/add-plate-to-user.dto';
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,23 @@ export class UserService {
     try {
       await new this.userModel({ ...userData }).save();
       return new ServerResponse('Success');
+    } catch (e) {
+      return new ServerResponse('Failed', e.message);
+    }
+  }
+
+  async addPlateToUser({ phoneNumber, plate }: AddPlateToUserDto) {
+    try {
+      const document = await this.userModel.updateOne(
+        { phoneNumber },
+        { $push: { plates: plate } },
+      );
+      return document.nModified === 0
+        ? new ServerResponse(
+            'Failed',
+            `User with ${phoneNumber} phone number does not exist`,
+          )
+        : new ServerResponse('Success');
     } catch (e) {
       return new ServerResponse('Failed', e.message);
     }
