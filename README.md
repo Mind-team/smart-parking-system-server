@@ -21,4 +21,4 @@
 - `npm run test` - запуск тестов
 - `npm run test:watch` - запуск тестов с автообновлениями
 - `npm run test:cov` - показывает процент покрытия кода тестами 
-- `npm run type-coverage` - количество типов any в вашем коде
+- `npm run type:coverage` - количество типов any в вашем коде
