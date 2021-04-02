@@ -23,6 +23,7 @@ export class UserService {
   }
 
   async addPlateToUser({ phoneNumber, plate }: AddPlateToUserDto) {
+    // TODO: Валидация пользователя
     try {
       const document = await this.userModel.updateOne(
         { phoneNumber },
@@ -34,6 +35,22 @@ export class UserService {
             `User with ${phoneNumber} phone number does not exist`,
           )
         : new ServerResponse('Success');
+    } catch (e) {
+      return new ServerResponse('Failed', e.message);
+    }
+  }
+
+  async getUser(phoneNumber: string) {
+    // TODO: Валидация пользователя
+    try {
+      const user = await this.userModel.findOne({ phoneNumber });
+      return (
+        user ??
+        new ServerResponse(
+          'Failed',
+          `User with phone number ${phoneNumber} does not exist`,
+        )
+      );
     } catch (e) {
       return new ServerResponse('Failed', e.message);
     }
