@@ -4,6 +4,7 @@ import { UserDocument } from '../../schemas/user.schema';
 import { Model } from 'mongoose';
 import { User } from '../../interfaces/user.interface';
 import { AddPlateToUserDto } from '../../dtos/add-plate-to-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -14,6 +15,10 @@ export class UserService {
 
   async register(userData: User) {
     try {
+      userData.password = await bcrypt.hash(
+        userData.password,
+        await bcrypt.genSalt(),
+      );
       await new this.userModel({ ...userData }).save();
       return HttpStatus.OK;
     } catch (e) {
