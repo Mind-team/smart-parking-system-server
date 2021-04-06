@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { User } from '../../interfaces/user.interface';
 import { AddPlateToUserDto } from '../../dtos/add-plate-to-user.dto';
 import * as bcrypt from 'bcrypt';
+import { SignInUserDto } from '../../dtos/sign-in-user.dto';
 
 @Injectable()
 export class UserService {
@@ -13,6 +14,24 @@ export class UserService {
     private readonly userModel: Model<UserDocument>,
   ) {}
 
+  async signIn(userData: SignInUserDto) {
+    try {
+      const [phoneNumber, password] = [userData.phoneNumber, userData.password];
+      const candidate = await this.userModel.findOne({ phoneNumber });
+      if (!candidate) {
+        return new HttpException(
+          `User with ${phoneNumber} phone number does not exist`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      return (await bcrypt.compare(password, candidate.password))
+        ? candidate
+        : new HttpException('Passwords do not match', HttpStatus.UNAUTHORIZED);
+    } catch (e) {
+      throw new HttpException('Something is wrong', HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async register(userData: User) {
     try {
       userData.password = await bcrypt.hash(
@@ -20,7 +39,7 @@ export class UserService {
         await bcrypt.genSalt(),
       );
       await new this.userModel({ ...userData }).save();
-      return HttpStatus.OK;
+      return HttpStatus.CREATED;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
     }
