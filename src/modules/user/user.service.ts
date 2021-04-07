@@ -32,7 +32,7 @@ export class UserService {
     }
   }
 
-  async register(userData: User) {
+  async signUp(userData: User) {
     try {
       userData.password = await bcrypt.hash(
         userData.password,

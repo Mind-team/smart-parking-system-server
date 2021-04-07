@@ -13,9 +13,9 @@ export class UserController {
     return await this.userService.signIn(data);
   }
 
-  @Post('register')
-  async registerUser(@Body() user: User) {
-    return await this.userService.register(user);
+  @Post('signUp')
+  async signUp(@Body() user: User) {
+    return await this.userService.signUp(user);
   }
 
   @Post('addPlate')
