@@ -24,8 +24,6 @@ export class ParkingService {
           data.parkingTitle,
           data.carPlate,
           data.entryCarTime,
-          null,
-          null,
         ).formatToDB(),
       );
       user.save();
