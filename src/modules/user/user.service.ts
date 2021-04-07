@@ -45,10 +45,11 @@ export class UserService {
     }
   }
 
-  async addPlateToUser({ phoneNumber, plate }: AddPlateToUserDto) {
+  async addPlateToUser(data: Pick<User, 'phoneNumber'> & { plate: string }) {
     // TODO: Валидация пользователя
     // TODO: Валидация номера введенного
     try {
+      const { phoneNumber, plate } = data;
       const document = await this.userModel.updateOne(
         { phoneNumber },
         { $push: { plates: plate } },
