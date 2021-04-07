@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import { User } from '../interfaces/user.interface';
+import { ParkingRecordSchema } from './parking-record.schema';
 
 export const UserSchema = new mongoose.Schema<mongoose.Document<User>>({
   phoneNumber: { type: String, require: true, unique: true },
@@ -12,6 +13,7 @@ export const UserSchema = new mongoose.Schema<mongoose.Document<User>>({
       sparse: true,
     },
   ],
+  parkingHistory: [ParkingRecordSchema],
 });
 
 export type UserDocument = User & mongoose.Document;
