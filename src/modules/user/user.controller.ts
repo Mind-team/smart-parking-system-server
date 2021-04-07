@@ -1,7 +1,6 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '../../interfaces/user.interface';
-import { AddPlateToUserDto } from '../../dtos/add-plate-to-user.dto';
 import { SignInUserDto } from '../../dtos/sign-in-user.dto';
 
 @Controller('user')
