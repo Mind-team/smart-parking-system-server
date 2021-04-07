@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserRecord } from '../../interfaces/user.interface';
+import { UserRecord } from '../../interfaces/user-record.interface';
 import { SignInData } from '../../types/sign-in-data.type';
 
 @Controller('user')
