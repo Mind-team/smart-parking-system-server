@@ -2,8 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from '../../schemas/user.schema';
 import { Model } from 'mongoose';
-import { SignInData, User } from '../../interfaces/user.interface';
+import { User } from '../../interfaces/user.interface';
 import * as bcrypt from 'bcrypt';
+import { SignInData } from '../../types/sign-in-data.type';
 
 @Injectable()
 export class UserService {

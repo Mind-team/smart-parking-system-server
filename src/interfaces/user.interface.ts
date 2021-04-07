@@ -7,5 +7,3 @@ export interface User {
   plates: string[]; // TODO: When create plate model, change string[] on plates[]
   parkingHistory: ParkingRecord[];
 }
-
-export type SignInData = Pick<User, 'phoneNumber' | 'password'>;

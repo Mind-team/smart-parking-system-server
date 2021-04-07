@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { EntryCarParkingRecord } from '../../interfaces/parking-record.interface';
 import { Model } from 'mongoose';
 import { UserDocument } from '../../schemas/user.schema';
 import { PlainParkingRecorder } from '../../models/plain-parking-record.model';
+import { EntryCarParkingRecord } from '../../types/entry-car-parking-record.type';
 
 @Injectable()
 export class ParkingService {

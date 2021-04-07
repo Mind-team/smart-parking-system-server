@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { UserService } from './user.service';
-import { SignInData, User } from '../../interfaces/user.interface';
+import { User } from '../../interfaces/user.interface';
+import { SignInData } from '../../types/sign-in-data.type';
 
 @Controller('user')
 export class UserController {
