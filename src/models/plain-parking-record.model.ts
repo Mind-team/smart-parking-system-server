@@ -1,11 +1,23 @@
 import { ParkingRecord } from '../interfaces/parking-record.interface';
+import { ParkingRecorder } from '../interfaces/parking-recorder.interface';
 
-export class PlainParkingRecord implements ParkingRecord {
+export class PlainParkingRecorder implements ParkingRecorder {
   constructor(
-    public carPlate: string,
-    public departureCarTime: Date,
-    public entryCarTime: Date,
-    public parkingTitle: string,
-    public priceRub: number,
+    private parkingTitle: string,
+    private carPlate: string,
+    private entryCarTime: Date,
+    private departureCarTime: Date,
+    private priceRub: number,
   ) {}
+
+  public formatToDB() {
+    const record: ParkingRecord = {
+      carPlate: this.carPlate,
+      departureCarTime: this.departureCarTime,
+      entryCarTime: this.entryCarTime,
+      parkingTitle: this.parkingTitle,
+      priceRub: this.priceRub,
+    };
+    return record;
+  }
 }

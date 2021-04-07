@@ -1,9 +1,9 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ParkingRecord } from '../../interfaces/parking-record.interface';
 import { Model } from 'mongoose';
 import { UserDocument } from '../../schemas/user.schema';
-import { PlainParkingRecord } from '../../models/plain-parking-record.model';
+import { PlainParkingRecorder } from '../../models/plain-parking-record.model';
 
 @Injectable()
 export class ParkingService {
@@ -15,16 +15,25 @@ export class ParkingService {
   async registerCarEntry(
     data: Omit<ParkingRecord, 'departureCarTime' | 'priceRub'>,
   ) {
-    const user = await this.userModel.findOne({ plates: data.carPlate });
-    const record = new PlainParkingRecord(
-      data.carPlate,
-      null,
-      data.entryCarTime,
-      data.parkingTitle,
-      null,
-    );
-    user.parkingHistory.push(record);
-    user.save();
-    return HttpStatus.OK;
+    try {
+      const user = await this.userModel.findOne({ plates: data.carPlate });
+      if (!user) {
+        // Обработка чела, которого нет в бд
+        return;
+      }
+      user.parkingHistory.push(
+        new PlainParkingRecorder(
+          data.parkingTitle,
+          data.carPlate,
+          data.entryCarTime,
+          null,
+          null,
+        ).formatToDB(),
+      );
+      user.save();
+      return HttpStatus.OK;
+    } catch (e) {
+      throw new HttpException('Something is wrong', HttpStatus.BAD_GATEWAY);
+    }
   }
 }
