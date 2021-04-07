@@ -1,14 +1,13 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from '../../interfaces/user.interface';
-import { SignInUserDto } from '../../dtos/sign-in-user.dto';
+import { SignInData, User } from '../../interfaces/user.interface';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('signIn')
-  async signInUser(@Body() data: SignInUserDto) {
+  async signInUser(@Body() data: SignInData) {
     return await this.userService.signIn(data);
   }
 

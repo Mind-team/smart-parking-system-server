@@ -2,9 +2,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from '../../schemas/user.schema';
 import { Model } from 'mongoose';
-import { User } from '../../interfaces/user.interface';
+import { SignInData, User } from '../../interfaces/user.interface';
 import * as bcrypt from 'bcrypt';
-import { SignInUserDto } from '../../dtos/sign-in-user.dto';
 
 @Injectable()
 export class UserService {
@@ -13,7 +12,7 @@ export class UserService {
     private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async signIn(userData: SignInUserDto) {
+  async signIn(userData: SignInData) {
     try {
       const [phoneNumber, password] = [userData.phoneNumber, userData.password];
       const candidate = await this.userModel.findOne({ phoneNumber });
