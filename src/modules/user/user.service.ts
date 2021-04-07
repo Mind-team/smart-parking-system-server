@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from '../../schemas/user.schema';
 import { Model } from 'mongoose';
-import { User } from '../../interfaces/user.interface';
+import { UserRecord } from '../../interfaces/user.interface';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from '../../types/sign-in-data.type';
 
@@ -31,7 +31,7 @@ export class UserService {
     }
   }
 
-  async signUp(userData: User) {
+  async signUp(userData: UserRecord) {
     try {
       userData.password = await bcrypt.hash(
         userData.password,
@@ -44,7 +44,9 @@ export class UserService {
     }
   }
 
-  async addPlateToUser(data: Pick<User, 'phoneNumber'> & { plate: string }) {
+  async addPlateToUser(
+    data: Pick<UserRecord, 'phoneNumber'> & { plate: string },
+  ) {
     // TODO: Валидация пользователя
     // TODO: Валидация номера введенного
     try {

@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from '../../interfaces/user.interface';
+import { UserRecord } from '../../interfaces/user.interface';
 import { SignInData } from '../../types/sign-in-data.type';
 
 @Controller('user')
@@ -13,12 +13,14 @@ export class UserController {
   }
 
   @Post('signUp')
-  async signUp(@Body() user: User) {
+  async signUp(@Body() user: UserRecord) {
     return await this.userService.signUp(user);
   }
 
   @Post('addPlate')
-  async addPlate(@Body() data: Pick<User, 'phoneNumber'> & { plate: string }) {
+  async addPlate(
+    @Body() data: Pick<UserRecord, 'phoneNumber'> & { plate: string },
+  ) {
     return await this.userService.addPlateToUser({ ...data });
   }
 }

@@ -1,6 +1,6 @@
 import { ParkingRecord } from './parking-record.interface';
 
-export interface User {
+export interface UserRecord {
   phoneNumber: string;
   password: string;
   email?: string;

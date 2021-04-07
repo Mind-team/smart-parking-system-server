@@ -1,3 +1,3 @@
-import { User } from '../interfaces/user.interface';
+import { UserRecord } from '../interfaces/user.interface';
 
-export type SignInData = Pick<User, 'phoneNumber' | 'password'>;
+export type SignInData = Pick<UserRecord, 'phoneNumber' | 'password'>;
