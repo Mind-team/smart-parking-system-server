@@ -63,20 +63,4 @@ export class UserService {
       throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
     }
   }
-
-  async getUser(phoneNumber: string) {
-    // TODO: Валидация пользователя (проверка пароля)
-    try {
-      const user = await this.userModel.findOne({ phoneNumber });
-      return (
-        user ??
-        new HttpException(
-          `User with ${phoneNumber} phone number does not exist`,
-          HttpStatus.BAD_REQUEST,
-        )
-      );
-    } catch (e) {
-      throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
-    }
-  }
 }

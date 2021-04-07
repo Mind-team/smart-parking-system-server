@@ -8,11 +8,6 @@ import { SignInUserDto } from '../../dtos/sign-in-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  async getUser(@Query() { phoneNumber }: { phoneNumber: string }) {
-    return this.userService.getUser(`+${phoneNumber}`);
-  }
-
   @Post('signIn')
   async signInUser(@Body() data: SignInUserDto) {
     return await this.userService.signIn(data);
