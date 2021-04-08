@@ -11,7 +11,7 @@ export class PlainParkingRecorder implements ParkingRecorder {
     private entryCarTime: Date,
   ) {}
 
-  public formatToDB() {
+  public formatForDB() {
     const record: ParkingRecord = {
       carPlate: this.carPlate,
       departureCarTime: this.departureCarTime,
