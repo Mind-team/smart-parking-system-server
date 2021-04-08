@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { UserRecord } from '../../interfaces/user-record.interface';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from '../../types/sign-in-data.type';
+import { User } from '../../models/user.model';
 
 @Injectable()
 export class UserService {
@@ -33,11 +34,9 @@ export class UserService {
 
   async signUp(userData: UserRecord) {
     try {
-      userData.password = await bcrypt.hash(
-        userData.password,
-        await bcrypt.genSalt(),
-      );
-      await new this.userModel({ ...userData }).save();
+      // TODO: Нужно проверять, что все поля заполнены, кроме опциональных
+      const newUser = await new User(userData).formatForDB();
+      await new this.userModel({ ...newUser }).save();
       return HttpStatus.CREATED;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
