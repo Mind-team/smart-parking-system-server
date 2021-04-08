@@ -1,7 +1,7 @@
 import { ParkingRecord } from '../interfaces/parking-record.interface';
-import { ParkingRecorder } from '../interfaces/parking-recorder.interface';
+import { Recorder } from '../interfaces/recorder.interface';
 
-export class PlainParkingRecorder implements ParkingRecorder {
+export class ParkingRecorder implements Recorder<ParkingRecord> {
   private departureCarTime: Date = null;
   private priceRub: number = null;
 
@@ -11,7 +11,7 @@ export class PlainParkingRecorder implements ParkingRecorder {
     private entryCarTime: Date,
   ) {}
 
-  public formatForDB() {
+  public async formatForDB() {
     const record: ParkingRecord = {
       carPlate: this.carPlate,
       departureCarTime: this.departureCarTime,

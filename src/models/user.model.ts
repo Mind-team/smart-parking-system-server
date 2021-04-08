@@ -1,9 +1,9 @@
 import { UserRecord } from '../interfaces/user-record.interface';
 import { ParkingRecord } from '../interfaces/parking-record.interface';
-import { UserRecorder } from '../interfaces/user-recorder.interface';
 import * as bcrypt from 'bcrypt';
+import { Recorder } from '../interfaces/recorder.interface';
 
-export class User implements UserRecorder {
+export class User implements Recorder<UserRecord> {
   private readonly _phoneNumber: string;
   private readonly _password: string;
   private _email: string;
