@@ -1,9 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserDocument } from '../../schemas/user.schema';
 import { ParkingRecorder } from '../../models/plain-parking-record.model';
 import { EntryCarParkingRecord } from '../../types/entry-car-parking-record.type';
+import { SuccessfulResponse } from '../../models/successful-response.model';
+import { FailedResponse } from '../../models/failed-response.model';
 
 @Injectable()
 export class ParkingService {
@@ -27,9 +29,12 @@ export class ParkingService {
         ).formatForDB(),
       );
       user.save();
-      return HttpStatus.OK;
+      return new SuccessfulResponse(
+        HttpStatus.CREATED,
+        'Successfully registered the entry of the car',
+      );
     } catch (e) {
-      throw new HttpException('Something is wrong', HttpStatus.BAD_GATEWAY);
+      throw new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
   }
 }
