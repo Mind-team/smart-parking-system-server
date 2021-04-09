@@ -6,9 +6,9 @@ import { UserRecord } from '../../interfaces/user-record.interface';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from '../../types/sign-in-data.type';
 import { User } from '../../models/user.model';
-import { FailedResponse } from '../../models/failed-response.model';
-import { SuccessfulResponse } from '../../models/successful-response.model';
-import { FilledSuccessfulResponse } from '../../models/filled-successful-response.model';
+import { FailedResponse } from '../../models/server-responses/failed-response.model';
+import { SuccessfulResponse } from '../../models/server-responses/successful-response.model';
+import { FilledSuccessfulResponse } from '../../models/server-responses/filled-successful-response.model';
 
 @Injectable()
 export class UserService {

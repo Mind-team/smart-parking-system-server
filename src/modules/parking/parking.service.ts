@@ -4,8 +4,8 @@ import { Model } from 'mongoose';
 import { UserDocument } from '../../schemas/user.schema';
 import { ParkingRecorder } from '../../models/plain-parking-record.model';
 import { EntryCarParkingRecord } from '../../types/entry-car-parking-record.type';
-import { SuccessfulResponse } from '../../models/successful-response.model';
-import { FailedResponse } from '../../models/failed-response.model';
+import { SuccessfulResponse } from '../../models/server-responses/successful-response.model';
+import { FailedResponse } from '../../models/server-responses/failed-response.model';
 
 @Injectable()
 export class ParkingService {
