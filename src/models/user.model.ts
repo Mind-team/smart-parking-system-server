@@ -1,5 +1,5 @@
-import { UserRecord } from '../interfaces/user-record.interface';
-import { ParkingRecord } from '../interfaces/parking-record.interface';
+import { UserRecord } from '../interfaces/records/user-record.interface';
+import { ParkingRecord } from '../interfaces/records/parking-record.interface';
 import * as bcrypt from 'bcrypt';
 import { Recorder } from '../interfaces/recorder.interface';
 

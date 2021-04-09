@@ -1,4 +1,4 @@
-import { ParkingRecord } from '../interfaces/parking-record.interface';
+import { ParkingRecord } from '../interfaces/records/parking-record.interface';
 
 export type EntryCarParkingRecord = Omit<
   ParkingRecord,
