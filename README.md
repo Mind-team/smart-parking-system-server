@@ -34,6 +34,71 @@ JWT токен (можете почитать), но его использова
 - `npm run test:watch` - запуск тестов с автообновлениями
 - `npm run test:cov` - показывает процент покрытия кода тестами 
 - `npm run type:coverage` - количество типов any в вашем коде
+## База данных 
+### Работа с моделями из бд
+Для работы с моделями из бд мы используем интерфейсы, названия которых оканчиваются на Record. 
+То есть интерфейс UserRecord - это то как пользователь записан в бд. Каждый класс, обьекты которого 
+должны иметь возможно записи в БД, реализует Recorder<T>, где T - интерфейс записи в БД. 
+Предположим вы создаете пользователя. В БД у пользователя следущие поля: `name: string, age: number`.
+Чтобы правильно работать с записями пользователей в БД нужно:
+  
+1. Создать интерфейс UserRecord 
+``` ts
+export interface UserRecord {
+  name: string;
+  age: number;
+}
+```  
+
+2. Создать класс User
+``` ts
+export class User {
+  private _name: string;
+  private _age: number;
+  
+  // Инициализируем данные, которые нам необходимы для работы с пользователем
+  constructor(name: string, age: number) {
+    this._name = name;
+    this._age = age;
+  }
+  
+  // У пользователя может быть какое-то поведение 
+  private method() {
+    // logic
+  }
+}
+```
+
+3. Реализовать интерфейс Recorder<T>
+``` ts
+import { UserRecord } from "...";
+import { Recorder } from "...";   
+
+export class User implements Recorder<UserRecord> {
+  private _name: string;
+  private _age: number;
+  
+  // Инициализируем данные, которые нам необходимы для работы с пользователем
+  constructor(name: string, age: number) {
+    this._name = name;
+    this._age = age;
+  }
+  
+  public formatForDB() {
+    const record: UserRecord = {
+      name: this._name,
+      age: this._age,
+    };
+    return record;
+  }
+  
+  // У пользователя может быть какое-то поведение 
+  private method() {
+    // logic
+  }
+}  
+```  
+
 ## Система ответов
 ### Интерфейсы
 - `ServerResponse` - интерфейс для ответов, которые не должны возвращать какую-либо сущность.
