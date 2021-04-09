@@ -1,11 +1,7 @@
-import { ServerResponseInterface } from '../interfaces/server-response.interface';
+import { ServerResponse } from '../interfaces/server.response';
 import { HttpStatus } from '@nestjs/common';
 
-export class FailedResponse<T> implements ServerResponseInterface<T> {
+export class FailedResponse<T> implements ServerResponse<T> {
   public isExpected = false;
-  constructor(
-    public status: HttpStatus,
-    public message: string,
-    public value?: T,
-  ) {}
+  constructor(public status: HttpStatus, public message: string) {}
 }
