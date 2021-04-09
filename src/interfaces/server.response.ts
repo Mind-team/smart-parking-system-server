@@ -1,8 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 
-export interface ServerResponse<T> {
+export interface ServerResponse {
   status: HttpStatus;
-  value?: T;
   isExpected: boolean;
   message: string;
 }
