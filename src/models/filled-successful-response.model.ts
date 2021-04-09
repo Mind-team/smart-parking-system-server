@@ -2,10 +2,10 @@ import { HttpStatus } from '@nestjs/common';
 import { FilledServerResponse } from '../interfaces/filled-server-response.interface';
 
 export class FilledSuccessfulResponse<T> implements FilledServerResponse<T> {
-  public isExpected = true;
+  public readonly isExpected = true;
   constructor(
-    public status: HttpStatus,
-    public message: string,
-    public value: T,
+    public readonly status: HttpStatus,
+    public readonly message: string,
+    public readonly value: T,
   ) {}
 }
