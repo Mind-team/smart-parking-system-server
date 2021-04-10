@@ -9,6 +9,7 @@ export const UserSchema = new mongoose.Schema<mongoose.Document<UserRecord>>({
   plates: [
     {
       type: String,
+      require: true,
       unique: true,
       sparse: true,
     },
