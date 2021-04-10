@@ -9,9 +9,13 @@ import { User } from '../../models/user.model';
 import { FailedResponse } from '../../models/server-responses/failed-response.model';
 import { SuccessfulResponse } from '../../models/server-responses/successful-response.model';
 import { FilledSuccessfulResponse } from '../../models/server-responses/filled-successful-response.model';
+import { Recorder } from '../../interfaces/recorder.interface';
+import { UserRecorder } from '../../models/recorders/user-recorder.model';
+import { SignUpData } from '../../types/sign-up-data.type';
 
 @Injectable()
 export class UserService {
+  private readonly recorder: Recorder<UserRecord> = new UserRecorder();
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
@@ -39,11 +43,10 @@ export class UserService {
     }
   }
 
-  async signUp(userData: UserRecord) {
+  async signUp(userData: SignUpData) {
     try {
-      // TODO: Нужно проверять, что все поля заполнены, кроме опциональных
-      const newUser = await new User(userData).formatForDB();
-      await new this.userModel({ ...newUser }).save();
+      const userRecord = await this.recorder.formatForDB(new User(userData));
+      await new this.userModel({ ...userRecord }).save();
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',

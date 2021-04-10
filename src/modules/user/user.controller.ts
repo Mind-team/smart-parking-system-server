@@ -2,6 +2,7 @@ import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserRecord } from '../../interfaces/records/user-record.interface';
 import { SignInData } from '../../types/sign-in-data.type';
+import { SignUpData } from '../../types/sign-up-data.type';
 
 @Controller('user')
 export class UserController {
@@ -13,7 +14,7 @@ export class UserController {
   }
 
   @Post('signUp')
-  async signUp(@Body() user: UserRecord) {
+  async signUp(@Body() user: SignUpData) {
     return await this.userService.signUp(user);
   }
 
