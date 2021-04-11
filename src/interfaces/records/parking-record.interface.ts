@@ -5,3 +5,7 @@ export interface ParkingRecord {
   departureCarTime: Date;
   priceRub: number;
 }
+
+class Dima {
+  private name = 'Dima';
+}
