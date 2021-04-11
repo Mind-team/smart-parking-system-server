@@ -5,3 +5,5 @@ export interface ParkingRecord {
   departureCarTime: Date;
   priceRub: number;
 }
+
+console.log('LOl');
