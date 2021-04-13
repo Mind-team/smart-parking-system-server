@@ -21,4 +21,7 @@ export class UserRecorder implements Recorder<UserRecord> {
   private async hashedPswrd(password: string) {
     return await bcrypt.hash(password, await bcrypt.genSalt());
   }
+  private async testFunction(a: string){
+    return a;
+  }
 }
