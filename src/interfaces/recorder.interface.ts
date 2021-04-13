@@ -1,3 +1,3 @@
 export interface Recorder<T> {
-  formatForDB: (model: T) => Promise<T>;
+  formatForDB: (model: T) => T | Promise<T>;
 }
