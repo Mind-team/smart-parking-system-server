@@ -2,24 +2,27 @@ import { Recorder } from '../../interfaces/recorder.interface';
 import { PhoneNumberRecord } from '../../interfaces/records/phoneNumber-record.interface';
 
 export class PhoneNumberRecorder implements Recorder<PhoneNumberRecord> {
-  public async formatForDB(model: PhoneNumberRecord) {
-    const refactoredPhoneNumber = this.toRightFormat(model.value);
-    return { value: this.verify(refactoredPhoneNumber) };
+  public formatForDB(model: PhoneNumberRecord): PhoneNumberRecord {
+    return {
+      value: this.verify(this.format(model.value)),
+    };
   }
 
-  private toRightFormat(phoneNumber: string) {
-    if (phoneNumber[0] === '+') {
-      phoneNumber.replace(phoneNumber[1], '7');
-      return phoneNumber;
-    }
-    phoneNumber.replace(phoneNumber[0], '7');
-    return '+' + phoneNumber;
+  private format(phoneNumber: string) {
+    return phoneNumber[0] === '+'
+      ? phoneNumber.replace(phoneNumber[1], '7')
+      : '+' + phoneNumber.replace(phoneNumber[0], '7');
   }
 
   private verify(phoneNumber: string) {
-    if (phoneNumber.length === 12) {
-      return phoneNumber;
+    if (phoneNumber.length !== 12) {
+      throw new Error('Invalid phone number format');
     }
-    throw new Error('Invalid phone number format');
+    for (let i = 1; i !== 12; i++) {
+      if (isNaN(Number(phoneNumber[i]))) {
+        throw new Error('Invalid phone number format');
+      }
+    }
+    return phoneNumber;
   }
 }
