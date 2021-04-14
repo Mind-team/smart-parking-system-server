@@ -2,24 +2,25 @@ import { Recorder } from '../../interfaces/recorder.interface';
 import { PlateRecord } from '../../interfaces/records/plate-record.interface';
 
 export class PlateRecorder implements Recorder<PlateRecord> {
-  public async formatForDB(model: PlateRecord) {
-    const rightPlate = this.toRightFormat(model.value);
-    return { value: this.verify(rightPlate) };
+  public formatForDB(model: PlateRecord): PlateRecord {
+    return {
+      value: this.verify(this.format(model.value)),
+    };
   }
 
-  private toRightFormat(plateName: string) {
-    return plateName.toLowerCase();
+  private format(plateValue: string) {
+    return plateValue.toLowerCase();
   }
 
-  private verify(plateName: string) {
+  private verify(plateValue: string) {
     if (
-      plateName.length === 6 &&
-      !isNaN(Number(plateName.substring(1, 3))) &&
-      isNaN(Number(plateName[0])) &&
-      isNaN(Number(plateName[4])) &&
-      isNaN(Number(plateName[0]))
+      plateValue.length === 6 &&
+      !isNaN(Number(plateValue.substring(1, 3))) &&
+      isNaN(Number(plateValue[0])) &&
+      isNaN(Number(plateValue[4])) &&
+      isNaN(Number(plateValue[5]))
     ) {
-      return plateName;
+      return plateValue;
     }
     throw new Error('Invalid plate format');
   }
