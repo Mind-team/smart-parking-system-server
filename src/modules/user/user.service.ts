@@ -12,6 +12,7 @@ import { FilledSuccessfulResponse } from '../../models/server-responses/filled-s
 import { Recorder } from '../../interfaces/recorder.interface';
 import { UserRecorder } from '../../models/recorders/user-recorder.model';
 import { SignUpData } from '../../types/sign-up-data.type';
+import { Plate } from '../../models/plate.model';
 import { PhoneNumber } from '../../models/phone-number.model';
 
 @Injectable()
@@ -52,7 +53,7 @@ export class UserService {
           phoneNumber: new PhoneNumber(phoneNumber.value),
           password,
           email,
-          plates,
+          plates: plates.map((plate) => new Plate(plate.value)),
         }),
       );
       await new this.userModel({ ...userRecord }).save();
@@ -75,7 +76,7 @@ export class UserService {
       const { phoneNumber, plate } = data;
       const document = await this.userModel.updateOne(
         { phoneNumber },
-        { $push: { plates: plate } },
+        { $push: { plates: { value: plate } } },
       );
       return document.nModified === 0
         ? new FailedResponse(

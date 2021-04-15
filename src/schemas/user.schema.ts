@@ -10,10 +10,12 @@ export const UserSchema = new mongoose.Schema<mongoose.Document<UserRecord>>({
   email: { type: String, unique: false, sparse: true },
   plates: [
     {
-      type: String,
-      require: true,
-      unique: true,
-      sparse: true,
+      value: {
+        type: String,
+        require: true,
+        unique: true,
+        sparse: true,
+      },
     },
   ],
   parkingHistory: [ParkingRecordSchema],

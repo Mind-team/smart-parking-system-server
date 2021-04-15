@@ -1,5 +1,5 @@
-import { ParkingRecord } from '../interfaces/records/parking-record.interface';
-import { Recorder } from '../interfaces/recorder.interface';
+import { ParkingRecord } from '../../interfaces/records/parking-record.interface';
+import { Recorder } from '../../interfaces/recorder.interface';
 
 export class ParkingRecorder implements Recorder<ParkingRecord> {
   private departureCarTime: Date = null;
