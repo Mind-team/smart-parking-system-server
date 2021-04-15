@@ -13,6 +13,7 @@ import { Recorder } from '../../interfaces/recorder.interface';
 import { UserRecorder } from '../../models/recorders/user-recorder.model';
 import { SignUpData } from '../../types/sign-up-data.type';
 import { Plate } from '../../models/plate.model';
+import { PhoneNumber } from '../../models/phone-number.model';
 
 @Injectable()
 export class UserService {
@@ -49,7 +50,7 @@ export class UserService {
       const { phoneNumber, password, email, plates } = userData;
       const userRecord = await this.recorder.formatForDB(
         new User({
-          phoneNumber,
+          phoneNumber: new PhoneNumber(phoneNumber.value),
           password,
           email,
           plates: plates.map((plate) => new Plate(plate.value)),

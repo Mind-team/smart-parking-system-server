@@ -3,9 +3,10 @@ import { ParkingRecord } from '../interfaces/records/parking-record.interface';
 import { SignInData } from '../types/sign-in-data.type';
 import { SignUpData } from '../types/sign-up-data.type';
 import { PlateRecord } from '../interfaces/records/plate-record.interface';
+import { PhoneNumberRecord } from '../interfaces/records/phoneNumber-record.interface';
 
 export class User implements UserRecord {
-  private readonly _phoneNumber: string;
+  private readonly _phoneNumber: PhoneNumberRecord;
   private readonly _password: string;
   private readonly _email: string;
   private readonly _plates: PlateRecord[];
