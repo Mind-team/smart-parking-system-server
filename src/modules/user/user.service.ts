@@ -12,6 +12,7 @@ import { FilledSuccessfulResponse } from '../../models/server-responses/filled-s
 import { Recorder } from '../../interfaces/recorder.interface';
 import { UserRecorder } from '../../models/recorders/user-recorder.model';
 import { SignUpData } from '../../types/sign-up-data.type';
+import { Plate } from '../../models/plate.model';
 
 @Injectable()
 export class UserService {
@@ -45,14 +46,22 @@ export class UserService {
 
   async signUp(userData: SignUpData) {
     try {
-      const userRecord = await this.recorder.formatForDB(new User(userData));
+      const { phoneNumber, password, email, plates } = userData;
+      const userRecord = await this.recorder.formatForDB(
+        new User({
+          phoneNumber,
+          password,
+          email,
+          plates: plates.map((plate) => new Plate(plate.value)),
+        }),
+      );
       await new this.userModel({ ...userRecord }).save();
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
       );
     } catch (e) {
-      throw new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
   }
 
@@ -66,7 +75,7 @@ export class UserService {
       const { phoneNumber, plate } = data;
       const document = await this.userModel.updateOne(
         { phoneNumber },
-        { $push: { plates: plate } },
+        { $push: { plates: { value: plate } } },
       );
       return document.nModified === 0
         ? new FailedResponse(
