@@ -48,7 +48,7 @@ export class UserService {
   async signUp(userData: SignUpData) {
     try {
       const { phoneNumber, password, email, plates } = userData;
-      if (plates.length == 0) {
+      if (plates.length === 0) {
         throw new Error('User has no plates');
       }
       const userRecord = await this.recorder.formatForDB(
