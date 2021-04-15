@@ -2,12 +2,13 @@ import { UserRecord } from '../interfaces/records/user-record.interface';
 import { ParkingRecord } from '../interfaces/records/parking-record.interface';
 import { SignInData } from '../types/sign-in-data.type';
 import { SignUpData } from '../types/sign-up-data.type';
+import { PlateRecord } from '../interfaces/records/plate-record.interface';
 
 export class User implements UserRecord {
   private readonly _phoneNumber: string;
   private readonly _password: string;
   private readonly _email: string;
-  private readonly _plates: string[];
+  private readonly _plates: PlateRecord[];
   private readonly _parkingHistory: ParkingRecord[] = [];
 
   constructor(userData: UserRecord | SignInData | SignUpData) {
