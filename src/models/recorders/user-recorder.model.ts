@@ -4,12 +4,12 @@ import * as bcrypt from 'bcrypt';
 import { PhoneNumberRecorder } from './phone-number-recorder.model';
 
 export class UserRecorder implements Recorder<UserRecord> {
-  private phoneNumberRecorder = new PhoneNumberRecorder();
+  private _phoneNumberRecorder = new PhoneNumberRecorder();
 
   public async formatForDB(model: UserRecord) {
     const { phoneNumber, password, email, plates, parkingHistory } = model;
     const record: UserRecord = {
-      phoneNumber: this.phoneNumberRecorder.formatForDB(phoneNumber),
+      phoneNumber: this._phoneNumberRecorder.formatForDB(phoneNumber),
       password: await this.hashedPassword(password),
       email,
       plates,
