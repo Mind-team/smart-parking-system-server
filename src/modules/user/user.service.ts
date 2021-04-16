@@ -14,10 +14,12 @@ import { UserRecorder } from '../../models/recorders/user-recorder.model';
 import { SignUpData } from '../../types/sign-up-data.type';
 import { Plate } from '../../models/plate.model';
 import { PhoneNumber } from '../../models/phone-number.model';
+import { PlateRecorder } from '../../models/recorders/plate-recorder.model';
 
 @Injectable()
 export class UserService {
   private readonly recorder: Recorder<UserRecord> = new UserRecorder();
+  private plateRecorder = new PlateRecorder();
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
@@ -79,7 +81,7 @@ export class UserService {
       const { phoneNumber, plate } = data;
       const document = await this.userModel.updateOne(
         { phoneNumber },
-        { $push: { plates: { value: plate } } },
+        { $push: { plates: this.plateRecorder.formatForDB(new Plate(plate)) } },
       );
       return document.nModified === 0
         ? new FailedResponse(
