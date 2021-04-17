@@ -3,5 +3,5 @@ export interface ParkingRecord {
   carPlate: string;
   entryCarTime: Date;
   departureCarTime: Date | null;
-  priceRub: number;
+  priceRub: number | null;
 }
