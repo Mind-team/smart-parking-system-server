@@ -39,5 +39,3 @@ export class ParkingHistoryElement implements ParkingRecord {
     return this._priceRub;
   }
 }
-
-new ParkingHistoryElement('ke', 'ke', new Date());
