@@ -4,21 +4,23 @@ export class ParkingHistoryElement implements ParkingRecord {
   private readonly _parkingTitle: string;
   private readonly _carPlate: string;
   private readonly _entryCarTime: Date;
-  private readonly _departureCarTime: Date;
-  private readonly _priceRub: number;
+  private readonly _departureCarTime: Date | null;
+  private readonly _priceRub: number | null;
 
   constructor(
     parkingTitle: string,
     carPlate: string,
     entryCarTime: Date,
-    departureCarTime: Date,
-    priceRub: number,
+    departureCarTime: Date | null = null,
   ) {
     this._parkingTitle = parkingTitle;
     this._carPlate = carPlate;
     this._entryCarTime = entryCarTime;
     this._departureCarTime = departureCarTime;
-    this._priceRub = priceRub;
+    this._priceRub =
+      departureCarTime !== null
+        ? departureCarTime.getTime() - entryCarTime.getTime()
+        : null;
   }
 
   get parkingTitle() {
