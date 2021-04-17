@@ -18,8 +18,8 @@ import { PlateRecorder } from '../../models/recorders/plate-recorder.model';
 
 @Injectable()
 export class UserService {
-  private readonly recorder: Recorder<UserRecord> = new UserRecorder();
-  private plateRecorder = new PlateRecorder();
+  private readonly userRecorder = new UserRecorder();
+  private readonly plateRecorder = new PlateRecorder();
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
@@ -53,7 +53,7 @@ export class UserService {
       if (plates.length === 0) {
         throw new Error('User has no plates');
       }
-      const userRecord = await this.recorder.formatForDB(
+      const userRecord = await this.userRecorder.formatForDB(
         new User({
           phoneNumber: new PhoneNumber(phoneNumber.value),
           password,
@@ -75,7 +75,6 @@ export class UserService {
     data: Pick<UserRecord, 'phoneNumber'> & { plate: string },
   ) {
     // TODO: Валидация пользователя
-    // TODO: Валидация номера введенного
     // TODO: Проверка, что номер записался в пользователя
     try {
       const { phoneNumber, plate } = data;
