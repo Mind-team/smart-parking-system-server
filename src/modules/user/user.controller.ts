@@ -22,6 +22,6 @@ export class UserController {
   async addPlate(
     @Body() data: Pick<UserRecord, 'phoneNumber'> & { plate: string },
   ) {
-    return await this.userService.addPlateToUser({ ...data });
+    return await this.userService.addPlateToUser(data);
   }
 }

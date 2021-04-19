@@ -9,7 +9,6 @@ import { User } from '../../models/user.model';
 import { FailedResponse } from '../../models/server-responses/failed-response.model';
 import { SuccessfulResponse } from '../../models/server-responses/successful-response.model';
 import { FilledSuccessfulResponse } from '../../models/server-responses/filled-successful-response.model';
-import { Recorder } from '../../interfaces/recorder.interface';
 import { UserRecorder } from '../../models/recorders/user-recorder.model';
 import { SignUpData } from '../../types/sign-up-data.type';
 import { Plate } from '../../models/plate.model';
@@ -25,9 +24,8 @@ export class UserService {
     private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async signIn(userData: SignInData) {
+  async signIn({ phoneNumber, password }: SignInData) {
     try {
-      const [phoneNumber, password] = [userData.phoneNumber, userData.password];
       const candidate = await this.userModel.findOne({ phoneNumber });
       if (!candidate) {
         return new FailedResponse(
@@ -47,11 +45,10 @@ export class UserService {
     }
   }
 
-  async signUp(userData: SignUpData) {
+  async signUp({ phoneNumber, password, email, plates }: SignUpData) {
     try {
-      const { phoneNumber, password, email, plates } = userData;
       if (plates.length === 0) {
-        throw new Error('User has no plates');
+        return new Error('User has no plates');
       }
       const userRecord = await this.userRecorder.formatForDB(
         new User({
@@ -71,13 +68,13 @@ export class UserService {
     }
   }
 
-  async addPlateToUser(
-    data: Pick<UserRecord, 'phoneNumber'> & { plate: string },
-  ) {
+  async addPlateToUser({
+    phoneNumber,
+    plate,
+  }: Pick<UserRecord, 'phoneNumber'> & { plate: string }) {
     // TODO: Валидация пользователя
     // TODO: Проверка, что номер записался в пользователя
     try {
-      const { phoneNumber, plate } = data;
       const document = await this.userModel.updateOne(
         { phoneNumber },
         { $push: { plates: this.plateRecorder.formatForDB(new Plate(plate)) } },
