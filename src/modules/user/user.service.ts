@@ -76,12 +76,8 @@ export class UserService {
     // TODO: Проверка, что номер записался в пользователя
     try {
       const user = await this.userModel.findOne({ phoneNumber });
-      try {
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-          throw new Error('Invalid data');
-        }
-      } catch (e) {
-        return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        throw new Error('Invalid data');
       }
       await user.plates.push(this.plateRecorder.formatForDB(new Plate(plate)));
       await user.save();
