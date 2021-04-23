@@ -70,26 +70,27 @@ export class UserService {
 
   async addPlateToUser({
     phoneNumber,
+    password,
     plate,
-  }: Pick<UserRecord, 'phoneNumber'> & { plate: string }) {
-    // TODO: Валидация пользователя
+  }: SignInData & { plate: string }) {
     // TODO: Проверка, что номер записался в пользователя
     try {
-      const document = await this.userModel.updateOne(
-        { phoneNumber },
-        { $push: { plates: this.plateRecorder.formatForDB(new Plate(plate)) } },
+      const user = await this.userModel.findOne({ phoneNumber });
+      try {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+          throw new Error('Invalid data');
+        }
+      } catch (e) {
+        return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+      }
+      await user.plates.push(this.plateRecorder.formatForDB(new Plate(plate)));
+      await user.save();
+      return new SuccessfulResponse(
+        HttpStatus.OK,
+        'Plate number added successfully',
       );
-      return document.nModified === 0
-        ? new FailedResponse(
-            HttpStatus.BAD_REQUEST,
-            `User with ${phoneNumber} phone number does not exist`,
-          )
-        : new SuccessfulResponse(
-            HttpStatus.OK,
-            'Plate number added successfully',
-          );
     } catch (e) {
-      throw new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
   }
 }
