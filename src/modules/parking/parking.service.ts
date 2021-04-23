@@ -10,23 +10,27 @@ import { ParkingHistoryElement } from '../../models/parking-history-element.mode
 
 @Injectable()
 export class ParkingService {
+  private readonly parkingRecorder = new ParkingRecorder();
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async registerCarEntry(data: EntryCarParkingRecord) {
+  async registerCarEntry({
+    parkingTitle,
+    carPlate,
+    entryCarTime,
+  }: EntryCarParkingRecord) {
     try {
       const user = await this.userModel.findOne({
-        plates: { value: data.carPlate },
+        plates: { $elemMatch: { value: carPlate } },
       });
-      user.parkingHistory.push(
-        await new ParkingRecorder().formatForDB(
-          new ParkingHistoryElement(
-            data.parkingTitle,
-            data.carPlate,
-            data.entryCarTime,
-          ),
+      if (!user) {
+        // TODO: Обработка пользователя, которого нет в бд
+      }
+      await user.parkingHistory.push(
+        this.parkingRecorder.formatForDB(
+          new ParkingHistoryElement(parkingTitle, carPlate, entryCarTime),
         ),
       );
       await user.save();
@@ -35,7 +39,7 @@ export class ParkingService {
         'Successfully registered the entry of the car',
       );
     } catch (e) {
-      throw new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
   }
 }
