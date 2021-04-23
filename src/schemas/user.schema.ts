@@ -4,7 +4,7 @@ import { ParkingRecordSchema } from './parking-record.schema';
 
 export const UserSchema = new mongoose.Schema<mongoose.Document<UserRecord>>({
   phoneNumber: {
-    value: { type: String, require: true, unique: true }
+    value: { type: String, require: true, unique: true },
   },
   password: { type: String, require: true, minLength: 6 },
   email: { type: String, unique: false, sparse: true },
