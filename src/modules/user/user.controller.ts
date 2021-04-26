@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { SignInData } from '../../types/sign-in-data.type';
 import { SignUpData } from '../../types/sign-up-data.type';
 import { SignInDto } from '../../dtos/sign-in.dto';
+import { SignUpDto } from '../../dtos/sign-up.dto';
 
 @Controller('user')
 export class UserController {
@@ -17,8 +18,15 @@ export class UserController {
   }
 
   @Post('signUp')
-  async signUp(@Body() user: SignUpData) {
-    return await this.userService.signUp(user);
+  async signUp(@Body() data: SignUpDto) {
+    return await this.userService.signUp({
+      phoneNumber: { value: data.phoneNumber },
+      password: data.password,
+      email: data.email,
+      plates: data.plates.map((el) => {
+        return { value: el };
+      }),
+    });
   }
 
   @Post('addPlate')
