@@ -10,20 +10,20 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('signIn')
-  async signInUser(@Body() data: SignInDto) {
+  async signInUser(@Body() { phoneNumber, password }: SignInDto) {
     return await this.userService.signIn({
-      phoneNumber: { value: data.phoneNumber },
-      password: data.password,
+      phoneNumber: { value: phoneNumber },
+      password,
     });
   }
 
   @Post('signUp')
-  async signUp(@Body() data: SignUpDto) {
+  async signUp(@Body() { phoneNumber, password, email, plates }: SignUpDto) {
     return await this.userService.signUp({
-      phoneNumber: { value: data.phoneNumber },
-      password: data.password,
-      email: data.email,
-      plates: data.plates.map((el) => {
+      phoneNumber: { value: phoneNumber },
+      password,
+      email,
+      plates: plates.map((el) => {
         return { value: el };
       }),
     });
