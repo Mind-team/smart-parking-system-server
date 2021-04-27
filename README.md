@@ -1,4 +1,5 @@
 # Smart Parking System Server
+[**Client API**](https://github.com/Mind-team/smart-parking-system-server/blob/master/CLIENT-API.md)
 ## Регистрация пользователя
 ### Описание
 Предположим, что пользователь решает зарегистрироваться.
