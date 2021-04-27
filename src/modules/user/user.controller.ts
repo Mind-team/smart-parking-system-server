@@ -1,9 +1,9 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignInData } from '../../types/sign-in-data.type';
-import { SignUpData } from '../../types/sign-up-data.type';
 import { SignInDto } from '../../dtos/sign-in.dto';
 import { SignUpDto } from '../../dtos/sign-up.dto';
+import { AddPlateToUserDto } from '../../dtos/add-plate-to-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -30,7 +30,13 @@ export class UserController {
   }
 
   @Post('addPlate')
-  async addPlate(@Body() data: SignInData & { plate: string }) {
-    return await this.userService.addPlateToUser(data);
+  async addPlate(@Body() { phoneNumber, password, plate }: AddPlateToUserDto) {
+    return await this.userService.addPlateToUser({
+      phoneNumber: {
+        value: phoneNumber,
+      },
+      password,
+      plate,
+    });
   }
 }
