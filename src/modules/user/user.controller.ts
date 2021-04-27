@@ -1,6 +1,5 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
-import { SignInData } from '../../types/sign-in-data.type';
 import { SignInDto } from '../../dtos/sign-in.dto';
 import { SignUpDto } from '../../dtos/sign-up.dto';
 import { AddPlateToUserDto } from '../../dtos/add-plate-to-user.dto';
