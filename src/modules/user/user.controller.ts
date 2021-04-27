@@ -1,25 +1,41 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserRecord } from '../../interfaces/records/user-record.interface';
-import { SignInData } from '../../types/sign-in-data.type';
-import { SignUpData } from '../../types/sign-up-data.type';
+import { SignInDto } from '../../dtos/sign-in.dto';
+import { SignUpDto } from '../../dtos/sign-up.dto';
+import { AddPlateToUserDto } from '../../dtos/add-plate-to-user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('signIn')
-  async signInUser(@Body() data: SignInData) {
-    return await this.userService.signIn(data);
+  async signInUser(@Body() { phoneNumber, password }: SignInDto) {
+    return await this.userService.signIn({
+      phoneNumber: { value: phoneNumber },
+      password,
+    });
   }
 
   @Post('signUp')
-  async signUp(@Body() user: SignUpData) {
-    return await this.userService.signUp(user);
+  async signUp(@Body() { phoneNumber, password, email, plates }: SignUpDto) {
+    return await this.userService.signUp({
+      phoneNumber: { value: phoneNumber },
+      password,
+      email,
+      plates: plates.map((el) => {
+        return { value: el };
+      }),
+    });
   }
 
   @Post('addPlate')
-  async addPlate(@Body() data: SignInData & { plate: string }) {
-    return await this.userService.addPlateToUser(data);
+  async addPlate(@Body() { phoneNumber, password, plate }: AddPlateToUserDto) {
+    return await this.userService.addPlateToUser({
+      phoneNumber: {
+        value: phoneNumber,
+      },
+      password,
+      plate,
+    });
   }
 }
