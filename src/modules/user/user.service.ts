@@ -14,11 +14,13 @@ import { SignUpData } from '../../types/sign-up-data.type';
 import { Plate } from '../../models/plate.model';
 import { PhoneNumber } from '../../models/phone-number.model';
 import { PlateRecorder } from '../../models/recorders/plate-recorder.model';
+import { PhoneNumberRecorder } from '../../models/recorders/phone-number-recorder.model';
 
 @Injectable()
 export class UserService {
   private readonly userRecorder = new UserRecorder();
   private readonly plateRecorder = new PlateRecorder();
+  private readonly phoneNumberRecorder = new PhoneNumberRecorder();
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
@@ -26,11 +28,13 @@ export class UserService {
 
   async signIn({ phoneNumber, password }: SignInData) {
     try {
-      const candidate = await this.userModel.findOne({ phoneNumber });
+      const candidate = await this.userModel.findOne({
+        phoneNumber: this.phoneNumberRecorder.formatForDB(phoneNumber),
+      });
       if (!candidate) {
         return new FailedResponse(
           HttpStatus.BAD_REQUEST,
-          `User with ${phoneNumber} phone number does not exist`,
+          `User with ${phoneNumber.value} phone number does not exist`,
         );
       }
       return (await bcrypt.compare(password, candidate.password))
@@ -75,7 +79,9 @@ export class UserService {
   }: SignInData & { plate: string }) {
     // TODO: Проверка, что номер записался в пользователя
     try {
-      const user = await this.userModel.findOne({ phoneNumber });
+      const user = await this.userModel.findOne({
+        phoneNumber: this.phoneNumberRecorder.formatForDB(phoneNumber),
+      });
       if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new Error('Invalid data');
       }
