@@ -7,6 +7,7 @@ import { SuccessfulResponse } from '../../models/server-responses/successful-res
 import { FailedResponse } from '../../models/server-responses/failed-response.model';
 import { ParkingRecorder } from '../../models/recorders/parking-recorder.model';
 import { ParkingHistoryElement } from '../../models/parking-history-element.model';
+import { DepartureCarParkingRecord } from '../../types/departure-car-parking-record.type';
 
 @Injectable()
 export class ParkingService {
@@ -37,6 +38,39 @@ export class ParkingService {
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successfully registered the entry of the car',
+      );
+    } catch (e) {
+      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+    }
+  }
+
+  async registerCarDeparture({
+    carPlate,
+    departureCarTime,
+  }: DepartureCarParkingRecord) {
+    try {
+      const user = await this.userModel.findOne({
+        plates: { $elemMatch: { value: carPlate } },
+      });
+      // const entryRecord = user.parkingHistory.find(
+      //   (record) => record.carPlate == carPlate,
+      // );
+      // такой вариант, если каким-то образом запись о входе не будет последней
+      const entryRecord = await user.parkingHistory.pop();
+      user.parkingHistory.push(
+        this.parkingRecorder.formatForDB(
+          new ParkingHistoryElement(
+            entryRecord.parkingTitle,
+            carPlate,
+            entryRecord.entryCarTime,
+            departureCarTime,
+          ),
+        ),
+      );
+
+      return new SuccessfulResponse(
+        HttpStatus.CREATED,
+        'The car departure was successfully registered',
       );
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
