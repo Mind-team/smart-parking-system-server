@@ -44,9 +44,7 @@ export class ParkingService {
     departureCarTime,
   }: DepartureCarParkingRecord) {
     try {
-      const user = await this.userModel.findOne({
-        plates: { $elemMatch: { value: carPlate } },
-      });
+      const user = await this.userByPlate(carPlate);
       const entryRecord = await user.parkingHistory.pop();
       user.parkingHistory.push(
         this.parkingRecorder.formatForDB(
