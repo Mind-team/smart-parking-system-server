@@ -4,5 +4,5 @@ export interface ParkingRecord {
   entryCarTime: Date;
   departureCarTime: Date | null;
   priceRub: number | null;
-  parkingTime: number | null;
+  parkingTimeMin: number | null;
 }

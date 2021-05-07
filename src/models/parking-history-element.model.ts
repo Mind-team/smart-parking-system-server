@@ -41,7 +41,7 @@ export class ParkingHistoryElement implements ParkingRecord {
   get priceRub() {
     return this._priceRub;
   }
-  get parkingTime() {
+  get parkingTimeMin() {
     return this._parkingTime;
   }
 }
