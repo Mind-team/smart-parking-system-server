@@ -9,6 +9,7 @@ export class ParkingRecorder implements Recorder<ParkingRecord> {
       entryCarTime: model.entryCarTime,
       parkingTitle: model.parkingTitle,
       priceRub: model.priceRub,
+      parkingTime: model.parkingTime,
     };
   }
 }

@@ -6,6 +6,7 @@ export class ParkingHistoryElement implements ParkingRecord {
   private readonly _entryCarTime: Date;
   private readonly _departureCarTime: Date | null;
   private readonly _priceRub: number | null;
+  private readonly _parkingTime: number | null;
 
   constructor(
     parkingTitle: string,
@@ -17,10 +18,12 @@ export class ParkingHistoryElement implements ParkingRecord {
     this._carPlate = carPlate;
     this._entryCarTime = entryCarTime;
     this._departureCarTime = departureCarTime;
-    this._priceRub =
-      departureCarTime !== null
-        ? departureCarTime.getTime() - entryCarTime.getTime()
-        : null;
+    if (this._departureCarTime) {
+      this._parkingTime =
+        new Date(departureCarTime).getTime() -
+        new Date(entryCarTime).getTime() / 6000; // Перевод в минуты
+      this._priceRub = this._parkingTime * 2; // TODO: здесь будем использовать правила паркинга как-то
+    }
   }
 
   get parkingTitle() {
@@ -37,5 +40,8 @@ export class ParkingHistoryElement implements ParkingRecord {
   }
   get priceRub() {
     return this._priceRub;
+  }
+  get parkingTime() {
+    return this._parkingTime;
   }
 }

@@ -63,6 +63,8 @@ export class ParkingService {
           ),
         ),
       );
+      // TODO: Обработка оплаты через карту или терминал
+      await user.save();
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'The car departure was successfully registered',
