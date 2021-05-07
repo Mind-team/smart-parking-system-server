@@ -23,12 +23,7 @@ export class ParkingService {
     entryCarTime,
   }: EntryCarParkingRecord) {
     try {
-      const user = await this.userModel.findOne({
-        plates: { $elemMatch: { value: carPlate } },
-      });
-      if (!user) {
-        // TODO: Обработка пользователя, которого нет в бд
-      }
+      const user = await this.userByPlate(carPlate);
       await user.parkingHistory.push(
         this.parkingRecorder.formatForDB(
           new ParkingHistoryElement(parkingTitle, carPlate, entryCarTime),
@@ -72,5 +67,16 @@ export class ParkingService {
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
+  }
+
+  private async userByPlate(plate: string) {
+    const user = await this.userModel.findOne({
+      plates: { $elemMatch: { value: plate } },
+    });
+    if (user) {
+      return user;
+    }
+    // TODO: Обработка пользователя, которого нет в бд
+    throw new Error('NONENENNE');
   }
 }
