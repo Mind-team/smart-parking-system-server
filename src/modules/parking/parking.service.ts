@@ -52,22 +52,17 @@ export class ParkingService {
       const user = await this.userModel.findOne({
         plates: { $elemMatch: { value: carPlate } },
       });
-      // const entryRecord = user.parkingHistory.find(
-      //   (record) => record.carPlate == carPlate,
-      // );
-      // такой вариант, если каким-то образом запись о входе не будет последней
       const entryRecord = await user.parkingHistory.pop();
       user.parkingHistory.push(
         this.parkingRecorder.formatForDB(
           new ParkingHistoryElement(
             entryRecord.parkingTitle,
-            carPlate,
+            entryRecord.carPlate,
             entryRecord.entryCarTime,
             departureCarTime,
           ),
         ),
       );
-
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'The car departure was successfully registered',
