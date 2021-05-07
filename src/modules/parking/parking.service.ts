@@ -7,6 +7,7 @@ import { SuccessfulResponse } from '../../models/server-responses/successful-res
 import { FailedResponse } from '../../models/server-responses/failed-response.model';
 import { ParkingRecorder } from '../../models/recorders/parking-recorder.model';
 import { ParkingHistoryElement } from '../../models/parking-history-element.model';
+import { DepartureCarParkingRecord } from '../../types/departure-car-parking-record.type';
 
 @Injectable()
 export class ParkingService {
@@ -22,12 +23,7 @@ export class ParkingService {
     entryCarTime,
   }: EntryCarParkingRecord) {
     try {
-      const user = await this.userModel.findOne({
-        plates: { $elemMatch: { value: carPlate } },
-      });
-      if (!user) {
-        // TODO: Обработка пользователя, которого нет в бд
-      }
+      const user = await this.userByPlate(carPlate);
       await user.parkingHistory.push(
         this.parkingRecorder.formatForDB(
           new ParkingHistoryElement(parkingTitle, carPlate, entryCarTime),
@@ -41,5 +37,44 @@ export class ParkingService {
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
+  }
+
+  async registerCarDeparture({
+    carPlate,
+    departureCarTime,
+  }: DepartureCarParkingRecord) {
+    try {
+      const user = await this.userByPlate(carPlate);
+      const entryRecord = await user.parkingHistory.pop();
+      user.parkingHistory.push(
+        this.parkingRecorder.formatForDB(
+          new ParkingHistoryElement(
+            entryRecord.parkingTitle,
+            entryRecord.carPlate,
+            entryRecord.entryCarTime,
+            departureCarTime,
+          ),
+        ),
+      );
+      // TODO: Обработка оплаты через карту или терминал
+      await user.save();
+      return new SuccessfulResponse(
+        HttpStatus.CREATED,
+        'The car departure was successfully registered',
+      );
+    } catch (e) {
+      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+    }
+  }
+
+  private async userByPlate(plate: string) {
+    const user = await this.userModel.findOne({
+      plates: { $elemMatch: { value: plate } },
+    });
+    if (user) {
+      return user;
+    }
+    // TODO: Обработка пользователя, которого нет в бд
+    throw new Error('NONENENNE');
   }
 }
