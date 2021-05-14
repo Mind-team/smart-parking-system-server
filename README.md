@@ -55,7 +55,7 @@
 
 [**Client API**](https://github.com/Mind-team/smart-parking-system-server/blob/master/CLIENT-API.md)
 
-[**Raspberry Pi API**](soon)
+[**Parking API**](https://github.com/Mind-team/smart-parking-system-server/blob/master/PARKING-API.md)
 
 ## Скрипты
 Здесь только те скрипты, которыми нужно пользоваться
