@@ -38,4 +38,16 @@ export class UserController {
       plate,
     });
   }
+
+  @Post('lastParkingHistoryElement')
+  async lastParkingHistoryElement(
+    @Body() { phoneNumber, password }: SignInDto,
+  ) {
+    return await this.userService.lastParkingHistoryElement({
+      phoneNumber: {
+        value: phoneNumber,
+      },
+      password,
+    });
+  }
 }

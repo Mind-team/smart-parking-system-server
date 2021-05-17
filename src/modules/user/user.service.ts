@@ -95,4 +95,31 @@ export class UserService {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
   }
+
+  async lastParkingHistoryElement({ phoneNumber, password }: SignInData) {
+    try {
+      const user = await this.userModel.findOne({
+        phoneNumber: this.phoneNumberRecorder.formatForDB(phoneNumber),
+      });
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        return new Error('Invalid data');
+      }
+      if (
+        user.parkingHistory[user.parkingHistory.length - 1].departureCarTime
+      ) {
+        return new FilledSuccessfulResponse(
+          HttpStatus.OK,
+          'Success',
+          user.parkingHistory[user.parkingHistory.length - 1],
+        );
+      }
+      return new FilledSuccessfulResponse(
+        HttpStatus.OK,
+        'Success',
+        user.parkingHistory[user.parkingHistory.length - 2],
+      );
+    } catch (e) {
+      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+    }
+  }
 }
