@@ -23,7 +23,7 @@ export class ParkingHistoryElement implements ParkingRecord {
         (new Date(departureCarTime).getTime() -
           new Date(entryCarTime).getTime()) /
         60000; // Перевод в минуты
-      this._priceRub = this._parkingTime * 2; // TODO: здесь будем использовать правила паркинга как-то
+      this._priceRub = Math.round(this._parkingTime * 2); // TODO: здесь будем использовать правила паркинга как-то
     }
   }
 
