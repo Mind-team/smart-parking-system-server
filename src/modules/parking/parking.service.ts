@@ -53,6 +53,7 @@ export class ParkingService {
             entryRecord.carPlate,
             entryRecord.entryCarTime,
             departureCarTime,
+            true,
           ),
         ),
       );

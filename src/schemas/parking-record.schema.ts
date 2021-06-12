@@ -6,4 +6,5 @@ export const ParkingRecordSchema = new mongoose.Schema({
   entryCarTime: { type: Date, required: true },
   departureCarTime: { type: Date },
   priceRub: { type: Number },
+  isCompleted: { type: Boolean, required: true },
 });

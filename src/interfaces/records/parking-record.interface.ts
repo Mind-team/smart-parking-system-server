@@ -5,4 +5,5 @@ export interface ParkingRecord {
   departureCarTime: Date | null;
   priceRub: number | null;
   parkingTimeMin: number | null;
+  isCompleted?: boolean;
 }

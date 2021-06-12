@@ -9,6 +9,7 @@ export class ParkingRecorder implements Recorder<ParkingRecord> {
     parkingTitle,
     priceRub,
     parkingTimeMin,
+    isCompleted,
   }: ParkingRecord): ParkingRecord {
     return {
       carPlate,
@@ -17,6 +18,7 @@ export class ParkingRecorder implements Recorder<ParkingRecord> {
       parkingTitle,
       priceRub,
       parkingTimeMin,
+      isCompleted,
     };
   }
 }

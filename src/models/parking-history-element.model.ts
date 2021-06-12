@@ -7,12 +7,14 @@ export class ParkingHistoryElement implements ParkingRecord {
   private readonly _departureCarTime: Date | null;
   private readonly _priceRub: number | null;
   private readonly _parkingTime: number | null;
+  private readonly _isCompleted: boolean = false;
 
   constructor(
     parkingTitle: string,
     carPlate: string,
     entryCarTime: Date,
     departureCarTime: Date | null = null,
+    isCompleted?: boolean,
   ) {
     this._parkingTitle = parkingTitle;
     this._carPlate = carPlate;
@@ -24,6 +26,9 @@ export class ParkingHistoryElement implements ParkingRecord {
           new Date(entryCarTime).getTime()) /
         60000; // Перевод в минуты
       this._priceRub = Math.round(this._parkingTime * 2); // TODO: здесь будем использовать правила паркинга как-то
+    }
+    if (isCompleted) {
+      this._isCompleted = isCompleted;
     }
   }
 
@@ -44,5 +49,8 @@ export class ParkingHistoryElement implements ParkingRecord {
   }
   get parkingTimeMin() {
     return this._parkingTime;
+  }
+  get isCompleted() {
+    return this._isCompleted;
   }
 }

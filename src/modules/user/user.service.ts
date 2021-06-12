@@ -15,12 +15,15 @@ import { Plate } from '../../models/plate.model';
 import { PhoneNumber } from '../../models/phone-number.model';
 import { PlateRecorder } from '../../models/recorders/plate-recorder.model';
 import { PhoneNumberRecorder } from '../../models/recorders/phone-number-recorder.model';
+import { ParkingHistoryElement } from '../../models/parking-history-element.model';
+import { ParkingRecorder } from '../../models/recorders/parking-recorder.model';
 
 @Injectable()
 export class UserService {
   private readonly userRecorder = new UserRecorder();
   private readonly plateRecorder = new PlateRecorder();
   private readonly phoneNumberRecorder = new PhoneNumberRecorder();
+  private readonly parkingRecorder = new ParkingRecorder();
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
@@ -102,21 +105,32 @@ export class UserService {
         phoneNumber: this.phoneNumberRecorder.formatForDB(phoneNumber),
       });
       if (!user || !(await bcrypt.compare(password, user.password))) {
-        return new Error('Invalid data');
+        throw new Error('Invalid data');
+      }
+      if (user.parkingHistory.length === 0) {
+        return new FilledSuccessfulResponse(HttpStatus.OK, 'Success', {});
       }
       if (
-        user.parkingHistory[user.parkingHistory.length - 1].departureCarTime
+        !user.parkingHistory[user.parkingHistory.length - 1].departureCarTime
       ) {
+        const parking = user.parkingHistory[user.parkingHistory.length - 1];
         return new FilledSuccessfulResponse(
           HttpStatus.OK,
           'Success',
-          user.parkingHistory[user.parkingHistory.length - 1],
+          this.parkingRecorder.formatForDB(
+            new ParkingHistoryElement(
+              parking.parkingTitle,
+              parking.carPlate,
+              parking.entryCarTime,
+              new Date(Date.now()),
+            ),
+          ),
         );
       }
       return new FilledSuccessfulResponse(
         HttpStatus.OK,
         'Success',
-        user.parkingHistory[user.parkingHistory.length - 2],
+        user.parkingHistory[user.parkingHistory.length - 1],
       );
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
