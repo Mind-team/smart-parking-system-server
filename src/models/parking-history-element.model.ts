@@ -1,4 +1,4 @@
-import { ParkingRecord } from '../interfaces/records/parking-record.interface';
+import { ParkingRecord } from '../infrastructure/records/parking-record.interface';
 
 export class ParkingHistoryElement implements ParkingRecord {
   private readonly _parkingTitle: string;

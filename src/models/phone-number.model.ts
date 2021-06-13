@@ -1,4 +1,4 @@
-import { PhoneNumberRecord } from '../interfaces/records/phoneNumber-record.interface';
+import { PhoneNumberRecord } from '../infrastructure/records/phoneNumber-record.interface';
 
 export class PhoneNumber implements PhoneNumberRecord {
   private readonly _value: string;

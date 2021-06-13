@@ -1,9 +1,9 @@
-import { UserRecord } from '../interfaces/records/user-record.interface';
-import { ParkingRecord } from '../interfaces/records/parking-record.interface';
-import { SignInData } from '../types/sign-in-data.type';
-import { SignUpData } from '../types/sign-up-data.type';
-import { PlateRecord } from '../interfaces/records/plate-record.interface';
-import { PhoneNumberRecord } from '../interfaces/records/phoneNumber-record.interface';
+import { UserRecord } from '../infrastructure/records/user-record.interface';
+import { ParkingRecord } from '../infrastructure/records/parking-record.interface';
+import { SignInData } from '../user/types/sign-in-data.type';
+import { SignUpData } from '../user/types/sign-up-data.type';
+import { PlateRecord } from '../infrastructure/records/plate-record.interface';
+import { PhoneNumberRecord } from '../infrastructure/records/phoneNumber-record.interface';
 
 export class User implements UserRecord {
   private readonly _phoneNumber: PhoneNumberRecord;

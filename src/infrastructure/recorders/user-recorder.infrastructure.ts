@@ -1,8 +1,8 @@
-import { Recorder } from '../../interfaces/recorder.interface';
-import { UserRecord } from '../../interfaces/records/user-record.interface';
+import { Recorder } from './recorder.interface';
+import { UserRecord } from '../records/user-record.interface';
 import * as bcrypt from 'bcrypt';
-import { PlateRecorder } from './plate-recorder.model';
-import { PhoneNumberRecorder } from './phone-number-recorder.model';
+import { PlateRecorder } from './plate-recorder.infrastructure';
+import { PhoneNumberRecorder } from './phone-number-recorder.infrastructure';
 
 export class UserRecorder implements Recorder<UserRecord> {
   private _plateRecorder = new PlateRecorder();

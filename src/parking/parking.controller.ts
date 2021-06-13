@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ParkingService } from './parking.service';
-import { RegisterCarEntryDto } from '../../dtos/register-car-entry.dto';
-import { RegisterCarDepartureDto } from '../../dtos/register-car-departure.dto';
+import { RegisterCarEntryDto } from './dto/register-car-entry.dto';
+import { RegisterCarDepartureDto } from './dto/register-car-departure.dto';
 
 @Controller('parking')
 export class ParkingController {

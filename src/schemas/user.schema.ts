@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { UserRecord } from '../interfaces/records/user-record.interface';
+import { UserRecord } from '../infrastructure/records/user-record.interface';
 import { ParkingRecordSchema } from './parking-record.schema';
 
 export const UserSchema = new mongoose.Schema<mongoose.Document<UserRecord>>({

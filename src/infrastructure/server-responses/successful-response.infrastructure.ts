@@ -1,4 +1,4 @@
-import { ServerResponse } from '../../interfaces/server-responses/server-response.interface';
+import { ServerResponse } from './server-response.interface';
 import { HttpStatus } from '@nestjs/common';
 
 export class SuccessfulResponse implements ServerResponse {

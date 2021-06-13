@@ -1,5 +1,5 @@
-import { Recorder } from '../../interfaces/recorder.interface';
-import { PhoneNumberRecord } from '../../interfaces/records/phoneNumber-record.interface';
+import { Recorder } from './recorder.interface';
+import { PhoneNumberRecord } from '../records/phoneNumber-record.interface';
 
 export class PhoneNumberRecorder implements Recorder<PhoneNumberRecord> {
   public formatForDB(model: PhoneNumberRecord): PhoneNumberRecord {
