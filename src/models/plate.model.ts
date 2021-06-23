@@ -1,4 +1,4 @@
-import { PlateRecord } from '../infrastructure/records/plate-record.interface';
+import { PlateRecord } from '../infrastructure/records/plate-record.infrastructure';
 
 export class Plate implements PlateRecord {
   private readonly _value: string;

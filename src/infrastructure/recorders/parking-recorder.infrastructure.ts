@@ -1,4 +1,4 @@
-import { ParkingRecord } from '../records/parking-record.interface';
+import { ParkingRecord } from '../records/parking-record.infrastructure';
 import { Recorder } from './recorder.interface';
 
 export class ParkingRecorder implements Recorder<ParkingRecord> {

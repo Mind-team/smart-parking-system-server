@@ -11,7 +11,7 @@ import { DepartureCarParkingRecord } from './types/departure-car-parking-record.
 
 @Injectable()
 export class ParkingService {
-  private readonly parkingRecorder = new ParkingRecorder();
+  private readonly parkingRecorder = new ParkingRecorder(); // TODO: DI
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
@@ -24,7 +24,7 @@ export class ParkingService {
   }: EntryCarParkingRecord) {
     try {
       const user = await this.userByPlate(carPlate);
-      await user.parkingHistory.push(
+      user.parkingHistory.push(
         this.parkingRecorder.formatForDB(
           new ParkingHistoryElement(parkingTitle, carPlate, entryCarTime),
         ),

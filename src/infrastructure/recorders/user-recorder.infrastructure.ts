@@ -1,5 +1,5 @@
 import { Recorder } from './recorder.interface';
-import { UserRecord } from '../records/user-record.interface';
+import { UserRecord } from '../records/user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
 import { PlateRecorder } from './plate-recorder.infrastructure';
 import { PhoneNumberRecorder } from './phone-number-recorder.infrastructure';

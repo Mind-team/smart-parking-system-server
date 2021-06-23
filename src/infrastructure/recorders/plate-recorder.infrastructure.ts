@@ -1,5 +1,5 @@
 import { Recorder } from './recorder.interface';
-import { PlateRecord } from '../records/plate-record.interface';
+import { PlateRecord } from '../records/plate-record.infrastructure';
 
 export class PlateRecorder implements Recorder<PlateRecord> {
   public formatForDB(model: PlateRecord): PlateRecord {
