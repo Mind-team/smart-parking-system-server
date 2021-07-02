@@ -48,7 +48,7 @@ export class UserService {
           )
         : new FailedResponse(HttpStatus.UNAUTHORIZED, 'Password do not match');
     } catch (e) {
-      throw new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
   }
 
