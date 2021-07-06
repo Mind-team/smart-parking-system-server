@@ -1,3 +1,3 @@
 import { UserRecord } from '../../infrastructure/records/user-record.infrastructure';
 
-export type SignUpData = Omit<UserRecord, 'parkingHistory'>;
+export type SignUpData = Omit<UserRecord, 'parkings'>;

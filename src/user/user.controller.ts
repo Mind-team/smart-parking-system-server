@@ -11,7 +11,7 @@ export class UserController {
   @Post('signIn')
   async signInUser(@Body() { phoneNumber, password }: SignInDto) {
     return await this.userService.signIn({
-      phoneNumber: { value: phoneNumber },
+      phoneNumber,
       password,
     });
   }
@@ -19,35 +19,31 @@ export class UserController {
   @Post('signUp')
   async signUp(@Body() { phoneNumber, password, email, plates }: SignUpDto) {
     return await this.userService.signUp({
-      phoneNumber: { value: phoneNumber },
+      phoneNumber,
       password,
       email,
-      plates: plates.map((el) => {
-        return { value: el };
-      }),
+      plates,
     });
   }
 
   @Post('addPlate')
   async addPlate(@Body() { phoneNumber, password, plate }: AddPlateToUserDto) {
     return await this.userService.addPlateToUser({
-      phoneNumber: {
-        value: phoneNumber,
-      },
+      phoneNumber,
       password,
       plate,
     });
   }
 
-  @Post('lastParkingHistoryElement')
-  async lastParkingHistoryElement(
-    @Body() { phoneNumber, password }: SignInDto,
-  ) {
-    return await this.userService.lastParkingHistoryElement({
-      phoneNumber: {
-        value: phoneNumber,
-      },
-      password,
-    });
-  }
+  // @Post('lastParkingHistoryElement')
+  // async lastParkingHistoryElement(
+  //   @Body() { phoneNumber, password }: SignInDto,
+  // ) {
+  //   return await this.userService.lastParkingHistoryElement({
+  //     phoneNumber: {
+  //       value: phoneNumber,
+  //     },
+  //     password,
+  //   });
+  // }
 }

@@ -5,13 +5,11 @@ import { UserDocument } from '../schemas/user.schema';
 import { EntryCarParkingRecord } from './types/entry-car-parking-record.type';
 import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
-import { ParkingRecorder } from '../infrastructure/recorders/parking-recorder.infrastructure';
-import { ParkingHistoryElement } from '../models/parking-history-element.model';
 import { DepartureCarParkingRecord } from './types/departure-car-parking-record.type';
+import { Parking } from '../models/parking.model';
 
 @Injectable()
 export class ParkingService {
-  private readonly parkingRecorder = new ParkingRecorder(); // TODO: DI
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
@@ -24,10 +22,8 @@ export class ParkingService {
   }: EntryCarParkingRecord) {
     try {
       const user = await this.userByPlate(carPlate);
-      user.parkingHistory.push(
-        this.parkingRecorder.formatForDB(
-          new ParkingHistoryElement(parkingTitle, carPlate, entryCarTime),
-        ),
+      user.parkings.push(
+        new Parking(parkingTitle, carPlate, entryCarTime).info(),
       );
       await user.save();
       return new SuccessfulResponse(
@@ -45,18 +41,15 @@ export class ParkingService {
   }: DepartureCarParkingRecord) {
     try {
       const user = await this.userByPlate(carPlate);
-      const entryRecord = await user.parkingHistory.pop();
-      user.parkingHistory.push(
-        this.parkingRecorder.formatForDB(
-          new ParkingHistoryElement(
-            entryRecord.parkingTitle,
-            entryRecord.carPlate,
-            entryRecord.entryCarTime,
-            departureCarTime,
-            true,
-          ),
-        ),
+      const entryRecord = await user.parkings.pop();
+      const park = new Parking(
+        entryRecord.parkingTitle,
+        entryRecord.carPlate,
+        entryRecord.entryCarTime,
       );
+      park.completeParking(departureCarTime);
+      console.log(departureCarTime);
+      user.parkings.push(park.info());
       // TODO: Обработка оплаты через карту или терминал
       await user.save();
       return new SuccessfulResponse(
@@ -70,7 +63,7 @@ export class ParkingService {
 
   private async userByPlate(plate: string) {
     const user = await this.userModel.findOne({
-      plates: { $elemMatch: { value: plate } },
+      plates: plate,
     });
     if (user) {
       return user;

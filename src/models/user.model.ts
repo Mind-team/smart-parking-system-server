@@ -1,48 +1,35 @@
-import { UserRecord } from '../infrastructure/records/user-record.infrastructure';
-import { ParkingRecord } from '../infrastructure/records/parking-record.infrastructure';
-import { SignInData } from '../user/types/sign-in-data.type';
-import { SignUpData } from '../user/types/sign-up-data.type';
-import { PlateRecord } from '../infrastructure/records/plate-record.infrastructure';
-import { PhoneNumberRecord } from '../infrastructure/records/phoneNumber-record.infrastructure';
+import { PhoneNumber } from './phone-number.model';
+import { Plate } from './plate.model';
+import { Parking } from './parking.model';
 
-export class User implements UserRecord {
-  private readonly _phoneNumber: PhoneNumberRecord;
-  private readonly _password: string;
-  private readonly _email: string;
-  private readonly _plates: PlateRecord[];
-  private readonly _parkingHistory: ParkingRecord[] = [];
+export class User {
+  private readonly phoneNumber: PhoneNumber;
+  private readonly email?: string;
+  private readonly password: string;
+  private readonly plates: Plate[];
+  private readonly parkings: Parking[];
 
-  constructor(userData: UserRecord | SignInData | SignUpData) {
-    this._phoneNumber = userData.phoneNumber;
-    this._password = userData.password;
-    if ('email' in userData) {
-      this._email = userData.email ?? null;
-    }
-    if ('plates' in userData) {
-      this._plates = userData.plates;
-    }
-    if ('parkingHistory' in userData) {
-      this._parkingHistory = userData.parkingHistory;
-    }
+  constructor(
+    phoneNumber: PhoneNumber,
+    password: string,
+    plates: Plate[],
+    parkings: Parking[],
+    email?: string,
+  ) {
+    this.phoneNumber = phoneNumber;
+    this.password = password;
+    this.plates = plates;
+    this.parkings = parkings;
+    this.email = email;
   }
 
-  get phoneNumber() {
-    return this._phoneNumber;
-  }
-
-  get password() {
-    return this._password;
-  }
-
-  get email() {
-    return this._email;
-  }
-
-  get plates() {
-    return this._plates;
-  }
-
-  get parkingHistory() {
-    return this._parkingHistory;
+  public info() {
+    return {
+      phoneNumber: this.phoneNumber.value,
+      password: this.password,
+      plates: this.plates.map((el) => el.value),
+      parkings: this.parkings.map((el) => el.info()),
+      email: this.email,
+    };
   }
 }
