@@ -1,7 +1,7 @@
 import { Validator } from '../models/validator.interface';
 
 export class PlateValidator implements Validator<string> {
-  public isValid(plate: string): boolean {
+  isValid(plate: string): boolean {
     if (
       plate.length === 6 &&
       !isNaN(Number(plate.substring(1, 3))) &&
@@ -14,10 +14,11 @@ export class PlateValidator implements Validator<string> {
     return false;
   }
 
-  public tryFormat(plate: string): string | Error {
+  tryFormat(plate: string): string {
     const formatted = plate.toLowerCase();
-    return this.isValid(formatted)
-      ? formatted
-      : new Error('Invalid plate format');
+    if (!this.isValid(formatted)) {
+      throw new Error('Invalid plate format');
+    }
+    return formatted;
   }
 }

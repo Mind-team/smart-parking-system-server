@@ -5,10 +5,10 @@ export class Parking {
   readonly #parkingTitle: string;
   readonly #carPlate: string;
   readonly #entryCarTime: Date;
-  #departureCarTime: Date | null;
-  #isCompleted: boolean;
-  #priceRub: number | null;
-  private readonly calculator: PriceCalculator; // TODO: ?! completeParking method
+  readonly #departureCarTime: Date | null;
+  readonly #isCompleted: boolean;
+  readonly #priceRub: number | null;
+  readonly #calculator: PriceCalculator;
 
   constructor(
     parkingTitle: string,
@@ -30,16 +30,16 @@ export class Parking {
     this.#carPlate = args[1];
     this.#entryCarTime = args[2];
     if (args.length < 5) {
+      this.#calculator = args[3] ?? new StandardPriceCalculator();
       this.#departureCarTime = null;
       this.#priceRub = null;
       this.#isCompleted = false;
       return;
     }
-    this.calculator = args[3] ?? new StandardPriceCalculator();
     this.#departureCarTime = args[3];
     this.#priceRub = args[4];
     this.#isCompleted = args[5];
-    this.calculator = args[6] ?? new StandardPriceCalculator();
+    this.#calculator = args[6] ?? new StandardPriceCalculator();
   }
 
   info(asCompleted = false) {
@@ -52,9 +52,9 @@ export class Parking {
         } else {
           depTime = this.#departureCarTime;
         }
-        priceRub = this.calculator.calculate(
+        priceRub = this.#calculator.calculate(
           this.#parkingTitle,
-          depTime.getTime() - this.#entryCarTime.getTime(),
+          this.#timeDifferenceMin(depTime, this.#entryCarTime),
         );
       }
     }
@@ -68,11 +68,10 @@ export class Parking {
     };
   }
 
-  complete(departureCarTime: Date, calculator: PriceCalculator): Parking {
-    const price = calculator.calculate(
+  complete(departureCarTime: Date) {
+    const price = this.#calculator.calculate(
       this.#parkingTitle,
-      new Date(this.#departureCarTime).getTime() -
-        new Date(this.#entryCarTime).getTime(),
+      this.#timeDifferenceMin(this.#departureCarTime, this.#entryCarTime),
     );
     return new Parking(
       this.#parkingTitle,
@@ -82,5 +81,9 @@ export class Parking {
       price,
       true,
     );
+  }
+
+  #timeDifferenceMin(first: Date, second: Date) {
+    return (first.getTime() - second.getTime()) / 60000;
   }
 }

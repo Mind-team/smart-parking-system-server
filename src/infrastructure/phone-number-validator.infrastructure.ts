@@ -13,14 +13,14 @@ export class PhoneNumberValidator implements Validator<string> {
     return true;
   }
 
-  tryFormat(phoneNumber: string): Error | string {
+  tryFormat(phoneNumber: string): string {
     const newValue =
       phoneNumber === '+'
         ? phoneNumber.replace(phoneNumber[1], '7')
         : '+' + phoneNumber.replace(phoneNumber[0], '7');
-    if (this.isValid(newValue)) {
-      return newValue;
+    if (!this.isValid(newValue)) {
+      throw new Error('Invalid phone number format');
     }
-    return new Error('Invalid phone number format');
+    return newValue;
   }
 }
