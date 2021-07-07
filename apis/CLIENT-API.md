@@ -21,7 +21,7 @@
 
 Ожидает: [`SignInDto`](https://github.com/Mind-team/smart-parking-system-server/blob/master/src/dtos/sign-in.dto.ts)
 
-Возвращает: [`FilledServerResponse<T>`](https://github.com/Mind-team/smart-parking-system-server/blob/master/src/interfaces/server-responses/filled-server-response.interface.ts), где T - [`UserRecord`](https://github.com/Mind-team/smart-parking-system-server/blob/master/src/interfaces/records/user-record.interface.ts)
+Возвращает: [`FilledServerResponse<T>`](https://github.com/Mind-team/smart-parking-system-server/blob/master/src/interfaces/server-responses/filled-server-response.interface.ts), где T - [`UserDto`]()
 
 ---
 
@@ -39,4 +39,4 @@
 
 Ожидает: [`SignInDto`](https://github.com/Mind-team/smart-parking-system-server/blob/master/src/dtos/sign-in.dto.ts)
 
-Возвращает: [`FilledServerResponse<T>`](https://github.com/Mind-team/smart-parking-system-server/blob/master/src/interfaces/server-responses/filled-server-response.interface.ts), где T - [`ParkingRecord`](https://github.com/Mind-team/smart-parking-system-server/blob/master/src/interfaces/records/parking-record.interface.ts)
+Возвращает: [`FilledServerResponse<T>`](https://github.com/Mind-team/smart-parking-system-server/blob/master/src/interfaces/server-responses/filled-server-response.interface.ts), где T - [`ParkingDto`]()
