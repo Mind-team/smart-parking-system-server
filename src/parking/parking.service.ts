@@ -7,6 +7,10 @@ import { SuccessfulResponse } from '../infrastructure/server-responses/successfu
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
 import { DepartureCarParkingRecord } from './types/departure-car-parking-record.type';
 import { Parking } from '../models/parking.model';
+import { User } from '../models/user.model';
+import { PhoneNumber } from '../models/phone-number.model';
+import { UniquePlatesArray } from '../infrastructure/unique-plates-array.infrastructure';
+import { Plate } from '../models/plate.model';
 
 @Injectable()
 export class ParkingService {
@@ -21,11 +25,9 @@ export class ParkingService {
     entryCarTime,
   }: EntryCarParkingRecord) {
     try {
-      const user = await this.userByPlate(carPlate);
-      user.parkings.push(
-        new Parking(parkingTitle, carPlate, entryCarTime).info(),
-      );
-      await user.save();
+      const user = await this.#userByPlate(carPlate);
+      user.addParking(new Parking(parkingTitle, carPlate, entryCarTime));
+      await this.userModel.updateOne({ plates: carPlate }, user.info());
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successfully registered the entry of the car',
@@ -40,18 +42,11 @@ export class ParkingService {
     departureCarTime,
   }: DepartureCarParkingRecord) {
     try {
-      const user = await this.userByPlate(carPlate);
-      const entryRecord = await user.parkings.pop();
-      console.log(entryRecord.entryCarTime.getTime());
-      const park = new Parking(
-        entryRecord.parkingTitle,
-        entryRecord.carPlate,
-        entryRecord.entryCarTime,
-      );
-      park.completeParking(departureCarTime);
-      user.parkings.push(park.info());
-      // TODO: Обработка оплаты через карту или терминал
-      await user.save();
+      const user = await this.#userByPlate(carPlate);
+      const parking = user.lastParking();
+      parking.completeParking(departureCarTime);
+      user.addParking(parking);
+      await this.userModel.updateOne({ plates: carPlate }, user.info());
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'The car departure was successfully registered',
@@ -61,12 +56,28 @@ export class ParkingService {
     }
   }
 
-  private async userByPlate(plate: string) {
+  async #userByPlate(plate: string) {
     const user = await this.userModel.findOne({
       plates: plate,
     });
     if (user) {
-      return user;
+      return new User(
+        new PhoneNumber(user.phoneNumber),
+        user.password,
+        new UniquePlatesArray(user.plates.map((value) => new Plate(value))),
+        user.parkings.map(
+          (plate) =>
+            new Parking(
+              plate.parkingTitle,
+              plate.carPlate,
+              plate.entryCarTime,
+              plate.departureCarTime,
+              plate.priceRub,
+              plate.isCompleted,
+            ),
+        ),
+        user.email,
+      );
     }
     // TODO: Обработка пользователя, которого нет в бд
     throw new Error('NONENENNE');

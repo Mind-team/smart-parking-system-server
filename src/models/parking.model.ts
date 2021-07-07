@@ -14,15 +14,32 @@ export class Parking {
     parkingTitle: string,
     carPlate: string,
     entryCarTime: Date,
+    departureCarTime: Date,
+    priceRub: number,
+    isCompleted: boolean,
     calculator?: PriceCalculator,
-  ) {
-    this.parkingTitle = parkingTitle;
-    this.carPlate = carPlate;
-    this.entryCarTime = entryCarTime;
-    this.isCompleted = false;
-    this.departureCarTime = null;
-    this.priceRub = null;
-    this.calculator = calculator ?? new StandardPriceCalculator();
+  );
+  constructor(
+    parkingTitle: string,
+    carPlate: string,
+    entryCarTime: Date,
+    calculator?: PriceCalculator,
+  );
+  constructor(...args) {
+    this.parkingTitle = args[0];
+    this.carPlate = args[1];
+    this.entryCarTime = args[2];
+    if (args.length < 5) {
+      this.departureCarTime = null;
+      this.priceRub = null;
+      this.isCompleted = false;
+      return;
+    }
+    this.calculator = args[3] ?? new StandardPriceCalculator();
+    this.departureCarTime = args[3];
+    this.priceRub = args[4];
+    this.isCompleted = args[5];
+    this.calculator = args[6] ?? new StandardPriceCalculator();
   }
 
   public info(asCompleted = false) {

@@ -28,12 +28,20 @@ export class User {
     this.#plates.push(plate);
   }
 
+  addParking(parking: Parking) {
+    this.#parkings.push(parking);
+  }
+
+  lastParking() {
+    return this.#parkings.pop();
+  }
+
   info() {
     return {
       phoneNumber: this.#phoneNumber.value,
       password: this.#password,
       plates: this.#plates.map((plate) => plate.value),
-      parkings: this.#parkings.map((el) => el.info()),
+      parkings: this.#parkings.map((parking) => parking.info()),
       email: this.#email,
     };
   }
