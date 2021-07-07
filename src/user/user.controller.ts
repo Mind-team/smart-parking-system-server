@@ -35,15 +35,13 @@ export class UserController {
     });
   }
 
-  // @Post('lastParkingHistoryElement')
-  // async lastParkingHistoryElement(
-  //   @Body() { phoneNumber, password }: SignInDto,
-  // ) {
-  //   return await this.userService.lastParkingHistoryElement({
-  //     phoneNumber: {
-  //       value: phoneNumber,
-  //     },
-  //     password,
-  //   });
-  // }
+  @Post('lastParkingHistoryElement')
+  async lastParkingHistoryElement(
+    @Body() { phoneNumber, password }: SignInDto,
+  ) {
+    return await this.userService.lastParkingHistoryElement({
+      phoneNumber,
+      password,
+    });
+  }
 }

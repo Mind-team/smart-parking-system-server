@@ -27,7 +27,7 @@ export class UserService {
       return new FilledSuccessfulResponse<UserRecord>(
         HttpStatus.OK,
         'Successful login',
-        await this.#findUser(phoneNumber, password),
+        (await this.#findUser(phoneNumber, password)).info(),
       );
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
@@ -53,8 +53,7 @@ export class UserService {
         [],
         email,
       );
-      const userRecord = user.info();
-      await new this.userModel({ ...userRecord }).save();
+      await new this.userModel(user.info()).save();
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
@@ -71,24 +70,9 @@ export class UserService {
   }: SignInData & { plate: string }) {
     // TODO: Проверка, что номер записался в пользователя
     try {
-      const userRecord = await this.#findUser(phoneNumber, password);
-      const user = new User(
-        new PhoneNumber(userRecord.phoneNumber),
-        userRecord.password,
-        new UniquePlatesArray(
-          userRecord.plates.map((value) => new Plate(value)),
-        ),
-        userRecord.parkings.map(
-          (value) =>
-            new Parking(value.parkingTitle, value.carPlate, value.entryCarTime),
-        ),
-        userRecord.email,
-      );
+      const user = await this.#findUser(phoneNumber, password);
       user.addPlate(new Plate(plate));
-      for (const key in user.info()) {
-        userRecord[key] = user.info()[key];
-      }
-      await userRecord.save();
+      await this.userModel.updateOne({ plates: plate }, user.info());
       return new SuccessfulResponse(
         HttpStatus.OK,
         'Plate number added successfully',
@@ -98,50 +82,44 @@ export class UserService {
     }
   }
 
-  // async lastParkingHistoryElement({ phoneNumber, password }: SignInData) {
-  //   try {
-  //     const user = await this.userModel.findOne({ phoneNumber });
-  //     if (!user || !(await bcrypt.compare(password, user.password))) {
-  //       return new FailedResponse(HttpStatus.BAD_REQUEST, 'Invalid data');
-  //     }
-  //     if (user.parkingHistory.length === 0) {
-  //       return new FilledSuccessfulResponse(HttpStatus.OK, 'Success', {});
-  //     }
-  //     if (
-  //       !user.parkingHistory[user.parkingHistory.length - 1].departureCarTime
-  //     ) {
-  //       const parking = user.parkingHistory[user.parkingHistory.length - 1];
-  //       return new FilledSuccessfulResponse(
-  //         HttpStatus.OK,
-  //         'Success',
-  //         this.parkingRecorder.formatForDB(
-  //           new ParkingHistoryElement(
-  //             parking.parkingTitle,
-  //             parking.carPlate,
-  //             parking.entryCarTime,
-  //             new Date(Date.now()),
-  //           ),
-  //         ),
-  //       );
-  //     }
-  //     return new FilledSuccessfulResponse(
-  //       HttpStatus.OK,
-  //       'Success',
-  //       user.parkingHistory[user.parkingHistory.length - 1],
-  //     );
-  //   } catch (e) {
-  //     return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
-  //   }
-  // }
+  async lastParkingHistoryElement({ phoneNumber, password }: SignInData) {
+    try {
+      const user = await this.#findUser(phoneNumber, password);
+      const userRecord = user.info();
+      if (userRecord.parkings.length === 0) {
+        return new FilledSuccessfulResponse(HttpStatus.OK, 'Success', {});
+      }
+      return new FilledSuccessfulResponse(
+        HttpStatus.OK,
+        'Success',
+        user.peekLastParking().info(true),
+      );
+    } catch (e) {
+      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+    }
+  }
 
-  async #findUser(
-    phoneNumber: string,
-    password: string,
-  ): Promise<UserDocument> {
-    const user = await this.userModel.findOne({ phoneNumber });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+  async #findUser(phoneNumber: string, password: string): Promise<User> {
+    const userRecord = await this.userModel.findOne({ phoneNumber });
+    if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
       throw new Error('Phone number or password incorrect');
     }
-    return user;
+    return new User(
+      new PhoneNumber(userRecord.phoneNumber),
+      userRecord.password,
+      new UniquePlatesArray(userRecord.plates.map((value) => new Plate(value))),
+      userRecord.parkings.map(
+        (plate) =>
+          new Parking(
+            plate.parkingTitle,
+            plate.carPlate,
+            plate.entryCarTime,
+            plate.departureCarTime,
+            plate.priceRub,
+            plate.isCompleted,
+          ),
+      ),
+      userRecord.email,
+    );
   }
 }

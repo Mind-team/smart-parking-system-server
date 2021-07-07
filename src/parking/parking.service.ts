@@ -11,6 +11,7 @@ import { User } from '../models/user.model';
 import { PhoneNumber } from '../models/phone-number.model';
 import { UniquePlatesArray } from '../infrastructure/unique-plates-array.infrastructure';
 import { Plate } from '../models/plate.model';
+import { StandardPriceCalculator } from '../infrastructure/standard-price-calculator.infrastructure';
 
 @Injectable()
 export class ParkingService {
@@ -26,7 +27,7 @@ export class ParkingService {
   }: EntryCarParkingRecord) {
     try {
       const user = await this.#userByPlate(carPlate);
-      user.addParking(new Parking(parkingTitle, carPlate, entryCarTime));
+      user.registerParking(new Parking(parkingTitle, carPlate, entryCarTime));
       await this.userModel.updateOne({ plates: carPlate }, user.info());
       return new SuccessfulResponse(
         HttpStatus.CREATED,
@@ -43,9 +44,10 @@ export class ParkingService {
   }: DepartureCarParkingRecord) {
     try {
       const user = await this.#userByPlate(carPlate);
-      const parking = user.lastParking();
-      parking.completeParking(departureCarTime);
-      user.addParking(parking);
+      const parking = user
+        .popLastParking()
+        .complete(departureCarTime, new StandardPriceCalculator());
+      user.registerParking(parking);
       await this.userModel.updateOne({ plates: carPlate }, user.info());
       return new SuccessfulResponse(
         HttpStatus.CREATED,

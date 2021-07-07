@@ -28,12 +28,18 @@ export class User {
     this.#plates.push(plate);
   }
 
-  addParking(parking: Parking) {
+  registerParking(parking: Parking) {
     this.#parkings.push(parking);
   }
 
-  lastParking() {
+  popLastParking() {
     return this.#parkings.pop();
+  }
+
+  peekLastParking() {
+    const last = this.#parkings.pop();
+    this.#parkings.push(last);
+    return last;
   }
 
   info() {
