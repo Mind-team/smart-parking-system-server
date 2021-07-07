@@ -2,5 +2,5 @@ import { ParkingRecord } from '../../infrastructure/records/parking-record.infra
 
 export type EntryCarParkingRecord = Omit<
   ParkingRecord,
-  'departureCarTime' | 'priceRub' | 'parkingTimeMin'
+  'departureCarTime' | 'priceRub' | 'parkingTimeMin' | 'isCompleted'
 >;

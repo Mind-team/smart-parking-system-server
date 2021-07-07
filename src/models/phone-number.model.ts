@@ -18,6 +18,7 @@ export class PhoneNumber {
       this._value = newValue;
     }
     this._value = value;
+    console.log(value);
   }
 
   get value() {

@@ -42,13 +42,13 @@ export class ParkingService {
     try {
       const user = await this.userByPlate(carPlate);
       const entryRecord = await user.parkings.pop();
+      console.log(entryRecord.entryCarTime.getTime());
       const park = new Parking(
         entryRecord.parkingTitle,
         entryRecord.carPlate,
         entryRecord.entryCarTime,
       );
       park.completeParking(departureCarTime);
-      console.log(departureCarTime);
       user.parkings.push(park.info());
       // TODO: Обработка оплаты через карту или терминал
       await user.save();

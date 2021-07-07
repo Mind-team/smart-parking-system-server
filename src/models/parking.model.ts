@@ -37,7 +37,7 @@ export class Parking {
         }
         priceRub = this.calculator.calculate(
           this.parkingTitle,
-          new Date(depTime).getTime() - new Date(this.entryCarTime).getTime(),
+          depTime.getTime() - this.entryCarTime.getTime(),
         );
       }
     }

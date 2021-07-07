@@ -12,6 +12,8 @@ import { FilledSuccessfulResponse } from '../infrastructure/server-responses/fil
 import { SignUpData } from './types/sign-up-data.type';
 import { Plate } from '../models/plate.model';
 import { PhoneNumber } from '../models/phone-number.model';
+import { UniquePlatesArray } from '../infrastructure/unique-plates-array.infrastructure';
+import { Parking } from '../models/parking.model';
 
 @Injectable()
 export class UserService {
@@ -22,20 +24,11 @@ export class UserService {
 
   async signIn({ phoneNumber, password }: SignInData) {
     try {
-      const candidate = await this.userModel.findOne({ phoneNumber });
-      if (!candidate) {
-        return new FailedResponse(
-          HttpStatus.BAD_REQUEST,
-          `User with ${phoneNumber} phone number does not exist`,
-        );
-      }
-      return (await bcrypt.compare(password, candidate.password))
-        ? new FilledSuccessfulResponse<UserRecord>(
-            HttpStatus.OK,
-            'Successful login',
-            candidate,
-          )
-        : new FailedResponse(HttpStatus.UNAUTHORIZED, 'Password do not match');
+      return new FilledSuccessfulResponse<UserRecord>(
+        HttpStatus.OK,
+        'Successful login',
+        await this.#findUser(phoneNumber, password),
+      );
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
@@ -44,22 +37,24 @@ export class UserService {
   async signUp({ phoneNumber, password, email, plates }: SignUpData) {
     try {
       if (plates.length === 0) {
-        return new Error('User has no plates');
+        return new FailedResponse(
+          HttpStatus.BAD_REQUEST,
+          'Please enter your plate',
+        );
       }
       const hashedPassword = await bcrypt.hash(
         password,
         await bcrypt.genSalt(),
       );
-      const userRecord = new User(
+      const user = new User(
         new PhoneNumber(phoneNumber),
         hashedPassword,
-        plates.map((el) => new Plate(el)),
+        new UniquePlatesArray(plates.map((el) => new Plate(el))),
         [],
         email,
       );
-      const r = userRecord.info();
-      console.log(r);
-      await new this.userModel({ ...r }).save();
+      const userRecord = user.info();
+      await new this.userModel({ ...userRecord }).save();
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
@@ -76,12 +71,24 @@ export class UserService {
   }: SignInData & { plate: string }) {
     // TODO: Проверка, что номер записался в пользователя
     try {
-      const user = await this.userModel.findOne({ phoneNumber });
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        return new FailedResponse(HttpStatus.BAD_REQUEST, 'Invalid data');
+      const userRecord = await this.#findUser(phoneNumber, password);
+      const user = new User(
+        new PhoneNumber(userRecord.phoneNumber),
+        userRecord.password,
+        new UniquePlatesArray(
+          userRecord.plates.map((value) => new Plate(value)),
+        ),
+        userRecord.parkings.map(
+          (value) =>
+            new Parking(value.parkingTitle, value.carPlate, value.entryCarTime),
+        ),
+        userRecord.email,
+      );
+      user.addPlate(new Plate(plate));
+      for (const key in user.info()) {
+        userRecord[key] = user.info()[key];
       }
-      user.plates.push(new Plate(plate).value);
-      await user.save();
+      await userRecord.save();
       return new SuccessfulResponse(
         HttpStatus.OK,
         'Plate number added successfully',
@@ -126,4 +133,15 @@ export class UserService {
   //     return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
   //   }
   // }
+
+  async #findUser(
+    phoneNumber: string,
+    password: string,
+  ): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ phoneNumber });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new Error('Phone number or password incorrect');
+    }
+    return user;
+  }
 }
