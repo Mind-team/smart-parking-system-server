@@ -1,15 +1,16 @@
 import { PriceCalculator } from './price-calculator.interface';
+import { IdGenerator } from './id-generator.interface';
 import { StandardPriceCalculator } from '../infrastructure/standard-price-calculator.infrastructure';
-import { v4 as uuid } from 'uuid';
+import { StandardIdGenerator } from '../infrastructure/standard-id-generator.infrastructure';
 
 export class Parking {
+  #id: string;
   readonly #parkingTitle: string;
   readonly #carPlate: string;
   readonly #entryCarTime: Date;
   readonly #departureCarTime: Date | null;
   readonly #isCompleted: boolean;
   readonly #priceRub: number | null;
-  readonly #id: string = uuid(); // TODO: Refactor
   readonly #calculator: PriceCalculator;
 
   constructor(
@@ -28,6 +29,7 @@ export class Parking {
     calculator?: PriceCalculator,
   );
   constructor(...args) {
+    this.#id = new StandardIdGenerator().generate();
     this.#parkingTitle = args[0];
     this.#carPlate = args[1];
     this.#entryCarTime = args[2];
@@ -42,6 +44,10 @@ export class Parking {
     this.#priceRub = args[4];
     this.#isCompleted = args[5];
     this.#calculator = args[6] ?? new StandardPriceCalculator();
+  }
+
+  changeIdGenerator(idGenerator: IdGenerator) {
+    this.#id = idGenerator.generate();
   }
 
   info(asCompleted = false) {
