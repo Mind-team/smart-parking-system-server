@@ -1,13 +1,26 @@
-import { PhoneNumberRecord } from '../interfaces/records/phoneNumber-record.interface';
+import { Validator } from './validator.interface';
+import { PhoneNumberValidator } from '../infrastructure/phone-number-validator.infrastructure';
 
-export class PhoneNumber implements PhoneNumberRecord {
-  private readonly _value: string;
+export class PhoneNumber {
+  #value: string;
+  readonly #validator: Validator<string>;
 
-  constructor(value: string) {
-    this._value = value;
+  constructor(
+    value: string,
+    validator: Validator<string> = new PhoneNumberValidator(),
+  ) {
+    this.#validator = validator;
+    this.#value = value;
   }
 
   get value() {
-    return this._value;
+    try {
+      if (!this.#validator.isValid(this.#value)) {
+        this.#value = this.#validator.tryFormat(this.#value);
+      }
+      return this.#value;
+    } catch (e) {
+      return e;
+    }
   }
 }

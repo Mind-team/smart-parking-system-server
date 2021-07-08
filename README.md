@@ -39,23 +39,24 @@
 
 ## Структура приложения <a name="structure" />
 - /.github/workflows - github actions
+- /apis - интерфейсы для взаимодействия с сервером
 - /src - исходный код
-- /src/dtos - дто
-- /src/interfaces - интерфейсы
-- /src/models - модели
-- /src/modules - модули
-- /src/schemas - схемы для дб
-- /src/types - типы
-- /test - e2e тесты
+- /src/app - модуль приложения
+- /src/parking - модуль парковки
+- /src/user - модуль пользователя
+- /src/models - бизнес-логика
+- /src/infrastructure - инфраструктура
+- /src/schemas - схемы БД
+- /src/main.ts - точка входа в приложение
 
 ## Продукт <a name="product" />
 Сервер, корректно обрабатывающий запросы от камеры и пользователя (полный список возможны запросов хранится в CLIENT-API.md и PARKING-API.md)
 
 ## Разработчику <a name="dev">
 
-[**Client API**](https://github.com/Mind-team/smart-parking-system-server/blob/master/CLIENT-API.md)
+[**Client API**](https://github.com/Mind-team/smart-parking-system-server/blob/master/apis/CLIENT-API.md)
 
-[**Parking API**](https://github.com/Mind-team/smart-parking-system-server/blob/master/PARKING-API.md)
+[**Parking API**](https://github.com/Mind-team/smart-parking-system-server/blob/master/apis/PARKING-API.md)
 
 ## Скрипты
 Здесь только те скрипты, которыми нужно пользоваться

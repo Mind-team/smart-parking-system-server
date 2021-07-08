@@ -1,48 +1,54 @@
-import { UserRecord } from '../interfaces/records/user-record.interface';
-import { ParkingRecord } from '../interfaces/records/parking-record.interface';
-import { SignInData } from '../types/sign-in-data.type';
-import { SignUpData } from '../types/sign-up-data.type';
-import { PlateRecord } from '../interfaces/records/plate-record.interface';
-import { PhoneNumberRecord } from '../interfaces/records/phoneNumber-record.interface';
+import { PhoneNumber } from './phone-number.model';
+import { Plate } from './plate.model';
+import { Parking } from './parking.model';
+import { UniqueArray } from './unique-array.interface';
 
-export class User implements UserRecord {
-  private readonly _phoneNumber: PhoneNumberRecord;
-  private readonly _password: string;
-  private readonly _email: string;
-  private readonly _plates: PlateRecord[];
-  private readonly _parkingHistory: ParkingRecord[] = [];
+export class User {
+  readonly #phoneNumber: PhoneNumber;
+  readonly #email?: string;
+  readonly #password: string;
+  readonly #plates: UniqueArray<Plate>;
+  readonly #parkings: Parking[];
 
-  constructor(userData: UserRecord | SignInData | SignUpData) {
-    this._phoneNumber = userData.phoneNumber;
-    this._password = userData.password;
-    if ('email' in userData) {
-      this._email = userData.email ?? null;
-    }
-    if ('plates' in userData) {
-      this._plates = userData.plates;
-    }
-    if ('parkingHistory' in userData) {
-      this._parkingHistory = userData.parkingHistory;
-    }
+  constructor(
+    phoneNumber: PhoneNumber,
+    password: string,
+    plates: UniqueArray<Plate>,
+    parkings: Parking[],
+    email?: string,
+  ) {
+    this.#phoneNumber = phoneNumber;
+    this.#password = password;
+    this.#plates = plates;
+    this.#parkings = parkings;
+    this.#email = email;
   }
 
-  get phoneNumber() {
-    return this._phoneNumber;
+  addPlate(plate: Plate) {
+    this.#plates.push(plate);
   }
 
-  get password() {
-    return this._password;
+  registerParking(parking: Parking) {
+    this.#parkings.push(parking);
   }
 
-  get email() {
-    return this._email;
+  popLastParking() {
+    return this.#parkings.pop();
   }
 
-  get plates() {
-    return this._plates;
+  peekLastParking() {
+    const last = this.#parkings.pop();
+    this.#parkings.push(last);
+    return last;
   }
 
-  get parkingHistory() {
-    return this._parkingHistory;
+  info() {
+    return {
+      phoneNumber: this.#phoneNumber.value,
+      password: this.#password,
+      plates: this.#plates.map((plate) => plate.value),
+      parkings: this.#parkings.map((parking) => parking.info()),
+      email: this.#email,
+    };
   }
 }
