@@ -1,5 +1,6 @@
 import { PriceCalculator } from './price-calculator.interface';
 import { StandardPriceCalculator } from '../infrastructure/standard-price-calculator.infrastructure';
+import { v4 as uuid } from 'uuid';
 
 export class Parking {
   readonly #parkingTitle: string;
@@ -8,6 +9,7 @@ export class Parking {
   readonly #departureCarTime: Date | null;
   readonly #isCompleted: boolean;
   readonly #priceRub: number | null;
+  readonly #id: string = uuid(); // TODO: Refactor
   readonly #calculator: PriceCalculator;
 
   constructor(
@@ -59,6 +61,7 @@ export class Parking {
       }
     }
     return {
+      id: this.#id,
       parkingTitle: this.#parkingTitle,
       carPlate: this.#carPlate,
       entryCarTime: this.#entryCarTime,

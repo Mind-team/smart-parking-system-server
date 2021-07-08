@@ -1,4 +1,5 @@
 interface ParkingDto {
+  id: string;
   parkingTitle: string;
   carPlate: string;
   entryCarTime: Date;
