@@ -100,7 +100,9 @@ export class UserService {
   }
 
   async #findUser(phoneNumber: string, password: string): Promise<User> {
-    const userRecord = await this.userModel.findOne({ phoneNumber });
+    const userRecord = await this.userModel.findOne({
+      phoneNumber: new PhoneNumber(phoneNumber).value,
+    });
     if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
       throw new Error('Phone number or password incorrect');
     }
