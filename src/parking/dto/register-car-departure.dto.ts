@@ -1,4 +1,4 @@
 export class RegisterCarDepartureDto {
   carPlate: string;
-  departureCarTime: Date;
+  departureCarTime: string;
 }

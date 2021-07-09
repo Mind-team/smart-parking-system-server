@@ -2,8 +2,8 @@ interface ParkingDto {
   id: string;
   parkingTitle: string;
   carPlate: string;
-  entryCarTime: Date;
-  departureCarTime: Date | null;
+  entryCarTime: string;
+  departureCarTime: string | null;
   priceRub: number | null;
   isCompleted: boolean;
 }

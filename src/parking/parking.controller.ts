@@ -9,11 +9,17 @@ export class ParkingController {
 
   @Post('registerCarEntry')
   async registerCarEntry(@Body() data: RegisterCarEntryDto) {
-    return this.parkingService.registerCarEntry(data);
+    return this.parkingService.registerCarEntry({
+      ...data,
+      entryCarTime: new Date(data.entryCarTime),
+    });
   }
 
   @Post('registerCarDeparture')
   async registerCarDeparture(@Body() data: RegisterCarDepartureDto) {
-    return this.parkingService.registerCarDeparture(data);
+    return this.parkingService.registerCarDeparture({
+      ...data,
+      departureCarTime: new Date(data.departureCarTime),
+    });
   }
 }
