@@ -80,7 +80,7 @@ export class Parking {
   complete(departureCarTime: Date) {
     const price = this.#calculator.calculate(
       this.#parkingTitle,
-      this.#timeDifferenceMin(this.#departureCarTime, this.#entryCarTime),
+      this.#timeDifferenceMin(departureCarTime, this.#entryCarTime),
     );
     return new Parking(
       this.#parkingTitle,
