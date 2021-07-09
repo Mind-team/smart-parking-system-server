@@ -2,13 +2,9 @@ import { Validator } from '../models/validator.interface';
 
 export class PhoneNumberValidator implements Validator<string> {
   isValid(phoneNumber: string): boolean {
-    if (phoneNumber.length !== 12) {
+    const regexp = /\+7\d\d\d\d\d\d\d\d\d\d/;
+    if (phoneNumber.length !== 12 || !regexp.test(phoneNumber)) {
       return false;
-    }
-    for (let i = 1; i !== 12; i++) {
-      if (isNaN(Number(phoneNumber[i]))) {
-        return false;
-      }
     }
     return true;
   }
