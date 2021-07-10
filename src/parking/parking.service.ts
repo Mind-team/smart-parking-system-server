@@ -45,7 +45,7 @@ export class ParkingService {
   }: DepartureCarParkingRecord) {
     try {
       const user = await this.#userByPlate(carPlate);
-      const parking = user.popLastParking().complete(departureCarTime);
+      const parking = user.lastParking('pop').complete(departureCarTime);
       user.registerParking(parking);
       await this.userModel.updateOne({ plates: carPlate }, user.content());
       return new SuccessfulResponse(

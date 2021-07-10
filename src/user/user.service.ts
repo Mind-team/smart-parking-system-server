@@ -92,7 +92,7 @@ export class UserService {
       return new FilledSuccessfulResponse(
         HttpStatus.OK,
         'Success',
-        user.peekLastParking().content(true),
+        user.lastParking('peek').content(true),
       );
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
