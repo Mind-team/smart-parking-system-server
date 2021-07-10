@@ -33,11 +33,10 @@ export class StandardUser implements User {
     this.#parkings.push(parking);
   }
 
-  popLastParking() {
-    return this.#parkings.pop();
-  }
-
-  peekLastParking() {
+  lastParking(popOrPeek: 'pop' | 'peek') {
+    if (popOrPeek === 'pop') {
+      return this.#parkings.pop();
+    }
     const last = this.#parkings.pop();
     this.#parkings.push(last);
     return last;
