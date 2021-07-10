@@ -1,4 +1,4 @@
-import { Validator } from '../models/validator.interface';
+import { Validator } from '../models/interfaces/validator.interface';
 
 export class PhoneNumberValidator implements Validator<string> {
   isValid(phoneNumber: string): boolean {

@@ -1,4 +1,4 @@
-import { PriceCalculator } from '../models/price-calculator.interface';
+import { PriceCalculator } from '../models/interfaces/price-calculator.interface';
 
 export class StandardPriceCalculator implements PriceCalculator {
   calculate(parkingTitle: string, parkingTimeMin: number): number {

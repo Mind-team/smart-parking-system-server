@@ -1,9 +1,10 @@
-import { PriceCalculator } from './price-calculator.interface';
-import { IdGenerator } from './id-generator.interface';
+import { PriceCalculator } from './interfaces/price-calculator.interface';
+import { IdGenerator } from './interfaces/id-generator.interface';
 import { StandardPriceCalculator } from '../infrastructure/standard-price-calculator.infrastructure';
 import { StandardIdGenerator } from '../infrastructure/standard-id-generator.infrastructure';
+import { Parking } from './interfaces/parking.interface';
 
-export class Parking {
+export class StandardParking implements Parking {
   #id: string;
   readonly #parkingTitle: string;
   readonly #carPlate: string;
@@ -46,11 +47,11 @@ export class Parking {
     this.#calculator = args[6] ?? new StandardPriceCalculator();
   }
 
-  changeIdGenerator(idGenerator: IdGenerator) {
+  updateId(idGenerator: IdGenerator) {
     this.#id = idGenerator.generate();
   }
 
-  info(asCompleted = false) {
+  content(asCompleted = false) {
     let depTime = this.#departureCarTime;
     let priceRub = this.#priceRub;
     if (!this.#isCompleted) {
@@ -82,7 +83,7 @@ export class Parking {
       this.#parkingTitle,
       this.#timeDifferenceMin(departureCarTime, this.#entryCarTime),
     );
-    return new Parking(
+    return new StandardParking(
       this.#parkingTitle,
       this.#carPlate,
       this.#entryCarTime,

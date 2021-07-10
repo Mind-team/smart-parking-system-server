@@ -1,4 +1,4 @@
-import { Validator } from '../models/validator.interface';
+import { Validator } from '../models/interfaces/validator.interface';
 
 export class PlateValidator implements Validator<string> {
   isValid(plate: string): boolean {

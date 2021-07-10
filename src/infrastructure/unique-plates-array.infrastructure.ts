@@ -1,30 +1,34 @@
-import { UniqueArray } from '../models/unique-array.interface';
-import { Plate } from '../models/plate.model';
+import { UniqueArray } from '../models/interfaces/unique-array.interface';
+import { RussianStandardPlate } from '../models/russian-standard-plate.model';
 
-export class UniquePlatesArray implements UniqueArray<Plate> {
-  #value: Plate[];
+export class UniquePlatesArray implements UniqueArray<RussianStandardPlate> {
+  #value: RussianStandardPlate[];
 
-  constructor(value: Plate[]) {
+  constructor(value: RussianStandardPlate[]) {
     this.#value = this.#makeUnique(value);
   }
 
-  get value(): Plate[] {
+  get value(): RussianStandardPlate[] {
     return this.#value;
   }
 
-  push(el: Plate) {
+  push(el: RussianStandardPlate) {
     this.#value.push(el);
     this.#value = this.#makeUnique(this.#value);
   }
 
   map<U>(
-    callbackfn: (value: Plate, index: number, array: Plate[]) => U,
+    callbackfn: (
+      value: RussianStandardPlate,
+      index: number,
+      array: RussianStandardPlate[],
+    ) => U,
     thisArg?: any,
   ): U[] {
     return this.#value.map(callbackfn);
   }
 
-  #makeUnique(arr: Plate[]) {
+  #makeUnique(arr: RussianStandardPlate[]) {
     const seen = {};
     return arr.filter((plate) => {
       const key = JSON.stringify(plate);

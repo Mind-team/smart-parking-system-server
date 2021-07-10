@@ -6,11 +6,11 @@ import { EntryCarParkingRecord } from './types/entry-car-parking-record.type';
 import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
 import { DepartureCarParkingRecord } from './types/departure-car-parking-record.type';
-import { Parking } from '../models/parking.model';
-import { User } from '../models/user.model';
-import { PhoneNumber } from '../models/phone-number.model';
+import { StandardParking } from '../models/standard-parking.model';
+import { StandardUser } from '../models/standard-user.model';
+import { RussianPhoneNumber } from '../models/russian-phone-number.model';
 import { UniquePlatesArray } from '../infrastructure/unique-plates-array.infrastructure';
-import { Plate } from '../models/plate.model';
+import { RussianStandardPlate } from '../models/russian-standard-plate.model';
 
 @Injectable()
 export class ParkingService {
@@ -26,8 +26,10 @@ export class ParkingService {
   }: EntryCarParkingRecord) {
     try {
       const user = await this.#userByPlate(carPlate);
-      user.registerParking(new Parking(parkingTitle, carPlate, entryCarTime));
-      await this.userModel.updateOne({ plates: carPlate }, user.info());
+      user.registerParking(
+        new StandardParking(parkingTitle, carPlate, entryCarTime),
+      );
+      await this.userModel.updateOne({ plates: carPlate }, user.content());
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successfully registered the entry of the car',
@@ -45,7 +47,7 @@ export class ParkingService {
       const user = await this.#userByPlate(carPlate);
       const parking = user.popLastParking().complete(departureCarTime);
       user.registerParking(parking);
-      await this.userModel.updateOne({ plates: carPlate }, user.info());
+      await this.userModel.updateOne({ plates: carPlate }, user.content());
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'The car departure was successfully registered',
@@ -60,13 +62,15 @@ export class ParkingService {
       plates: plate,
     });
     if (user) {
-      return new User(
-        new PhoneNumber(user.phoneNumber),
+      return new StandardUser(
+        new RussianPhoneNumber(user.phoneNumber),
         user.password,
-        new UniquePlatesArray(user.plates.map((value) => new Plate(value))),
+        new UniquePlatesArray(
+          user.plates.map((value) => new RussianStandardPlate(value)),
+        ),
         user.parkings.map(
           (plate) =>
-            new Parking(
+            new StandardParking(
               plate.parkingTitle,
               plate.carPlate,
               plate.entryCarTime,

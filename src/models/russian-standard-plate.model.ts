@@ -1,13 +1,14 @@
-import { Validator } from './validator.interface';
-import { PhoneNumberValidator } from '../infrastructure/phone-number-validator.infrastructure';
+import { Validator } from './interfaces/validator.interface';
+import { PlateValidator } from '../infrastructure/plate-validator.infrastructure';
+import { Plate } from './interfaces/plate.interface';
 
-export class PhoneNumber {
+export class RussianStandardPlate implements Plate {
   #value: string;
   readonly #validator: Validator<string>;
 
   constructor(
     value: string,
-    validator: Validator<string> = new PhoneNumberValidator(),
+    validator: Validator<string> = new PlateValidator(),
   ) {
     this.#validator = validator;
     this.#value = value;
