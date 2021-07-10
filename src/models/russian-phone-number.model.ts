@@ -3,7 +3,7 @@ import { PhoneNumberValidator } from '../infrastructure/phone-number-validator.i
 import { PhoneNumber } from './interfaces/phone-number.interface';
 
 export class RussianPhoneNumber implements PhoneNumber {
-  #value: string;
+  readonly #value: string;
   readonly #validator: Validator<string>;
 
   constructor(
@@ -17,7 +17,8 @@ export class RussianPhoneNumber implements PhoneNumber {
   get value() {
     try {
       if (!this.#validator.isValid(this.#value)) {
-        this.#value = this.#validator.tryFormat(this.#value);
+        const validPhoneNumber = this.#validator.tryFormat(this.#value);
+        return new RussianPhoneNumber(validPhoneNumber);
       }
       return this.#value;
     } catch (e) {
