@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserModule } from '../user/user.module';
-import { ParkingModule } from '../parking/parking.module';
+import { UserModule } from './user/user.module';
+import { ParkingModule } from './parking/parking.module';
 
 @Module({
   imports: [
@@ -13,7 +11,7 @@ import { ParkingModule } from '../parking/parking.module';
     UserModule,
     ParkingModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
