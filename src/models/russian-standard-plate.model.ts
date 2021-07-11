@@ -15,11 +15,11 @@ export class RussianStandardPlate implements Plate {
     this.#value = value;
   }
 
-  get value() {
+  get value(): string {
     try {
       if (!this.#validator.isValid(this.#value)) {
         const validPlate = this.#validator.tryFormat(this.#value);
-        return new RussianPhoneNumber(validPlate);
+        return new RussianPhoneNumber(validPlate).value;
       }
       return this.#value;
     } catch (e) {

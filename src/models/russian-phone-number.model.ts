@@ -14,11 +14,11 @@ export class RussianPhoneNumber implements PhoneNumber {
     this.#value = value;
   }
 
-  get value() {
+  get value(): string {
     try {
       if (!this.#validator.isValid(this.#value)) {
         const validPhoneNumber = this.#validator.tryFormat(this.#value);
-        return new RussianPhoneNumber(validPhoneNumber);
+        return new RussianPhoneNumber(validPhoneNumber).value;
       }
       return this.#value;
     } catch (e) {

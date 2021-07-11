@@ -1,25 +1,25 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { UserRecord } from '../infrastructure/records/user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from './types/sign-in-data.type';
-import { StandardUser } from '../models/standard-user.model';
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
 import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
 import { FilledSuccessfulResponse } from '../infrastructure/server-responses/filled-successful-response.infrastructure';
 import { SignUpData } from './types/sign-up-data.type';
-import { RussianStandardPlate } from '../models/russian-standard-plate.model';
-import { RussianPhoneNumber } from '../models/russian-phone-number.model';
 import { UniquePlatesArray } from '../infrastructure/unique-plates-array.infrastructure';
-import { StandardParking } from '../models/standard-parking.model';
+import { Factory } from '../infrastructure/factory.infrastructure';
+import { User } from '../models/interfaces/user.interface';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<UserDocument>,
+    @Inject('Factory')
+    private readonly factory: Factory,
   ) {}
 
   async signIn({ phoneNumber, password }: SignInData) {
@@ -46,10 +46,10 @@ export class UserService {
         password,
         await bcrypt.genSalt(),
       );
-      const user = new StandardUser(
-        new RussianPhoneNumber(phoneNumber),
+      const user = this.factory.user(
+        this.factory.phoneNumber(phoneNumber),
         hashedPassword,
-        new UniquePlatesArray(plates.map((el) => new RussianStandardPlate(el))),
+        new UniquePlatesArray(plates.map((el) => this.factory.plate(el))),
         [],
         email,
       );
@@ -71,7 +71,7 @@ export class UserService {
     // TODO: Проверка, что номер записался в пользователя
     try {
       const user = await this.#findUser(phoneNumber, password);
-      user.addPlate(new RussianStandardPlate(plate));
+      user.addPlate(this.factory.plate(plate));
       await this.userModel.updateOne({ plates: plate }, user.content());
       return new SuccessfulResponse(
         HttpStatus.OK,
@@ -99,32 +99,28 @@ export class UserService {
     }
   }
 
-  async #findUser(
-    phoneNumber: string,
-    password: string,
-  ): Promise<StandardUser> {
+  async #findUser(phoneNumber: string, password: string): Promise<User> {
     const userRecord = await this.userModel.findOne({
-      phoneNumber: new RussianPhoneNumber(phoneNumber).value,
+      phoneNumber: this.factory.phoneNumber(phoneNumber).value,
     });
     if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
       throw new Error('Phone number or password incorrect');
     }
-    return new StandardUser(
-      new RussianPhoneNumber(userRecord.phoneNumber),
+    return this.factory.user(
+      this.factory.phoneNumber(userRecord.phoneNumber),
       userRecord.password,
       new UniquePlatesArray(
-        userRecord.plates.map((value) => new RussianStandardPlate(value)),
+        userRecord.plates.map((value) => this.factory.plate(value)),
       ),
-      userRecord.parkings.map(
-        (plate) =>
-          new StandardParking(
-            plate.parkingTitle,
-            plate.carPlate,
-            plate.entryCarTime,
-            plate.departureCarTime,
-            plate.priceRub,
-            plate.isCompleted,
-          ),
+      userRecord.parkings.map((plate) =>
+        this.factory.completedParking(
+          plate.parkingTitle,
+          plate.carPlate,
+          plate.entryCarTime,
+          plate.departureCarTime,
+          plate.priceRub,
+          plate.isCompleted,
+        ),
       ),
       userRecord.email,
     );

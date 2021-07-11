@@ -1,21 +1,23 @@
-import { RussianPhoneNumber } from './russian-phone-number.model';
 import { RussianStandardPlate } from './russian-standard-plate.model';
 import { StandardParking } from './standard-parking.model';
 import { UniqueArray } from './interfaces/unique-array.interface';
 import { User } from './interfaces/user.interface';
+import { PhoneNumber } from './interfaces/phone-number.interface';
+import { Plate } from './interfaces/plate.interface';
+import { Parking } from './interfaces/parking.interface';
 
 export class StandardUser implements User {
-  readonly #phoneNumber: RussianPhoneNumber;
+  readonly #phoneNumber: PhoneNumber;
   readonly #email?: string;
   readonly #password: string;
-  readonly #plates: UniqueArray<RussianStandardPlate>;
-  readonly #parkings: StandardParking[];
+  readonly #plates: UniqueArray<Plate>;
+  readonly #parkings: Parking[];
 
   constructor(
-    phoneNumber: RussianPhoneNumber,
+    phoneNumber: PhoneNumber,
     password: string,
-    plates: UniqueArray<RussianStandardPlate>,
-    parkings: StandardParking[],
+    plates: UniqueArray<Plate>,
+    parkings: Parking[],
     email?: string,
   ) {
     this.#phoneNumber = phoneNumber;
@@ -25,11 +27,11 @@ export class StandardUser implements User {
     this.#email = email;
   }
 
-  addPlate(plate: RussianStandardPlate) {
+  addPlate(plate: Plate) {
     this.#plates.push(plate);
   }
 
-  registerParking(parking: StandardParking) {
+  registerParking(parking: Parking) {
     this.#parkings.push(parking);
   }
 
