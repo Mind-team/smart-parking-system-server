@@ -3,10 +3,7 @@ import { Validator } from '../models/interfaces/validator.interface';
 export class PhoneNumberValidator implements Validator<string> {
   isValid(phoneNumber: string): boolean {
     const regexp = /\+7\d\d\d\d\d\d\d\d\d\d/;
-    if (phoneNumber.length !== 12 || !regexp.test(phoneNumber)) {
-      return false;
-    }
-    return true;
+    return !(phoneNumber.length !== 12 || !regexp.test(phoneNumber));
   }
 
   tryFormat(phoneNumber: string): string {

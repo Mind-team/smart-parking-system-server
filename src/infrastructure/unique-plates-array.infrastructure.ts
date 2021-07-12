@@ -1,5 +1,4 @@
 import { UniqueArray } from '../models/interfaces/unique-array.interface';
-import { RussianStandardPlate } from '../models/russian-standard-plate.model';
 import { Plate } from '../models/interfaces/plate.interface';
 
 export class UniquePlatesArray implements UniqueArray<Plate> {

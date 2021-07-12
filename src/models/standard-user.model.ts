@@ -1,10 +1,9 @@
-import { RussianStandardPlate } from './russian-standard-plate.model';
-import { StandardParking } from './standard-parking.model';
 import { UniqueArray } from './interfaces/unique-array.interface';
 import { User } from './interfaces/user.interface';
 import { PhoneNumber } from './interfaces/phone-number.interface';
 import { Plate } from './interfaces/plate.interface';
 import { Parking } from './interfaces/parking.interface';
+import { UserContent } from './interfaces/user-content.interface';
 
 export class StandardUser implements User {
   readonly #phoneNumber: PhoneNumber;
@@ -44,7 +43,7 @@ export class StandardUser implements User {
     return last;
   }
 
-  content() {
+  content(): UserContent {
     return {
       phoneNumber: this.#phoneNumber.value,
       password: this.#password,

@@ -3,6 +3,7 @@ import { IdGenerator } from './interfaces/id-generator.interface';
 import { StandardPriceCalculator } from '../infrastructure/standard-price-calculator.infrastructure';
 import { StandardIdGenerator } from '../infrastructure/standard-id-generator.infrastructure';
 import { Parking } from './interfaces/parking.interface';
+import { ParkingContent } from './interfaces/parking-content.interface';
 
 export class StandardParking implements Parking {
   #id: string;
@@ -51,7 +52,7 @@ export class StandardParking implements Parking {
     this.#id = idGenerator.generate();
   }
 
-  content(asCompleted = false) {
+  content(asCompleted = false): ParkingContent {
     let depTime = this.#departureCarTime;
     let priceRub = this.#priceRub;
     if (!this.#isCompleted) {

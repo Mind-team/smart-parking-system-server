@@ -4,7 +4,7 @@ import { Parking } from './parking.interface';
 
 export interface User {
   addPlate: (plate: Plate) => void;
-  registerParking: (parking: any) => void;
+  registerParking: (parking: Parking) => void;
   content: () => UserContent;
   lastParking: (popOrPeek: 'pop' | 'peek') => Parking;
 }
