@@ -23,7 +23,7 @@ export class RussianStandardPlate implements Plate {
       }
       return this.#value;
     } catch (e) {
-      return e;
+      throw new Error(e);
     }
   }
 }

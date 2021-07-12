@@ -22,7 +22,7 @@ export class RussianPhoneNumber implements PhoneNumber {
       }
       return this.#value;
     } catch (e) {
-      return e;
+      throw new Error(e);
     }
   }
 }
