@@ -55,7 +55,6 @@ export class ParkingService {
   }: DepartureCarParkingRecord) {
     try {
       const [user, type] = await this.#userByPlate(carPlate);
-      console.log(departureCarTime);
       const parking = user.lastParking('pop').complete(departureCarTime);
       user.registerParking(parking);
       if (type === 'Registered') {
