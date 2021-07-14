@@ -99,7 +99,10 @@ export class UserService {
     }
   }
 
-  async #findUser(phoneNumber: string, password: string): Promise<User> {
+  async #findUser(
+    phoneNumber: string,
+    password: string,
+  ): Promise<User<'Registered'>> {
     const userRecord = await this.userModel.findOne({
       phoneNumber: this.factory.phoneNumber(phoneNumber).value,
     });

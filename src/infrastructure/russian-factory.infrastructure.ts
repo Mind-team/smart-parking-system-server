@@ -11,6 +11,7 @@ import { PriceCalculator } from '../models/interfaces/price-calculator.interface
 import { Parking } from '../models/interfaces/parking.interface';
 import { Factory } from './factory.infrastructure';
 import { Injectable } from '@nestjs/common';
+import { UnregisteredStandardUser } from '../models/unregistered-standard-user.model';
 
 @Injectable()
 export class RussianFactory implements Factory {
@@ -28,7 +29,7 @@ export class RussianFactory implements Factory {
     plates: UniqueArray<Plate>,
     parkings: Parking[],
     email?: string,
-  ): User {
+  ): User<'Registered'> {
     return new StandardUser(phoneNumber, password, plates, parkings, email);
   }
 
@@ -64,5 +65,12 @@ export class RussianFactory implements Factory {
       isCompleted,
       calculator,
     );
+  }
+
+  unregisteredUser(
+    plates: UniqueArray<Plate>,
+    parkings: Parking[],
+  ): User<'Unregistered'> {
+    return new UnregisteredStandardUser(plates, parkings);
   }
 }

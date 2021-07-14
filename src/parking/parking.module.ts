@@ -4,6 +4,7 @@ import { ParkingService } from './parking.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from '../schemas/user.schema';
 import { RussianFactory } from '../infrastructure/russian-factory.infrastructure';
+import { UnregisteredUserSchema } from '../schemas/unregistered-user.schema';
 
 const Factory = {
   provide: 'Factory',
@@ -11,7 +12,12 @@ const Factory = {
 };
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'User', schema: UserSchema },
+      { name: 'UnregisteredUser', schema: UnregisteredUserSchema },
+    ]),
+  ],
   controllers: [ParkingController],
   providers: [ParkingService, Factory],
 })

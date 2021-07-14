@@ -1,29 +1,16 @@
-import { UniqueArray } from './interfaces/unique-array.interface';
 import { User } from './interfaces/user.interface';
-import { PhoneNumber } from './interfaces/phone-number.interface';
+import { UniqueArray } from './interfaces/unique-array.interface';
 import { Plate } from './interfaces/plate.interface';
 import { Parking } from './interfaces/parking.interface';
-import { RegisteredUserContent } from './interfaces/registered-user-content.interface';
+import { UnregisteredUserContent } from './interfaces/unregistered-user-content.interface';
 
-export class StandardUser implements User<'Registered'> {
-  readonly #phoneNumber: PhoneNumber;
-  readonly #email?: string;
-  readonly #password: string;
+export class UnregisteredStandardUser implements User<'Unregistered'> {
   readonly #plates: UniqueArray<Plate>;
   readonly #parkings: Parking[];
 
-  constructor(
-    phoneNumber: PhoneNumber,
-    password: string,
-    plates: UniqueArray<Plate>,
-    parkings: Parking[],
-    email?: string,
-  ) {
-    this.#phoneNumber = phoneNumber;
-    this.#password = password;
+  constructor(plates: UniqueArray<Plate>, parkings: Parking[]) {
     this.#plates = plates;
     this.#parkings = parkings;
-    this.#email = email;
   }
 
   addPlate(plate: Plate) {
@@ -43,13 +30,10 @@ export class StandardUser implements User<'Registered'> {
     return last;
   }
 
-  content(): RegisteredUserContent {
+  content(): UnregisteredUserContent {
     return {
-      phoneNumber: this.#phoneNumber.value,
-      password: this.#password,
       plates: this.#plates.map((plate) => plate.value),
       parkings: this.#parkings.map((parking) => parking.content()),
-      email: this.#email,
     };
   }
 }
