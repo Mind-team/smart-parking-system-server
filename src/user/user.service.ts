@@ -2,7 +2,7 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from '../schemas/user.schema';
 import { Model } from 'mongoose';
-import { UserRecord } from '../infrastructure/records/user-record.infrastructure';
+import { RegisteredUserRecord } from '../infrastructure/records/registered-user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from './types/sign-in-data.type';
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
@@ -27,7 +27,7 @@ export class UserService {
 
   async signIn({ phoneNumber, password }: SignInData) {
     try {
-      return new FilledSuccessfulResponse<UserRecord>(
+      return new FilledSuccessfulResponse<RegisteredUserRecord>(
         HttpStatus.OK,
         'Successful login',
         (await this.#findUser(phoneNumber, password)).content(),

@@ -1,3 +1,3 @@
-import { UserRecord } from '../../infrastructure/records/user-record.infrastructure';
+import { RegisteredUserRecord } from '../../infrastructure/records/registered-user-record.infrastructure';
 
-export type SignInData = Pick<UserRecord, 'phoneNumber' | 'password'>;
+export type SignInData = Pick<RegisteredUserRecord, 'phoneNumber' | 'password'>;

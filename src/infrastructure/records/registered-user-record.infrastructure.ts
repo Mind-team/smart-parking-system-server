@@ -1,6 +1,6 @@
 import { UnregisteredUserRecord } from './unregistered-user-record.infrastructure';
 
-export interface UserRecord extends UnregisteredUserRecord {
+export interface RegisteredUserRecord extends UnregisteredUserRecord {
   phoneNumber: string;
   password: string;
   email?: string;
