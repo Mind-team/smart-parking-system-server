@@ -49,24 +49,25 @@ export class UserService {
         password,
         await bcrypt.genSalt(),
       );
+      const existentInfo = await this.unregisteredUserModel.findOne({
+        plates,
+      });
       const user = this.factory.user(
         this.factory.phoneNumber(phoneNumber),
         hashedPassword,
         new UniquePlatesArray(plates.map((el) => this.factory.plate(el))),
-        (
-          await this.unregisteredUserModel.findOne({
-            plates,
-          })
-        ).parkings.map((parking) =>
-          this.factory.completedParking(
-            parking.parkingTitle,
-            parking.carPlate,
-            parking.entryCarTime,
-            parking.departureCarTime,
-            parking.priceRub,
-            parking.isCompleted,
-          ),
-        ) ?? [],
+        existentInfo
+          ? existentInfo.parkings.map((parking) =>
+              this.factory.completedParking(
+                parking.parkingTitle,
+                parking.carPlate,
+                parking.entryCarTime,
+                parking.departureCarTime,
+                parking.priceRub,
+                parking.isCompleted,
+              ),
+            )
+          : [],
         email,
       );
       await this.unregisteredUserModel.deleteOne({ plates });
