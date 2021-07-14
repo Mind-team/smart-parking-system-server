@@ -1,5 +1,5 @@
-import { UniqueArray } from '../models/interfaces/unique-array.interface';
-import { Plate } from '../models/interfaces/plate.interface';
+import { UniqueArray } from './interfaces/unique-array.interface';
+import { Plate } from './interfaces/plate.interface';
 
 export class UniquePlatesArray implements UniqueArray<Plate> {
   #value: Plate[];

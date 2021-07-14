@@ -1,14 +1,14 @@
 import { Validator } from './interfaces/validator.interface';
-import { PhoneNumberValidator } from '../infrastructure/phone-number-validator.infrastructure';
+import { RussianPhoneNumberValidator } from '../infrastructure/russian-phone-number-validator.infrastructure';
 import { PhoneNumber } from './interfaces/phone-number.interface';
 
-export class RussianPhoneNumber implements PhoneNumber {
+export class StandardPhoneNumber implements PhoneNumber {
   readonly #value: string;
   readonly #validator: Validator<string>;
 
   constructor(
     value: string,
-    validator: Validator<string> = new PhoneNumberValidator(),
+    validator: Validator<string> = new RussianPhoneNumberValidator(),
   ) {
     this.#validator = validator;
     this.#value = value;
@@ -18,7 +18,7 @@ export class RussianPhoneNumber implements PhoneNumber {
     try {
       if (!this.#validator.isValid(this.#value)) {
         const validPhoneNumber = this.#validator.tryFormat(this.#value);
-        return new RussianPhoneNumber(validPhoneNumber).value;
+        return new StandardPhoneNumber(validPhoneNumber).value;
       }
       return this.#value;
     } catch (e) {

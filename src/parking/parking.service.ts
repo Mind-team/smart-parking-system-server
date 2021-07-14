@@ -6,7 +6,7 @@ import { EntryCarParkingRecord } from './types/entry-car-parking-record.type';
 import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
 import { DepartureCarParkingRecord } from './types/departure-car-parking-record.type';
-import { UniquePlatesArray } from '../infrastructure/unique-plates-array.infrastructure';
+import { UniquePlatesArray } from '../models/unique-plates-array.model';
 import { Factory } from '../infrastructure/factory.infrastructure';
 
 @Injectable()

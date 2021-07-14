@@ -1,6 +1,6 @@
 import { Validator } from '../models/interfaces/validator.interface';
 
-export class PlateValidator implements Validator<string> {
+export class RussianPlateValidator implements Validator<string> {
   isValid(plate: string): boolean {
     const regex = /[а-я]\d\d\d[а-я][а-я]/;
     return !(plate.length !== 6 || !regex.test(plate));

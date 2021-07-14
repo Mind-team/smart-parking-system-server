@@ -1,6 +1,6 @@
 import { Validator } from '../models/interfaces/validator.interface';
 
-export class PhoneNumberValidator implements Validator<string> {
+export class RussianPhoneNumberValidator implements Validator<string> {
   isValid(phoneNumber: string): boolean {
     const regexp = /\+7\d\d\d\d\d\d\d\d\d\d/;
     return !(phoneNumber.length !== 12 || !regexp.test(phoneNumber));

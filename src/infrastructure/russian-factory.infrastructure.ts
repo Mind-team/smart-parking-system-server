@@ -1,6 +1,6 @@
 import { Validator } from '../models/interfaces/validator.interface';
-import { RussianPhoneNumber } from '../models/russian-phone-number.model';
-import { RussianStandardPlate } from '../models/russian-standard-plate.model';
+import { StandardPhoneNumber } from '../models/standard-phone-number.model';
+import { StandardPlate } from '../models/standard-plate.model';
 import { PhoneNumber } from '../models/interfaces/phone-number.interface';
 import { Plate } from '../models/interfaces/plate.interface';
 import { StandardUser } from '../models/standard-user.model';
@@ -13,13 +13,13 @@ import { Factory } from './factory.infrastructure';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class StandardRussianFactory implements Factory {
+export class RussianFactory implements Factory {
   phoneNumber(value: string, validator?: Validator<string>): PhoneNumber {
-    return new RussianPhoneNumber(value, validator);
+    return new StandardPhoneNumber(value, validator);
   }
 
   plate(value: string, validator?: Validator<string>): Plate {
-    return new RussianStandardPlate(value, validator);
+    return new StandardPlate(value, validator);
   }
 
   user(

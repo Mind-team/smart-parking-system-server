@@ -9,7 +9,7 @@ import { FailedResponse } from '../infrastructure/server-responses/failed-respon
 import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
 import { FilledSuccessfulResponse } from '../infrastructure/server-responses/filled-successful-response.infrastructure';
 import { SignUpData } from './types/sign-up-data.type';
-import { UniquePlatesArray } from '../infrastructure/unique-plates-array.infrastructure';
+import { UniquePlatesArray } from '../models/unique-plates-array.model';
 import { Factory } from '../infrastructure/factory.infrastructure';
 import { User } from '../models/interfaces/user.interface';
 

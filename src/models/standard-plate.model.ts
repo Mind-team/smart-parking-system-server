@@ -1,15 +1,15 @@
 import { Validator } from './interfaces/validator.interface';
-import { PlateValidator } from '../infrastructure/plate-validator.infrastructure';
+import { RussianPlateValidator } from '../infrastructure/russian-plate-validator.infrastructure';
 import { Plate } from './interfaces/plate.interface';
-import { RussianPhoneNumber } from './russian-phone-number.model';
+import { StandardPhoneNumber } from './standard-phone-number.model';
 
-export class RussianStandardPlate implements Plate {
+export class StandardPlate implements Plate {
   readonly #value: string;
   readonly #validator: Validator<string>;
 
   constructor(
     value: string,
-    validator: Validator<string> = new PlateValidator(),
+    validator: Validator<string> = new RussianPlateValidator(),
   ) {
     this.#validator = validator;
     this.#value = value;
@@ -19,7 +19,7 @@ export class RussianStandardPlate implements Plate {
     try {
       if (!this.#validator.isValid(this.#value)) {
         const validPlate = this.#validator.tryFormat(this.#value);
-        return new RussianPhoneNumber(validPlate).value;
+        return new StandardPhoneNumber(validPlate).value;
       }
       return this.#value;
     } catch (e) {
