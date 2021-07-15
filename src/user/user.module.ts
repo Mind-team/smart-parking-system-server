@@ -14,7 +14,7 @@ const Factory = {
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'User', schema: UserSchema },
+      { name: 'RegisteredUser', schema: UserSchema },
       { name: 'UnregisteredUser', schema: UnregisteredUserSchema },
     ]),
   ],

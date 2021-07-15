@@ -16,14 +16,22 @@ import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 
 @Injectable()
 export class UserService {
+  readonly #registeredUserModel: Model<UserDocument>;
+  readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
+  readonly #factory: Factory;
+
   constructor(
-    @InjectModel('User')
-    private readonly userModel: Model<UserDocument>,
+    @InjectModel('RegisteredUser')
+    registeredUserModel: Model<UserDocument>,
     @InjectModel('UnregisteredUser')
-    private readonly unregisteredUserModel: Model<UnregisteredUserDocument>,
+    unregisteredUserModel: Model<UnregisteredUserDocument>,
     @Inject('Factory')
-    private readonly factory: Factory,
-  ) {}
+    factory: Factory,
+  ) {
+    this.#registeredUserModel = registeredUserModel;
+    this.#unregisteredUserModel = unregisteredUserModel;
+    this.#factory = factory;
+  }
 
   async signIn({ phoneNumber, password }: SignInData) {
     try {
@@ -49,16 +57,16 @@ export class UserService {
         password,
         await bcrypt.genSalt(),
       );
-      const existentInfo = await this.unregisteredUserModel.findOne({
+      const existentInfo = await this.#unregisteredUserModel.findOne({
         plates,
       });
-      const user = this.factory.user(
-        this.factory.phoneNumber(phoneNumber),
+      const user = this.#factory.user(
+        this.#factory.phoneNumber(phoneNumber),
         hashedPassword,
-        new UniquePlatesArray(plates.map((el) => this.factory.plate(el))),
+        new UniquePlatesArray(plates.map((el) => this.#factory.plate(el))),
         existentInfo
           ? existentInfo.parkings.map((parking) =>
-              this.factory.completedParking(
+              this.#factory.completedParking(
                 parking.parkingTitle,
                 parking.carPlate,
                 parking.entryCarTime,
@@ -70,8 +78,8 @@ export class UserService {
           : [],
         email,
       );
-      await this.unregisteredUserModel.deleteOne({ plates });
-      await new this.userModel(user.content()).save();
+      await this.#unregisteredUserModel.deleteOne({ plates });
+      await new this.#registeredUserModel(user.content()).save();
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
@@ -89,8 +97,11 @@ export class UserService {
     // TODO: Проверка, что номер записался в пользователя
     try {
       const user = await this.#findUser(phoneNumber, password);
-      user.addPlate(this.factory.plate(plate));
-      await this.userModel.updateOne({ plates: plate }, user.content());
+      user.addPlate(this.#factory.plate(plate));
+      await this.#registeredUserModel.updateOne(
+        { plates: plate },
+        user.content(),
+      );
       return new SuccessfulResponse(
         HttpStatus.OK,
         'Plate number added successfully',
@@ -121,20 +132,20 @@ export class UserService {
     phoneNumber: string,
     password: string,
   ): Promise<User<'Registered'>> {
-    const userRecord = await this.userModel.findOne({
-      phoneNumber: this.factory.phoneNumber(phoneNumber).value,
+    const userRecord = await this.#registeredUserModel.findOne({
+      phoneNumber: this.#factory.phoneNumber(phoneNumber).value,
     });
     if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
       throw new Error('Phone number or password incorrect');
     }
-    return this.factory.user(
-      this.factory.phoneNumber(userRecord.phoneNumber),
+    return this.#factory.user(
+      this.#factory.phoneNumber(userRecord.phoneNumber),
       userRecord.password,
       new UniquePlatesArray(
-        userRecord.plates.map((value) => this.factory.plate(value)),
+        userRecord.plates.map((value) => this.#factory.plate(value)),
       ),
       userRecord.parkings.map((plate) =>
-        this.factory.completedParking(
+        this.#factory.completedParking(
           plate.parkingTitle,
           plate.carPlate,
           plate.entryCarTime,
