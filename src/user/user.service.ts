@@ -1,6 +1,6 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserDocument } from '../schemas/user.schema';
+import { RegisteredUserDocument } from '../schemas/registered-user.schema';
 import { Model } from 'mongoose';
 import { RegisteredUserRecord } from '../infrastructure/records/registered-user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
@@ -16,13 +16,13 @@ import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 
 @Injectable()
 export class UserService {
-  readonly #registeredUserModel: Model<UserDocument>;
+  readonly #registeredUserModel: Model<RegisteredUserDocument>;
   readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
   readonly #factory: Factory;
 
   constructor(
     @InjectModel('RegisteredUser')
-    registeredUserModel: Model<UserDocument>,
+    registeredUserModel: Model<RegisteredUserDocument>,
     @InjectModel('UnregisteredUser')
     unregisteredUserModel: Model<UnregisteredUserDocument>,
     @Inject('Factory')

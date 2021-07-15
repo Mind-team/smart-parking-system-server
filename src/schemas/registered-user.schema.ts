@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { RegisteredUserRecord } from '../infrastructure/records/registered-user-record.infrastructure';
 import { ParkingRecordSchema } from './parking-record.schema';
 
-export const UserSchema = new mongoose.Schema<
+export const RegisteredUserSchema = new mongoose.Schema<
   mongoose.Document<RegisteredUserRecord>
 >({
   phoneNumber: { type: String, require: true, unique: true },
@@ -19,4 +19,4 @@ export const UserSchema = new mongoose.Schema<
   parkings: [ParkingRecordSchema],
 });
 
-export type UserDocument = RegisteredUserRecord & mongoose.Document;
+export type RegisteredUserDocument = RegisteredUserRecord & mongoose.Document;
