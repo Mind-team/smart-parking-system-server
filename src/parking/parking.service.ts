@@ -13,14 +13,22 @@ import { User } from '../models/interfaces/user.interface';
 
 @Injectable()
 export class ParkingService {
+  #registeredUserModel: Model<UserDocument>;
+  #unregisteredUserModel: Model<UnregisteredUserDocument>;
+  #factory: Factory;
+
   constructor(
-    @InjectModel('User')
-    private readonly userModel: Model<UserDocument>,
+    @InjectModel('RegisteredUser')
+    registeredUserModel: Model<UserDocument>,
     @InjectModel('UnregisteredUser')
-    private readonly unregisteredUserModel: Model<UnregisteredUserDocument>,
+    unregisteredUserModel: Model<UnregisteredUserDocument>,
     @Inject('Factory')
-    private readonly factory: Factory,
-  ) {}
+    factory: Factory,
+  ) {
+    this.#registeredUserModel = registeredUserModel;
+    this.#unregisteredUserModel = unregisteredUserModel;
+    this.#factory = factory;
+  }
 
   async registerCarEntry({
     parkingTitle,
@@ -30,12 +38,15 @@ export class ParkingService {
     try {
       const [user, type] = await this.#userByPlate(carPlate);
       user.registerParking(
-        this.factory.uncompletedParking(parkingTitle, carPlate, entryCarTime),
+        this.#factory.uncompletedParking(parkingTitle, carPlate, entryCarTime),
       );
       if (type === 'Registered') {
-        await this.userModel.updateOne({ plates: carPlate }, user.content());
+        await this.#registeredUserModel.updateOne(
+          { plates: carPlate },
+          user.content(),
+        );
       } else {
-        await this.unregisteredUserModel.updateOne(
+        await this.#unregisteredUserModel.updateOne(
           { plates: carPlate },
           user.content(),
         );
@@ -58,9 +69,12 @@ export class ParkingService {
       const parking = user.lastParking('pop').complete(departureCarTime);
       user.registerParking(parking);
       if (type === 'Registered') {
-        await this.userModel.updateOne({ plates: carPlate }, user.content());
+        await this.#registeredUserModel.updateOne(
+          { plates: carPlate },
+          user.content(),
+        );
       } else {
-        await this.unregisteredUserModel.updateOne(
+        await this.#unregisteredUserModel.updateOne(
           { plates: carPlate },
           user.content(),
         );
@@ -79,19 +93,19 @@ export class ParkingService {
   ): Promise<
     [User<'Registered'>, 'Registered'] | [User<'Unregistered'>, 'Unregistered']
   > {
-    const user = await this.userModel.findOne({
-      plates: this.factory.plate(plate).value,
+    const user = await this.#registeredUserModel.findOne({
+      plates: this.#factory.plate(plate).value,
     });
     // TODO: try to improve
     if (user) {
-      const result = this.factory.user(
-        this.factory.phoneNumber(user.phoneNumber),
+      const result = this.#factory.user(
+        this.#factory.phoneNumber(user.phoneNumber),
         user.password,
         new UniquePlatesArray(
-          user.plates.map((value) => this.factory.plate(value)),
+          user.plates.map((value) => this.#factory.plate(value)),
         ),
         user.parkings.map((parking) =>
-          this.factory.completedParking(
+          this.#factory.completedParking(
             parking.parkingTitle,
             parking.carPlate,
             parking.entryCarTime,
@@ -104,16 +118,16 @@ export class ParkingService {
       );
       return [result, 'Registered'];
     }
-    const unregisteredUser = await this.unregisteredUserModel.findOne({
-      plates: this.factory.plate(plate).value,
+    const unregisteredUser = await this.#unregisteredUserModel.findOne({
+      plates: this.#factory.plate(plate).value,
     });
     if (unregisteredUser) {
-      const result = this.factory.unregisteredUser(
+      const result = this.#factory.unregisteredUser(
         new UniquePlatesArray(
-          unregisteredUser.plates.map((value) => this.factory.plate(value)),
+          unregisteredUser.plates.map((value) => this.#factory.plate(value)),
         ),
         unregisteredUser.parkings.map((parking) =>
-          this.factory.completedParking(
+          this.#factory.completedParking(
             parking.parkingTitle,
             parking.carPlate,
             parking.entryCarTime,
@@ -129,17 +143,17 @@ export class ParkingService {
   }
 
   async #createUnregisteredUser(plate: string) {
-    const user = await new this.unregisteredUserModel(
-      this.factory
+    const user = await new this.#unregisteredUserModel(
+      this.#factory
         .unregisteredUser(
-          new UniquePlatesArray([this.factory.plate(plate)]),
+          new UniquePlatesArray([this.#factory.plate(plate)]),
           [],
         )
         .content(),
     ).save();
-    return this.factory.unregisteredUser(
+    return this.#factory.unregisteredUser(
       new UniquePlatesArray(
-        user.plates.map((value) => this.factory.plate(value)),
+        user.plates.map((value) => this.#factory.plate(value)),
       ),
       [],
     );
