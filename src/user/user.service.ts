@@ -1,8 +1,8 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserDocument } from '../schemas/user.schema';
+import { RegisteredUserDocument } from '../schemas/registered-user.schema';
 import { Model } from 'mongoose';
-import { UserRecord } from '../infrastructure/records/user-record.infrastructure';
+import { RegisteredUserRecord } from '../infrastructure/records/registered-user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from './types/sign-in-data.type';
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
@@ -12,19 +12,30 @@ import { SignUpData } from './types/sign-up-data.type';
 import { UniquePlatesArray } from '../models/unique-plates-array.model';
 import { Factory } from '../infrastructure/factory.infrastructure';
 import { User } from '../models/interfaces/user.interface';
+import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 
 @Injectable()
 export class UserService {
+  readonly #registeredUserModel: Model<RegisteredUserDocument>;
+  readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
+  readonly #factory: Factory;
+
   constructor(
-    @InjectModel('User')
-    private readonly userModel: Model<UserDocument>,
+    @InjectModel('RegisteredUser')
+    registeredUserModel: Model<RegisteredUserDocument>,
+    @InjectModel('UnregisteredUser')
+    unregisteredUserModel: Model<UnregisteredUserDocument>,
     @Inject('Factory')
-    private readonly factory: Factory,
-  ) {}
+    factory: Factory,
+  ) {
+    this.#registeredUserModel = registeredUserModel;
+    this.#unregisteredUserModel = unregisteredUserModel;
+    this.#factory = factory;
+  }
 
   async signIn({ phoneNumber, password }: SignInData) {
     try {
-      return new FilledSuccessfulResponse<UserRecord>(
+      return new FilledSuccessfulResponse<RegisteredUserRecord>(
         HttpStatus.OK,
         'Successful login',
         (await this.#findUser(phoneNumber, password)).content(),
@@ -46,14 +57,29 @@ export class UserService {
         password,
         await bcrypt.genSalt(),
       );
-      const user = this.factory.user(
-        this.factory.phoneNumber(phoneNumber),
+      const existentInfo = await this.#unregisteredUserModel.findOne({
+        plates,
+      });
+      const user = this.#factory.user(
+        this.#factory.phoneNumber(phoneNumber),
         hashedPassword,
-        new UniquePlatesArray(plates.map((el) => this.factory.plate(el))),
-        [],
+        new UniquePlatesArray(plates.map((el) => this.#factory.plate(el))),
+        existentInfo
+          ? existentInfo.parkings.map((parking) =>
+              this.#factory.completedParking(
+                parking.parkingTitle,
+                parking.carPlate,
+                parking.entryCarTime,
+                parking.departureCarTime,
+                parking.priceRub,
+                parking.isCompleted,
+              ),
+            )
+          : [],
         email,
       );
-      await new this.userModel(user.content()).save();
+      await this.#unregisteredUserModel.deleteOne({ plates });
+      await new this.#registeredUserModel(user.content()).save();
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
@@ -71,8 +97,11 @@ export class UserService {
     // TODO: Проверка, что номер записался в пользователя
     try {
       const user = await this.#findUser(phoneNumber, password);
-      user.addPlate(this.factory.plate(plate));
-      await this.userModel.updateOne({ plates: plate }, user.content());
+      user.addPlate(this.#factory.plate(plate));
+      await this.#registeredUserModel.updateOne(
+        { plates: plate },
+        user.content(),
+      );
       return new SuccessfulResponse(
         HttpStatus.OK,
         'Plate number added successfully',
@@ -99,21 +128,24 @@ export class UserService {
     }
   }
 
-  async #findUser(phoneNumber: string, password: string): Promise<User> {
-    const userRecord = await this.userModel.findOne({
-      phoneNumber: this.factory.phoneNumber(phoneNumber).value,
+  async #findUser(
+    phoneNumber: string,
+    password: string,
+  ): Promise<User<'Registered'>> {
+    const userRecord = await this.#registeredUserModel.findOne({
+      phoneNumber: this.#factory.phoneNumber(phoneNumber).value,
     });
     if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
       throw new Error('Phone number or password incorrect');
     }
-    return this.factory.user(
-      this.factory.phoneNumber(userRecord.phoneNumber),
+    return this.#factory.user(
+      this.#factory.phoneNumber(userRecord.phoneNumber),
       userRecord.password,
       new UniquePlatesArray(
-        userRecord.plates.map((value) => this.factory.plate(value)),
+        userRecord.plates.map((value) => this.#factory.plate(value)),
       ),
       userRecord.parkings.map((plate) =>
-        this.factory.completedParking(
+        this.#factory.completedParking(
           plate.parkingTitle,
           plate.carPlate,
           plate.entryCarTime,

@@ -15,7 +15,11 @@ export interface Factory {
     plates: UniqueArray<Plate>,
     parkings: Parking[],
     email?: string,
-  ) => User;
+  ) => User<'Registered'>;
+  unregisteredUser: (
+    plates: UniqueArray<Plate>,
+    parkings: Parking[],
+  ) => User<'Unregistered'>;
   uncompletedParking: (
     parkingTitle: string,
     carPlate: string,

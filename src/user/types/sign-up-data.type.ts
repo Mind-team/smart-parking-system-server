@@ -1,3 +1,3 @@
-import { UserRecord } from '../../infrastructure/records/user-record.infrastructure';
+import { RegisteredUserRecord } from '../../infrastructure/records/registered-user-record.infrastructure';
 
-export type SignUpData = Omit<UserRecord, 'parkings'>;
+export type SignUpData = Omit<RegisteredUserRecord, 'parkings'>;
