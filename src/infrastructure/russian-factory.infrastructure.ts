@@ -12,6 +12,7 @@ import { Parking } from '../models/interfaces/parking.interface';
 import { Factory } from './factory.infrastructure';
 import { Injectable } from '@nestjs/common';
 import { UnregisteredStandardUser } from '../models/unregistered-standard-user.model';
+import { ParkingOwner } from '../models/interfaces/parking-owner.interface';
 
 @Injectable()
 export class RussianFactory implements Factory {
@@ -34,36 +35,28 @@ export class RussianFactory implements Factory {
   }
 
   uncompletedParking(
-    parkingTitle: string,
+    parkingOwner: ParkingOwner,
     carPlate: string,
     entryCarTime: Date,
-    calculator?: PriceCalculator,
   ): Parking {
-    return new StandardParking(
-      parkingTitle,
-      carPlate,
-      entryCarTime,
-      calculator,
-    );
+    return new StandardParking(parkingOwner, carPlate, entryCarTime);
   }
 
   completedParking(
-    parkingTitle: string,
+    parkingOwner: ParkingOwner,
     carPlate: string,
     entryCarTime: Date,
     departureCarTime: Date,
     priceRub: number,
     isCompleted: boolean,
-    calculator?: PriceCalculator,
   ): Parking {
     return new StandardParking(
-      parkingTitle,
+      parkingOwner,
       carPlate,
       entryCarTime,
       departureCarTime,
       priceRub,
       isCompleted,
-      calculator,
     );
   }
 
