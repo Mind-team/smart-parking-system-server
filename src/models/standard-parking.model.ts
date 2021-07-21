@@ -7,7 +7,6 @@ import { ParkingOwner } from './interfaces/parking-owner.interface';
 export class StandardParking implements Parking {
   #id: string; // todo: make readonly
   readonly #parkingOwner: ParkingOwner;
-  readonly #parkingTitle: string;
   readonly #carPlate: string;
   readonly #entryCarTime: Date;
   readonly #departureCarTime: Date | null;
@@ -26,7 +25,6 @@ export class StandardParking implements Parking {
   constructor(...args) {
     this.#id = new StandardIdGenerator().generate();
     this.#parkingOwner = args[0];
-    this.#parkingTitle = this.#parkingOwner.content().title;
     this.#carPlate = args[1];
     this.#entryCarTime = args[2];
     if (args.length < 6) {
@@ -59,7 +57,7 @@ export class StandardParking implements Parking {
     }
     return {
       id: this.#id,
-      parkingTitle: this.#parkingTitle,
+      parkingTitle: this.#parkingOwner.content().title,
       carPlate: this.#carPlate,
       entryCarTime: this.#entryCarTime,
       departureCarTime: depTime,
