@@ -7,7 +7,6 @@ import { StandardUser } from '../models/standard-user.model';
 import { UniqueArray } from '../models/interfaces/unique-array.interface';
 import { StandardParking } from '../models/standard-parking.model';
 import { User } from '../models/interfaces/user.interface';
-import { PriceCalculator } from '../models/interfaces/price-calculator.interface';
 import { Parking } from '../models/interfaces/parking.interface';
 import { Factory } from './factory.infrastructure';
 import { Injectable } from '@nestjs/common';

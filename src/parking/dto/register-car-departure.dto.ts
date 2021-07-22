@@ -1,4 +1,5 @@
 export class RegisterCarDepartureDto {
+  parkingOwnerId: string;
   carPlate: string;
-  departureCarTime: string;
+  departureCarTime: number; // TODO: UPDATE API FILE!!!!!
 }

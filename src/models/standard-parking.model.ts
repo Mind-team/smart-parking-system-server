@@ -57,6 +57,7 @@ export class StandardParking implements Parking {
     }
     return {
       id: this.#id,
+      parkingOwnerId: this.#parkingOwner.content().id,
       parkingTitle: this.#parkingOwner.content().title,
       carPlate: this.#carPlate,
       entryCarTime: this.#entryCarTime,

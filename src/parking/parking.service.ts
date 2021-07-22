@@ -10,37 +10,60 @@ import { UniquePlatesArray } from '../models/unique-plates-array.model';
 import { Factory } from '../infrastructure/factory.infrastructure';
 import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 import { User } from '../models/interfaces/user.interface';
+import { ParkingOwnerFactory } from '../infrastructure/parking-owner-factory.infrastructure';
+import { ParkingOwnerDocument } from '../schemas/parking-owner';
 
 @Injectable()
 export class ParkingService {
-  #registeredUserModel: Model<RegisteredUserDocument>;
+  #registeredUserModel: Model<RegisteredUserDocument>; // TODO: make all it readonly
   #unregisteredUserModel: Model<UnregisteredUserDocument>;
-  #factory: Factory;
+  #userFactory: Factory;
+  #parkingOwnerFactory: ParkingOwnerFactory;
+  #parkingOwnerModel: Model<ParkingOwnerDocument>;
 
   constructor(
     @InjectModel('RegisteredUser')
     registeredUserModel: Model<RegisteredUserDocument>,
     @InjectModel('UnregisteredUser')
     unregisteredUserModel: Model<UnregisteredUserDocument>,
-    @Inject('Factory')
-    factory: Factory,
+    @InjectModel('parking-owner')
+    parkingOwnerModel: Model<ParkingOwnerDocument>,
+    @Inject('UserFactory')
+    userFactory: Factory,
+    @Inject('ParkingOwnerFactory')
+    parkingOwnerFactory: ParkingOwnerFactory,
   ) {
     this.#registeredUserModel = registeredUserModel;
     this.#unregisteredUserModel = unregisteredUserModel;
-    this.#factory = factory;
+    this.#userFactory = userFactory;
+    this.#parkingOwnerFactory = parkingOwnerFactory;
+    this.#parkingOwnerModel = parkingOwnerModel;
   }
 
   async registerCarEntry({
-    parkingTitle,
+    parkingOwnerId,
     carPlate,
     entryCarTime,
   }: EntryCarParkingRecord) {
     try {
-      const [user, type] = await this.#userByPlate(carPlate);
-      user.registerParking(
-        this.#factory.uncompletedParking(parkingTitle, carPlate, entryCarTime),
+      let [userDocument, type] = await this.#userDocumentByPlate(carPlate);
+      if (type === 'null') {
+        userDocument = await this.#createUnregisteredUser(carPlate);
+        type = 'unregistered';
+      }
+      const user = await this.#mappingUserDocument(
+        userDocument,
+        type,
+        parkingOwnerId,
       );
-      if (type === 'Registered') {
+      user.registerParking(
+        this.#userFactory.uncompletedParking(
+          await this.#parkingOwnerById(parkingOwnerId),
+          carPlate,
+          entryCarTime,
+        ),
+      );
+      if (type === 'registered') {
         await this.#registeredUserModel.updateOne(
           { plates: carPlate },
           user.content(),
@@ -61,14 +84,23 @@ export class ParkingService {
   }
 
   async registerCarDeparture({
+    parkingOwnerId,
     carPlate,
     departureCarTime,
   }: DepartureCarParkingRecord) {
     try {
-      const [user, type] = await this.#userByPlate(carPlate);
+      const [userDocument, type] = await this.#userDocumentByPlate(carPlate);
+      if (type === 'null') {
+        return new FailedResponse(HttpStatus.BAD_REQUEST, ''); // TODO: HANDLE IT!
+      }
+      const user = await this.#mappingUserDocument(
+        userDocument,
+        type,
+        parkingOwnerId,
+      );
       const parking = user.lastParking('pop').complete(departureCarTime);
       user.registerParking(parking);
-      if (type === 'Registered') {
+      if (type === 'registered') {
         await this.#registeredUserModel.updateOne(
           { plates: carPlate },
           user.content(),
@@ -88,25 +120,45 @@ export class ParkingService {
     }
   }
 
-  async #userByPlate(
+  async #userDocumentByPlate(
     plate: string,
   ): Promise<
-    [User<'Registered'>, 'Registered'] | [User<'Unregistered'>, 'Unregistered']
+    | [RegisteredUserDocument, 'registered']
+    | [UnregisteredUserDocument, 'unregistered']
+    | [null, 'null']
   > {
     const user = await this.#registeredUserModel.findOne({
-      plates: this.#factory.plate(plate).value,
+      plates: this.#userFactory.plate(plate).value,
     });
-    // TODO: try to improve
     if (user) {
-      const result = this.#factory.user(
-        this.#factory.phoneNumber(user.phoneNumber),
+      return [user, 'registered'];
+    }
+    const unregisteredUser = await this.#unregisteredUserModel.findOne({
+      plates: this.#userFactory.plate(plate).value,
+    });
+    if (unregisteredUser) {
+      return [unregisteredUser, 'unregistered'];
+    }
+    return [null, 'null'];
+  }
+
+  async #mappingUserDocument(
+    userDocument: RegisteredUserDocument | UnregisteredUserDocument,
+    userType: 'registered' | 'unregistered',
+    parkingOwnerId: string,
+  ) {
+    const parkingOwner = await this.#parkingOwnerById(parkingOwnerId);
+    if (userType === 'registered') {
+      const user = userDocument as RegisteredUserDocument;
+      return this.#userFactory.user(
+        this.#userFactory.phoneNumber(user.phoneNumber),
         user.password,
         new UniquePlatesArray(
-          user.plates.map((value) => this.#factory.plate(value)),
+          user.plates.map((value) => this.#userFactory.plate(value)),
         ),
         user.parkings.map((parking) =>
-          this.#factory.completedParking(
-            parking.parkingTitle,
+          this.#userFactory.completedParking(
+            parkingOwner,
             parking.carPlate,
             parking.entryCarTime,
             parking.departureCarTime,
@@ -116,19 +168,15 @@ export class ParkingService {
         ),
         user.email,
       );
-      return [result, 'Registered'];
     }
-    const unregisteredUser = await this.#unregisteredUserModel.findOne({
-      plates: this.#factory.plate(plate).value,
-    });
-    if (unregisteredUser) {
-      const result = this.#factory.unregisteredUser(
+    if (userType === 'unregistered') {
+      return this.#userFactory.unregisteredUser(
         new UniquePlatesArray(
-          unregisteredUser.plates.map((value) => this.#factory.plate(value)),
+          userDocument.plates.map((value) => this.#userFactory.plate(value)),
         ),
-        unregisteredUser.parkings.map((parking) =>
-          this.#factory.completedParking(
-            parking.parkingTitle,
+        userDocument.parkings.map((parking) =>
+          this.#userFactory.completedParking(
+            parkingOwner,
             parking.carPlate,
             parking.entryCarTime,
             parking.departureCarTime,
@@ -137,25 +185,29 @@ export class ParkingService {
           ),
         ),
       );
-      return [result, 'Unregistered'];
     }
-    return [await this.#createUnregisteredUser(plate), 'Unregistered'];
   }
 
   async #createUnregisteredUser(plate: string) {
-    const user = await new this.#unregisteredUserModel(
-      this.#factory
+    return await new this.#unregisteredUserModel(
+      this.#userFactory
         .unregisteredUser(
-          new UniquePlatesArray([this.#factory.plate(plate)]),
+          new UniquePlatesArray([this.#userFactory.plate(plate)]),
           [],
         )
         .content(),
     ).save();
-    return this.#factory.unregisteredUser(
-      new UniquePlatesArray(
-        user.plates.map((value) => this.#factory.plate(value)),
-      ),
-      [],
+  }
+
+  async #parkingOwnerById(id: string) {
+    const parkingOwnerRecord = await this.#parkingOwnerModel.findOne({ id });
+    if (!parkingOwnerRecord) {
+      throw new Error('There is no parking owner with this id');
+    }
+    return this.#parkingOwnerFactory.owner(
+      id,
+      parkingOwnerRecord.title,
+      parkingOwnerRecord.costCalculationFunction,
     );
   }
 }
