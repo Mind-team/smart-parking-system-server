@@ -5,7 +5,7 @@ import { ParkingContent } from './interfaces/parking-content.interface';
 import { ParkingOwner } from './interfaces/parking-owner.interface';
 
 export class StandardParking implements Parking {
-  #id: string; // todo: make readonly
+  #id: string;
   readonly #parkingOwner: ParkingOwner;
   readonly #carPlate: string;
   readonly #entryCarTime: Date;
