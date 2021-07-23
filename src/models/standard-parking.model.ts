@@ -55,10 +55,11 @@ export class StandardParking implements Parking {
         priceRub = this.#parkingOwner.parkingCost(this.#entryCarTime, depTime);
       }
     }
+    const { id, title } = this.#parkingOwner.content();
     return {
       id: this.#id,
-      parkingOwnerId: this.#parkingOwner.content().id,
-      parkingTitle: this.#parkingOwner.content().title,
+      parkingOwnerId: id,
+      parkingTitle: title,
       carPlate: this.#carPlate,
       entryCarTime: this.#entryCarTime,
       departureCarTime: depTime,
