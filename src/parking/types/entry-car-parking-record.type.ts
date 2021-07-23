@@ -1,15 +1,10 @@
 import { ParkingRecord } from '../../infrastructure/records/parking-record.infrastructure';
 import { ParkingOwnerRecord } from '../../infrastructure/records/parking-owner-record.infrastructure';
 
-export type FromParkingRecord = Pick<
-  ParkingRecord,
-  'carPlate' | 'entryCarTime'
->;
-
-type parkingOwnerId = ParkingOwnerRecord['id'];
+type FromParkingRecord = Pick<ParkingRecord, 'carPlate' | 'entryCarTime'>;
 
 type FromParkingOwnerRecord = {
-  parkingOwnerId: parkingOwnerId;
+  parkingOwnerId: ParkingOwnerRecord['id'];
 };
 
 export type EntryCarParkingRecord = FromParkingRecord & FromParkingOwnerRecord;
