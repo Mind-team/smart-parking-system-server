@@ -7,7 +7,7 @@ import { SuccessfulResponse } from '../infrastructure/server-responses/successfu
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
 import { DepartureCarParkingRecord } from './types/departure-car-parking-record.type';
 import { UniquePlatesArray } from '../models/unique-plates-array.model';
-import { Factory } from '../infrastructure/factory.infrastructure';
+import { UserFactory } from '../infrastructure/user-factory.infrastructure';
 import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 import { ParkingOwnerFactory } from '../infrastructure/parking-owner-factory.infrastructure';
 import { ParkingOwnerDocument } from '../schemas/parking-owner';
@@ -16,7 +16,7 @@ import { ParkingOwnerDocument } from '../schemas/parking-owner';
 export class ParkingService {
   readonly #registeredUserModel: Model<RegisteredUserDocument>;
   readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
-  readonly #userFactory: Factory;
+  readonly #userFactory: UserFactory;
   readonly #parkingOwnerFactory: ParkingOwnerFactory;
   readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
 
@@ -28,7 +28,7 @@ export class ParkingService {
     @InjectModel('parking-owner')
     parkingOwnerModel: Model<ParkingOwnerDocument>,
     @Inject('UserFactory')
-    userFactory: Factory,
+    userFactory: UserFactory,
     @Inject('ParkingOwnerFactory')
     parkingOwnerFactory: ParkingOwnerFactory,
   ) {

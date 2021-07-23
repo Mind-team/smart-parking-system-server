@@ -6,7 +6,7 @@ import { User } from '../models/interfaces/user.interface';
 import { Parking } from '../models/interfaces/parking.interface';
 import { ParkingOwner } from '../models/interfaces/parking-owner.interface';
 
-export interface Factory {
+export interface UserFactory {
   phoneNumber: (value: string, validator?: Validator<string>) => PhoneNumber;
   plate: (value: string, validator?: Validator<string>) => Plate;
   user: (

@@ -10,7 +10,7 @@ import { SuccessfulResponse } from '../infrastructure/server-responses/successfu
 import { FilledSuccessfulResponse } from '../infrastructure/server-responses/filled-successful-response.infrastructure';
 import { SignUpData } from './types/sign-up-data.type';
 import { UniquePlatesArray } from '../models/unique-plates-array.model';
-import { Factory } from '../infrastructure/factory.infrastructure';
+import { UserFactory } from '../infrastructure/user-factory.infrastructure';
 import { User } from '../models/interfaces/user.interface';
 import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 import { RussianParkingOwnerFactory } from '../infrastructure/russian-parking-owner-factory.infrastructure';
@@ -19,7 +19,7 @@ import { RussianParkingOwnerFactory } from '../infrastructure/russian-parking-ow
 export class UserService {
   readonly #registeredUserModel: Model<RegisteredUserDocument>;
   readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
-  readonly #userFactory: Factory;
+  readonly #userFactory: UserFactory;
   readonly #parkingOwnerFactory: RussianParkingOwnerFactory;
 
   constructor(
@@ -28,7 +28,7 @@ export class UserService {
     @InjectModel('UnregisteredUser')
     unregisteredUserModel: Model<UnregisteredUserDocument>,
     @Inject('UserFactory')
-    userFactory: Factory,
+    userFactory: UserFactory,
     @Inject('ParkingOwnerFactory')
     parkingOwnerFactory: RussianParkingOwnerFactory,
   ) {
