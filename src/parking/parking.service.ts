@@ -9,17 +9,16 @@ import { DepartureCarParkingRecord } from './types/departure-car-parking-record.
 import { UniquePlatesArray } from '../models/unique-plates-array.model';
 import { Factory } from '../infrastructure/factory.infrastructure';
 import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
-import { User } from '../models/interfaces/user.interface';
 import { ParkingOwnerFactory } from '../infrastructure/parking-owner-factory.infrastructure';
 import { ParkingOwnerDocument } from '../schemas/parking-owner';
 
 @Injectable()
 export class ParkingService {
-  #registeredUserModel: Model<RegisteredUserDocument>; // TODO: make all it readonly
-  #unregisteredUserModel: Model<UnregisteredUserDocument>;
-  #userFactory: Factory;
-  #parkingOwnerFactory: ParkingOwnerFactory;
-  #parkingOwnerModel: Model<ParkingOwnerDocument>;
+  readonly #registeredUserModel: Model<RegisteredUserDocument>;
+  readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
+  readonly #userFactory: Factory;
+  readonly #parkingOwnerFactory: ParkingOwnerFactory;
+  readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
 
   constructor(
     @InjectModel('RegisteredUser')
