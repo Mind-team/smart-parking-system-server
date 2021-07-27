@@ -149,14 +149,14 @@ export class UserService {
       new UniquePlatesArray(
         userRecord.plates.map((value) => this.#userFactory.plate(value)),
       ),
-      userRecord.parkings.map((plate) =>
+      userRecord.parkings.map((parking) =>
         this.#userFactory.completedParking(
-          plate.parkingTitle as any,
-          plate.carPlate,
-          plate.entryCarTime,
-          plate.departureCarTime,
-          plate.priceRub,
-          plate.isCompleted,
+          this.#parkingOwnerFactory.owner(parking.parkingTitle, ''),
+          parking.carPlate,
+          parking.entryCarTime,
+          parking.departureCarTime,
+          parking.priceRub,
+          parking.isCompleted,
         ),
       ),
       userRecord.email,
