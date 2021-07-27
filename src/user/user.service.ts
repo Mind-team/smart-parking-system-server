@@ -72,7 +72,7 @@ export class UserService {
         existentInfo
           ? existentInfo.parkings.map((parking) =>
               this.#userFactory.completedParking(
-                parking.parkingTitle as any,
+                this.#parkingOwnerFactory.owner(parking.parkingTitle, ''),
                 parking.carPlate,
                 parking.entryCarTime,
                 parking.departureCarTime,
