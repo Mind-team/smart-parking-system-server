@@ -10,7 +10,7 @@ import { UniquePlatesArray } from '../models/unique-plates-array.model';
 import { UserFactory } from '../infrastructure/user-factory.infrastructure';
 import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 import { ParkingOwnerFactory } from '../infrastructure/parking-owner-factory.infrastructure';
-import { ParkingOwnerDocument } from '../schemas/parking-owner';
+import { ParkingOwnerDocument } from '../schemas/parking-owner.schema';
 
 @Injectable()
 export class ParkingService {
@@ -63,6 +63,7 @@ export class ParkingService {
         ),
       );
       if (type === 'registered') {
+        console.log(user.content());
         await this.#registeredUserModel.updateOne(
           { plates: carPlate },
           user.content(),
@@ -199,7 +200,9 @@ export class ParkingService {
   }
 
   async #parkingOwnerById(id: string) {
-    const parkingOwnerRecord = await this.#parkingOwnerModel.findOne({ id });
+    const parkingOwnerRecord = await this.#parkingOwnerModel.findOne({
+      _id: id,
+    });
     if (!parkingOwnerRecord) {
       throw new Error('There is no parking owner with this id');
     }

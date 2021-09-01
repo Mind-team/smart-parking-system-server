@@ -2,7 +2,7 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { SignUp } from './types/sign-up.type';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ParkingOwnerDocument } from '../schemas/parking-owner';
+import { ParkingOwnerDocument } from '../schemas/parking-owner.schema';
 import { ParkingOwnerFactory } from '../infrastructure/parking-owner-factory.infrastructure';
 import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
 import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
@@ -24,11 +24,10 @@ export class ParkingOwnerService {
 
   async signUp({ title, costCalculationFunction }: SignUp) {
     try {
-      const parkingOwner = this.#parkingOwnerFactory.owner(
+      await new this.#parkingOwnerModel({
         title,
         costCalculationFunction,
-      );
-      await new this.#parkingOwnerModel(parkingOwner.content()).save();
+      }).save();
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',

@@ -1,29 +1,20 @@
 import { ParkingOwner } from './interfaces/parking-owner.interface';
 import { ParkingOwnerContent } from './interfaces/parking-owner-content.interface';
-import { StandardIdGenerator } from '../infrastructure/standard-id-generator.infrastructure';
 
 export class StandardParkingOwner implements ParkingOwner {
-  readonly #id: string;
+  readonly #_id: string;
   readonly #title: string;
   readonly #costCalculationFunction: string;
 
-  constructor(id: string, title: string, costCalculationFunction: string);
-  constructor(title: string, costCalculationFunction: string);
-  constructor(...args) {
-    if (args.length > 2) {
-      this.#id = args[0];
-      this.#title = args[1];
-      this.#costCalculationFunction = args[2];
-      return;
-    }
-    this.#id = new StandardIdGenerator().generate();
-    this.#title = args[0];
-    this.#costCalculationFunction = args[1];
+  constructor(id: string, title: string, costCalculationFunction: string) {
+    this.#_id = id;
+    this.#title = title;
+    this.#costCalculationFunction = costCalculationFunction;
   }
 
   content(): ParkingOwnerContent {
     return {
-      id: this.#id,
+      _id: this.#_id,
       title: this.#title,
       costCalculationFunction: this.#costCalculationFunction,
     };

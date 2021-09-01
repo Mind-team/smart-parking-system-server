@@ -6,6 +6,7 @@ import { RegisteredUserSchema } from '../schemas/registered-user.schema';
 import { RussianUserFactory } from '../infrastructure/russian-user-factory.infrastructure';
 import { UnregisteredUserSchema } from '../schemas/unregistered-user.schema';
 import { RussianParkingOwnerFactory } from '../infrastructure/russian-parking-owner-factory.infrastructure';
+import { ParkingOwnerSchema } from '../schemas/parking-owner.schema';
 
 const UserFactory = {
   provide: 'UserFactory',
@@ -21,6 +22,7 @@ const ParkingOwnerFactory = {
     MongooseModule.forFeature([
       { name: 'RegisteredUser', schema: RegisteredUserSchema },
       { name: 'UnregisteredUser', schema: UnregisteredUserSchema },
+      { name: 'parking-owner', schema: ParkingOwnerSchema },
     ]),
   ],
   controllers: [UserController],

@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RegisteredUserSchema } from '../schemas/registered-user.schema';
 import { RussianUserFactory } from '../infrastructure/russian-user-factory.infrastructure';
 import { UnregisteredUserSchema } from '../schemas/unregistered-user.schema';
-import { ParkingOwnerSchema } from '../schemas/parking-owner';
+import { ParkingOwnerSchema } from '../schemas/parking-owner.schema';
 import { RussianParkingOwnerFactory } from '../infrastructure/russian-parking-owner-factory.infrastructure';
 
 const UserFactory = {
