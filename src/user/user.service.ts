@@ -1,7 +1,7 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisteredUserDocument } from '../schemas/registered-user.schema';
-import { Model, ObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import { RegisteredUserRecord } from '../infrastructure/records/registered-user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from './types/sign-in-data.type';
@@ -14,20 +14,16 @@ import { UserFactory } from '../infrastructure/user-factory.infrastructure';
 import { User } from '../models/interfaces/user.interface';
 import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 import { RussianParkingOwnerFactory } from '../infrastructure/russian-parking-owner-factory.infrastructure';
-import e from 'express';
-import { UniqueArray } from '../models/interfaces/unique-array.interface';
-import { Plate } from '../models/interfaces/plate.interface';
-import { Parking } from '../models/interfaces/parking.interface';
-import { RegisteredUserContent } from '../models/interfaces/registered-user-content.interface';
 import { ParkingOwnerDocument } from '../schemas/parking-owner.schema';
+import { ParkingRecord } from '../infrastructure/records/parking-record.infrastructure';
 
 @Injectable()
 export class UserService {
   readonly #registeredUserModel: Model<RegisteredUserDocument>;
   readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
+  readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
   readonly #userFactory: UserFactory;
   readonly #parkingOwnerFactory: RussianParkingOwnerFactory;
-  readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
 
   constructor(
     @InjectModel('RegisteredUser')
@@ -48,7 +44,7 @@ export class UserService {
     this.#parkingOwnerModel = parkingOwnerModel;
   }
 
-  async signIn({ phoneNumber, password }: SignInData) {
+  signIn = async ({ phoneNumber, password }: SignInData) => {
     try {
       return new FilledSuccessfulResponse<RegisteredUserRecord>(
         HttpStatus.OK,
@@ -58,9 +54,9 @@ export class UserService {
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
-  }
+  };
 
-  async signUp({ phoneNumber, password, email, plates }: SignUpData) {
+  signUp = async ({ phoneNumber, password, email, plates }: SignUpData) => {
     try {
       if (plates.length === 0) {
         return new FailedResponse(
@@ -75,40 +71,12 @@ export class UserService {
       const existentInfo = await this.#unregisteredUserModel.findOne({
         plates,
       });
-      const parking = existentInfo
-        ? await Promise.all(
-            existentInfo.parkings.map(async (parking) => {
-              const ownerRecord = await this.#parkingOwnerModel.findById(
-                parking.parkingOwnerId,
-              );
-              const owner = this.#parkingOwnerFactory.owner(
-                parking.parkingOwnerId,
-                ownerRecord.title,
-                ownerRecord.costCalculationFunction,
-              );
-              if (parking.isCompleted) {
-                return this.#userFactory.completedParking(
-                  owner,
-                  parking.carPlate,
-                  parking.entryCarTime,
-                  parking.departureCarTime,
-                  parking.priceRub,
-                  parking.isCompleted,
-                );
-              }
-              return this.#userFactory.uncompletedParking(
-                owner,
-                parking.carPlate,
-                parking.entryCarTime,
-              );
-            }),
-          )
-        : [];
+      const parkings = await this.#mapParkings(existentInfo.parkings ?? []);
       const user = this.#userFactory.user(
         this.#userFactory.phoneNumber(phoneNumber),
         hashedPassword,
         new UniquePlatesArray(plates.map((el) => this.#userFactory.plate(el))),
-        parking,
+        parkings,
         email,
       );
       await this.#unregisteredUserModel.deleteOne({ plates });
@@ -120,13 +88,13 @@ export class UserService {
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
-  }
+  };
 
-  async addPlateToUser({
+  addPlateToUser = async ({
     phoneNumber,
     password,
     plate,
-  }: SignInData & { plate: string }) {
+  }: SignInData & { plate: string }) => {
     // TODO: Проверка, что номер записался в пользователя
     try {
       const user = await this.#findUser(phoneNumber, password);
@@ -142,9 +110,9 @@ export class UserService {
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
-  }
+  };
 
-  async lastParkingHistoryElement({ phoneNumber, password }: SignInData) {
+  lastParkingHistoryElement = async ({ phoneNumber, password }: SignInData) => {
     try {
       const user = await this.#findUser(phoneNumber, password);
       console.log(user.content());
@@ -160,12 +128,12 @@ export class UserService {
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
-  }
+  };
 
-  async #findUser(
+  #findUser = async (
     phoneNumber: string,
     password: string,
-  ): Promise<User<'Registered'>> {
+  ): Promise<User<'Registered'>> => {
     const userRecord = await this.#registeredUserModel.findOne({
       phoneNumber: this.#userFactory.phoneNumber(phoneNumber).value,
     });
@@ -174,13 +142,13 @@ export class UserService {
     }
     const parkings = await Promise.all(
       userRecord.parkings.map(async (parking) => {
-        const doc = await this.#parkingOwnerModel.findById(
+        const parkingOwnerRecord = await this.#parkingOwnerModel.findById(
           parking.parkingOwnerId,
         );
         const owner = this.#parkingOwnerFactory.owner(
-          parking.parkingOwnerId,
-          doc.title,
-          doc.costCalculationFunction,
+          parkingOwnerRecord._id,
+          parkingOwnerRecord.title,
+          parkingOwnerRecord.costCalculationFunction,
         );
         return this.#userFactory.completedParking(
           owner,
@@ -201,5 +169,35 @@ export class UserService {
       parkings,
       userRecord.email,
     );
-  }
+  };
+
+  #mapParkings = async (parkings: NonNullable<ParkingRecord[]>) => {
+    return Promise.all(
+      parkings.map(async (parking) => {
+        const ownerRecord = await this.#parkingOwnerModel.findById(
+          parking.parkingOwnerId,
+        );
+        const owner = this.#parkingOwnerFactory.owner(
+          parking.parkingOwnerId,
+          ownerRecord.title,
+          ownerRecord.costCalculationFunction,
+        );
+        if (parking.isCompleted) {
+          return this.#userFactory.completedParking(
+            owner,
+            parking.carPlate,
+            parking.entryCarTime,
+            parking.departureCarTime,
+            parking.priceRub,
+            parking.isCompleted,
+          );
+        }
+        return this.#userFactory.uncompletedParking(
+          owner,
+          parking.carPlate,
+          parking.entryCarTime,
+        );
+      }),
+    );
+  };
 }
