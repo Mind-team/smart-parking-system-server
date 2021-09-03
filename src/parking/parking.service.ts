@@ -11,6 +11,7 @@ import { UserFactory } from '../infrastructure/user-factory.infrastructure';
 import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
 import { ParkingOwnerFactory } from '../infrastructure/parking-owner-factory.infrastructure';
 import { ParkingOwnerDocument } from '../schemas/parking-owner.schema';
+import { User } from '../models/interfaces/user.interface';
 
 @Injectable()
 export class ParkingService {
@@ -39,18 +40,18 @@ export class ParkingService {
     this.#parkingOwnerModel = parkingOwnerModel;
   }
 
-  async registerCarEntry({
+  registerCarEntry = async ({
     parkingOwnerId,
     carPlate,
     entryCarTime,
-  }: EntryCarParkingRecord) {
+  }: EntryCarParkingRecord) => {
     try {
       let [userDocument, type] = await this.#userDocumentByPlate(carPlate);
       if (type === 'null') {
         userDocument = await this.#createUnregisteredUser(carPlate);
         type = 'unregistered';
       }
-      const user = await this.#mappingUserDocument(
+      const user = await this.#mapUserDocument(
         userDocument,
         type,
         parkingOwnerId,
@@ -62,18 +63,7 @@ export class ParkingService {
           entryCarTime,
         ),
       );
-      if (type === 'registered') {
-        console.log(user.content());
-        await this.#registeredUserModel.updateOne(
-          { plates: carPlate },
-          user.content(),
-        );
-      } else {
-        await this.#unregisteredUserModel.updateOne(
-          { plates: carPlate },
-          user.content(),
-        );
-      }
+      await this.#saveUserToDB(user, type);
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successfully registered the entry of the car',
@@ -81,36 +71,26 @@ export class ParkingService {
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
-  }
+  };
 
-  async registerCarDeparture({
+  registerCarDeparture = async ({
     parkingOwnerId,
     carPlate,
     departureCarTime,
-  }: DepartureCarParkingRecord) {
+  }: DepartureCarParkingRecord) => {
     try {
       const [userDocument, type] = await this.#userDocumentByPlate(carPlate);
       if (type === 'null') {
         return new FailedResponse(HttpStatus.BAD_REQUEST, ''); // TODO: HANDLE IT!
       }
-      const user = await this.#mappingUserDocument(
+      const user = await this.#mapUserDocument(
         userDocument,
         type,
         parkingOwnerId,
       );
       const parking = user.lastParking('pop').complete(departureCarTime);
       user.registerParking(parking);
-      if (type === 'registered') {
-        await this.#registeredUserModel.updateOne(
-          { plates: carPlate },
-          user.content(),
-        );
-      } else {
-        await this.#unregisteredUserModel.updateOne(
-          { plates: carPlate },
-          user.content(),
-        );
-      }
+      await this.#saveUserToDB(user, type);
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'The car departure was successfully registered',
@@ -118,15 +98,15 @@ export class ParkingService {
     } catch (e) {
       return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
     }
-  }
+  };
 
-  async #userDocumentByPlate(
+  #userDocumentByPlate = async (
     plate: string,
   ): Promise<
     | [RegisteredUserDocument, 'registered']
     | [UnregisteredUserDocument, 'unregistered']
     | [null, 'null']
-  > {
+  > => {
     const user = await this.#registeredUserModel.findOne({
       plates: this.#userFactory.plate(plate).value,
     });
@@ -140,13 +120,13 @@ export class ParkingService {
       return [unregisteredUser, 'unregistered'];
     }
     return [null, 'null'];
-  }
+  };
 
-  async #mappingUserDocument(
+  #mapUserDocument = async (
     userDocument: RegisteredUserDocument | UnregisteredUserDocument,
     userType: 'registered' | 'unregistered',
     parkingOwnerId: string,
-  ) {
+  ) => {
     const parkingOwner = await this.#parkingOwnerById(parkingOwnerId);
     if (userType === 'registered') {
       const user = userDocument as RegisteredUserDocument;
@@ -186,10 +166,10 @@ export class ParkingService {
         ),
       );
     }
-  }
+  };
 
-  async #createUnregisteredUser(plate: string) {
-    return await new this.#unregisteredUserModel(
+  #createUnregisteredUser = async (plate: string) =>
+    await new this.#unregisteredUserModel(
       this.#userFactory
         .unregisteredUser(
           new UniquePlatesArray([this.#userFactory.plate(plate)]),
@@ -197,9 +177,8 @@ export class ParkingService {
         )
         .content(),
     ).save();
-  }
 
-  async #parkingOwnerById(id: string) {
+  #parkingOwnerById = async (id: string) => {
     const parkingOwnerRecord = await this.#parkingOwnerModel.findOne({
       _id: id,
     });
@@ -211,5 +190,23 @@ export class ParkingService {
       parkingOwnerRecord.title,
       parkingOwnerRecord.costCalculationFunction,
     );
-  }
+  };
+
+  #saveUserToDB = async (
+    user: User<'Registered'> | User<'Unregistered'>,
+    type: 'registered' | 'unregistered',
+  ) => {
+    const userContent = user.content();
+    if (type === 'registered') {
+      await this.#registeredUserModel.updateOne(
+        { plates: userContent.plates },
+        userContent,
+      );
+    } else {
+      await this.#unregisteredUserModel.updateOne(
+        { plates: userContent.plates },
+        userContent,
+      );
+    }
+  };
 }

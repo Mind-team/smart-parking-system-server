@@ -71,7 +71,9 @@ export class UserService {
       const existentInfo = await this.#unregisteredUserModel.findOne({
         plates,
       });
-      const parkings = await this.#mapParkings(existentInfo.parkings ?? []);
+      const parkings = await this.#mapParkingDocument(
+        existentInfo.parkings ?? [],
+      );
       const user = this.#userFactory.user(
         this.#userFactory.phoneNumber(phoneNumber),
         hashedPassword,
@@ -171,7 +173,7 @@ export class UserService {
     );
   };
 
-  #mapParkings = async (parkings: NonNullable<ParkingRecord[]>) => {
+  #mapParkingDocument = async (parkings: NonNullable<ParkingRecord[]>) => {
     return Promise.all(
       parkings.map(async (parking) => {
         const ownerRecord = await this.#parkingOwnerModel.findById(
