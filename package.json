@@ -1,10 +1,9 @@
 {
   "name": "smart-parking-system-server",
-  "version": "1.2.0",
-  "description": "",
-  "author": "",
+  "version": "2.0.0",
+  "description": "SPS Server",
+  "author": "M.I.N.D Server Team",
   "private": true,
-  "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
