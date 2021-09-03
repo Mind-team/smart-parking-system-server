@@ -3,10 +3,10 @@ import { PhoneNumber } from '../models/interfaces/phone-number.interface';
 import { Plate } from '../models/interfaces/plate.interface';
 import { UniqueArray } from '../models/interfaces/unique-array.interface';
 import { User } from '../models/interfaces/user.interface';
-import { PriceCalculator } from '../models/interfaces/price-calculator.interface';
 import { Parking } from '../models/interfaces/parking.interface';
+import { ParkingOwner } from '../models/interfaces/parking-owner.interface';
 
-export interface Factory {
+export interface UserFactory {
   phoneNumber: (value: string, validator?: Validator<string>) => PhoneNumber;
   plate: (value: string, validator?: Validator<string>) => Plate;
   user: (
@@ -21,18 +21,16 @@ export interface Factory {
     parkings: Parking[],
   ) => User<'Unregistered'>;
   uncompletedParking: (
-    parkingTitle: string,
+    parkingOwner: ParkingOwner,
     carPlate: string,
     entryCarTime: Date,
-    calculator?: PriceCalculator,
   ) => Parking;
   completedParking: (
-    parkingTitle: string,
+    parkingOwner: ParkingOwner,
     carPlate: string,
     entryCarTime: Date,
     departureCarTime: Date,
     priceRub: number,
     isCompleted: boolean,
-    calculator?: PriceCalculator,
   ) => Parking;
 }

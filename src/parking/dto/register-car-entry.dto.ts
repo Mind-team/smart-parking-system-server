@@ -1,5 +1,5 @@
 export class RegisterCarEntryDto {
-  parkingTitle: string;
+  parkingOwnerId: string;
   carPlate: string;
   entryCarTime: string;
 }

@@ -7,14 +7,14 @@ import { StandardUser } from '../models/standard-user.model';
 import { UniqueArray } from '../models/interfaces/unique-array.interface';
 import { StandardParking } from '../models/standard-parking.model';
 import { User } from '../models/interfaces/user.interface';
-import { PriceCalculator } from '../models/interfaces/price-calculator.interface';
 import { Parking } from '../models/interfaces/parking.interface';
-import { Factory } from './factory.infrastructure';
+import { UserFactory } from './user-factory.infrastructure';
 import { Injectable } from '@nestjs/common';
 import { UnregisteredStandardUser } from '../models/unregistered-standard-user.model';
+import { ParkingOwner } from '../models/interfaces/parking-owner.interface';
 
 @Injectable()
-export class RussianFactory implements Factory {
+export class RussianUserFactory implements UserFactory {
   phoneNumber(value: string, validator?: Validator<string>): PhoneNumber {
     return new StandardPhoneNumber(value, validator);
   }
@@ -34,36 +34,28 @@ export class RussianFactory implements Factory {
   }
 
   uncompletedParking(
-    parkingTitle: string,
+    parkingOwner: ParkingOwner,
     carPlate: string,
     entryCarTime: Date,
-    calculator?: PriceCalculator,
   ): Parking {
-    return new StandardParking(
-      parkingTitle,
-      carPlate,
-      entryCarTime,
-      calculator,
-    );
+    return new StandardParking(parkingOwner, carPlate, entryCarTime);
   }
 
   completedParking(
-    parkingTitle: string,
+    parkingOwner: ParkingOwner,
     carPlate: string,
     entryCarTime: Date,
     departureCarTime: Date,
     priceRub: number,
     isCompleted: boolean,
-    calculator?: PriceCalculator,
   ): Parking {
     return new StandardParking(
-      parkingTitle,
+      parkingOwner,
       carPlate,
       entryCarTime,
       departureCarTime,
       priceRub,
       isCompleted,
-      calculator,
     );
   }
 

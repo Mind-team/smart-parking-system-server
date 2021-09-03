@@ -1,42 +1,33 @@
-import { PriceCalculator } from './interfaces/price-calculator.interface';
 import { IdGenerator } from './interfaces/id-generator.interface';
-import { StandardPriceCalculator } from '../infrastructure/standard-price-calculator.infrastructure';
 import { StandardIdGenerator } from '../infrastructure/standard-id-generator.infrastructure';
 import { Parking } from './interfaces/parking.interface';
 import { ParkingContent } from './interfaces/parking-content.interface';
+import { ParkingOwner } from './interfaces/parking-owner.interface';
 
 export class StandardParking implements Parking {
   #id: string;
-  readonly #parkingTitle: string;
+  readonly #parkingOwner: ParkingOwner;
   readonly #carPlate: string;
   readonly #entryCarTime: Date;
   readonly #departureCarTime: Date | null;
   readonly #isCompleted: boolean;
   readonly #priceRub: number | null;
-  readonly #calculator: PriceCalculator;
 
   constructor(
-    parkingTitle: string,
+    parkingOwner: ParkingOwner,
     carPlate: string,
     entryCarTime: Date,
     departureCarTime: Date,
     priceRub: number,
     isCompleted: boolean,
-    calculator?: PriceCalculator,
   );
-  constructor(
-    parkingTitle: string,
-    carPlate: string,
-    entryCarTime: Date,
-    calculator?: PriceCalculator,
-  );
+  constructor(parkingOwner: ParkingOwner, carPlate: string, entryCarTime: Date);
   constructor(...args) {
     this.#id = new StandardIdGenerator().generate();
-    this.#parkingTitle = args[0];
+    this.#parkingOwner = args[0];
     this.#carPlate = args[1];
     this.#entryCarTime = args[2];
-    if (args.length < 5) {
-      this.#calculator = args[3] ?? new StandardPriceCalculator();
+    if (args.length < 6) {
       this.#departureCarTime = null;
       this.#priceRub = null;
       this.#isCompleted = false;
@@ -45,7 +36,6 @@ export class StandardParking implements Parking {
     this.#departureCarTime = args[3];
     this.#priceRub = args[4];
     this.#isCompleted = args[5];
-    this.#calculator = args[6] ?? new StandardPriceCalculator();
   }
 
   updateId(idGenerator: IdGenerator) {
@@ -62,15 +52,13 @@ export class StandardParking implements Parking {
         } else {
           depTime = this.#departureCarTime;
         }
-        priceRub = this.#calculator.calculate(
-          this.#parkingTitle,
-          this.#timeDifferenceMin(depTime, this.#entryCarTime),
-        );
+        priceRub = this.#parkingOwner.parkingCost(this.#entryCarTime, depTime);
       }
     }
+    const { _id, title } = this.#parkingOwner.content();
     return {
-      id: this.#id,
-      parkingTitle: this.#parkingTitle,
+      parkingOwnerId: _id,
+      parkingTitle: title,
       carPlate: this.#carPlate,
       entryCarTime: this.#entryCarTime,
       departureCarTime: depTime,
@@ -80,21 +68,17 @@ export class StandardParking implements Parking {
   }
 
   complete(departureCarTime: Date) {
-    const price = this.#calculator.calculate(
-      this.#parkingTitle,
-      this.#timeDifferenceMin(departureCarTime, this.#entryCarTime),
+    const price = this.#parkingOwner.parkingCost(
+      this.#entryCarTime,
+      departureCarTime,
     );
     return new StandardParking(
-      this.#parkingTitle,
+      this.#parkingOwner,
       this.#carPlate,
       this.#entryCarTime,
       departureCarTime,
       price,
       true,
     );
-  }
-
-  #timeDifferenceMin(first: Date, second: Date) {
-    return (first.getTime() - second.getTime()) / 60000;
   }
 }
