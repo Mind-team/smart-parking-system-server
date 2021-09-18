@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserModule } from './user/user.module';
-import { ParkingModule } from './parking/parking.module';
-import { ParkingOwnerModule } from './parking-owner/parking-owner.module';
+import { UserModule } from './modules/user/user.module';
+import { ParkingModule } from './modules/parking/parking.module';
+import { ParkingOwnerModule } from './modules/parking-owner/parking-owner.module';
+import { MongoDbModule } from './modules/mongo-db/mongo-db.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ParkingOwnerModule } from './parking-owner/parking-owner.module';
     UserModule,
     ParkingModule,
     ParkingOwnerModule,
+    MongoDbModule,
   ],
   controllers: [],
   providers: [],

@@ -2,10 +2,10 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { SignUp } from './types/sign-up.type';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ParkingOwnerDocument } from '../schemas/parking-owner.schema';
-import { ParkingOwnerFactory } from '../infrastructure/parking-owner-factory.infrastructure';
-import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
-import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
+import { ParkingOwnerDocument } from '../mongo-db/schemas/parking-owner.schema';
+import { ParkingOwnerFactory } from '../../infrastructure/parking-owner-factory.infrastructure';
+import { FailedResponse } from '../../infrastructure/server-responses/failed-response.infrastructure';
+import { SuccessfulResponse } from '../../infrastructure/server-responses/successful-response.infrastructure';
 
 @Injectable()
 export class ParkingOwnerService {

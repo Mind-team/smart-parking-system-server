@@ -1,33 +1,35 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { RegisteredUserDocument } from '../schemas/registered-user.schema';
+import { RegisteredUserDocument } from '../mongo-db/schemas/registered-user.schema';
 import { Model } from 'mongoose';
-import { RegisteredUserRecord } from '../infrastructure/records/registered-user-record.infrastructure';
+import { RegisteredUserRecord } from '../../infrastructure/records/registered-user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from './types/sign-in-data.type';
-import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
-import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
-import { FilledSuccessfulResponse } from '../infrastructure/server-responses/filled-successful-response.infrastructure';
+import { FailedResponse } from '../../infrastructure/server-responses/failed-response.infrastructure';
+import { SuccessfulResponse } from '../../infrastructure/server-responses/successful-response.infrastructure';
+import { FilledSuccessfulResponse } from '../../infrastructure/server-responses/filled-successful-response.infrastructure';
 import { SignUpData } from './types/sign-up-data.type';
-import { UniquePlatesArray } from '../models/unique-plates-array.model';
-import { UserFactory } from '../infrastructure/user-factory.infrastructure';
-import { User } from '../models/interfaces/user.interface';
-import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
-import { RussianParkingOwnerFactory } from '../infrastructure/russian-parking-owner-factory.infrastructure';
-import { ParkingOwnerDocument } from '../schemas/parking-owner.schema';
-import { ParkingRecord } from '../infrastructure/records/parking-record.infrastructure';
+import { UniquePlatesArray } from '../../models/unique-plates-array.model';
+import { UserFactory } from '../../infrastructure/user-factory.infrastructure';
+import { User } from '../../models/interfaces/user.interface';
+import { UnregisteredUserDocument } from '../mongo-db/schemas/unregistered-user.schema';
+import { RussianParkingOwnerFactory } from '../../infrastructure/russian-parking-owner-factory.infrastructure';
+import { ParkingOwnerDocument } from '../mongo-db/schemas/parking-owner.schema';
+import { ParkingRecord } from '../../infrastructure/records/parking-record.infrastructure';
+import { Collection } from '../../infrastructure/collection.infrastructure';
+import { RegisteredUserContent } from '../../models/interfaces/registered-user-content.interface';
+import { MongoDbService } from '../mongo-db/mongo-db.service';
 
 @Injectable()
 export class UserService {
-  readonly #registeredUserModel: Model<RegisteredUserDocument>;
+  readonly #registeredUserCollection: Collection<RegisteredUserContent>;
   readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
   readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
   readonly #userFactory: UserFactory;
   readonly #parkingOwnerFactory: RussianParkingOwnerFactory;
 
   constructor(
-    @InjectModel('RegisteredUser')
-    registeredUserModel: Model<RegisteredUserDocument>,
+    registeredUserCollection: MongoDbService,
     @InjectModel('UnregisteredUser')
     unregisteredUserModel: Model<UnregisteredUserDocument>,
     @InjectModel('parking-owner')
@@ -37,7 +39,7 @@ export class UserService {
     @Inject('ParkingOwnerFactory')
     parkingOwnerFactory: RussianParkingOwnerFactory,
   ) {
-    this.#registeredUserModel = registeredUserModel;
+    this.#registeredUserCollection = registeredUserCollection;
     this.#unregisteredUserModel = unregisteredUserModel;
     this.#userFactory = userFactory;
     this.#parkingOwnerFactory = parkingOwnerFactory;
@@ -82,7 +84,7 @@ export class UserService {
         email,
       );
       await this.#unregisteredUserModel.deleteOne({ plates });
-      await new this.#registeredUserModel(user.content()).save();
+      await this.#registeredUserCollection.save(user.content());
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
@@ -101,7 +103,7 @@ export class UserService {
     try {
       const user = await this.#findUser(phoneNumber, password);
       user.addPlate(this.#userFactory.plate(plate));
-      await this.#registeredUserModel.updateOne(
+      await this.#registeredUserCollection.updateOne(
         { plates: plate },
         user.content(),
       );
@@ -136,7 +138,7 @@ export class UserService {
     phoneNumber: string,
     password: string,
   ): Promise<User<'Registered'>> => {
-    const userRecord = await this.#registeredUserModel.findOne({
+    const userRecord = await this.#registeredUserCollection.findOne({
       phoneNumber: this.#userFactory.phoneNumber(phoneNumber).value,
     });
     if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
