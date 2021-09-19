@@ -3,4 +3,5 @@ export interface Collection<T> {
   findById: (id: string) => Promise<T>;
   save: any;
   updateOne: any;
+  deleteOne: any;
 }

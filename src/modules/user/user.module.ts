@@ -7,7 +7,7 @@ import { RussianUserFactory } from '../../infrastructure/russian-user-factory.in
 import { UnregisteredUserSchema } from '../mongo-db/schemas/unregistered-user.schema';
 import { RussianParkingOwnerFactory } from '../../infrastructure/russian-parking-owner-factory.infrastructure';
 import { ParkingOwnerSchema } from '../mongo-db/schemas/parking-owner.schema';
-import { MongoDbService } from '../mongo-db/mongo-db.service';
+import { RegisteredUsersMongoService } from '../mongo-db/registered-users-mongo.service';
 import { MongoDbModule } from '../mongo-db/mongo-db.module';
 
 const UserFactory = {
@@ -22,7 +22,6 @@ const ParkingOwnerFactory = {
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'UnregisteredUser', schema: UnregisteredUserSchema },
       { name: 'parking-owner', schema: ParkingOwnerSchema },
     ]),
     MongoDbModule,

@@ -18,20 +18,21 @@ import { ParkingOwnerDocument } from '../mongo-db/schemas/parking-owner.schema';
 import { ParkingRecord } from '../../infrastructure/records/parking-record.infrastructure';
 import { Collection } from '../../infrastructure/collection.infrastructure';
 import { RegisteredUserContent } from '../../models/interfaces/registered-user-content.interface';
-import { MongoDbService } from '../mongo-db/mongo-db.service';
+import { RegisteredUsersMongoService } from '../mongo-db/registered-users-mongo.service';
+import { UnregisteredUsersMongoService } from '../mongo-db/unregistered-users-mongo.service';
+import { UnregisteredUserContent } from '../../models/interfaces/unregistered-user-content.interface';
 
 @Injectable()
 export class UserService {
-  readonly #registeredUserCollection: Collection<RegisteredUserContent>;
-  readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
+  readonly #registeredUsersCollection: Collection<RegisteredUserContent>;
+  readonly #unregisteredUsersCollection: Collection<UnregisteredUserContent>;
   readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
   readonly #userFactory: UserFactory;
   readonly #parkingOwnerFactory: RussianParkingOwnerFactory;
 
   constructor(
-    registeredUserCollection: MongoDbService,
-    @InjectModel('UnregisteredUser')
-    unregisteredUserModel: Model<UnregisteredUserDocument>,
+    registeredUsersCollection: RegisteredUsersMongoService,
+    unregisteredUsersCollection: UnregisteredUsersMongoService,
     @InjectModel('parking-owner')
     parkingOwnerModel: Model<ParkingOwnerDocument>,
     @Inject('UserFactory')
@@ -39,8 +40,8 @@ export class UserService {
     @Inject('ParkingOwnerFactory')
     parkingOwnerFactory: RussianParkingOwnerFactory,
   ) {
-    this.#registeredUserCollection = registeredUserCollection;
-    this.#unregisteredUserModel = unregisteredUserModel;
+    this.#registeredUsersCollection = registeredUsersCollection;
+    this.#unregisteredUsersCollection = unregisteredUsersCollection;
     this.#userFactory = userFactory;
     this.#parkingOwnerFactory = parkingOwnerFactory;
     this.#parkingOwnerModel = parkingOwnerModel;
@@ -70,7 +71,7 @@ export class UserService {
         password,
         await bcrypt.genSalt(),
       );
-      const existentInfo = await this.#unregisteredUserModel.findOne({
+      const existentInfo = await this.#unregisteredUsersCollection.findOne({
         plates,
       });
       const parkings = await this.#mapParkingDocument(
@@ -83,8 +84,8 @@ export class UserService {
         parkings,
         email,
       );
-      await this.#unregisteredUserModel.deleteOne({ plates });
-      await this.#registeredUserCollection.save(user.content());
+      await this.#unregisteredUsersCollection.deleteOne({ plates });
+      await this.#registeredUsersCollection.save(user.content());
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
@@ -103,7 +104,7 @@ export class UserService {
     try {
       const user = await this.#findUser(phoneNumber, password);
       user.addPlate(this.#userFactory.plate(plate));
-      await this.#registeredUserCollection.updateOne(
+      await this.#registeredUsersCollection.updateOne(
         { plates: plate },
         user.content(),
       );
@@ -138,7 +139,7 @@ export class UserService {
     phoneNumber: string,
     password: string,
   ): Promise<User<'Registered'>> => {
-    const userRecord = await this.#registeredUserCollection.findOne({
+    const userRecord = await this.#registeredUsersCollection.findOne({
       phoneNumber: this.#userFactory.phoneNumber(phoneNumber).value,
     });
     if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
