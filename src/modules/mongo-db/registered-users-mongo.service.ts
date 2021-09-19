@@ -17,12 +17,12 @@ export class RegisteredUsersMongoService
     this.#registeredUserModel = registeredUserModel;
   }
 
-  findById = async (id: string): Promise<RegisteredUserContent> =>
+  findById = async (id: string): Promise<RegisteredUserContent> | null =>
     this.findOne({ _id: id });
 
   findOne = async (filter: {
     [key: string]: any;
-  }): Promise<RegisteredUserContent> =>
+  }): Promise<RegisteredUserContent> | null =>
     this.#registeredUserModel.findOne(filter);
 
   save = async (newContent: RegisteredUserContent): Promise<void> => {

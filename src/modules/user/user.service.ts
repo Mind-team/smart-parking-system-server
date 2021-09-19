@@ -74,9 +74,9 @@ export class UserService {
       const existentInfo = await this.#unregisteredUsersCollection.findOne({
         plates,
       });
-      const parkings = await this.#mapParkingDocument(
-        existentInfo.parkings ?? [],
-      );
+      const parkings = existentInfo?.parkings
+        ? await this.#mapParkingDocument(existentInfo.parkings)
+        : [];
       const user = this.#userFactory.user(
         this.#userFactory.phoneNumber(phoneNumber),
         hashedPassword,
