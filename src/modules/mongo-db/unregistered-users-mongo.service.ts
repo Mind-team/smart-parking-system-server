@@ -22,8 +22,18 @@ export class UnregisteredUsersMongoService
   }): Promise<UnregisteredUserContent> =>
     this.#unregisteredUserModel.findOne(filter);
 
-  save: any;
+  save = async (newContent: UnregisteredUserContent): Promise<void> => {
+    await new this.#unregisteredUserModel(newContent).save();
+  };
 
-  updateOne: any;
-  deleteOne: any;
+  updateOne = async (
+    filter: { [key: string]: any },
+    updatedContent: UnregisteredUserContent,
+  ) => {
+    await this.#unregisteredUserModel.updateOne(filter, updatedContent);
+  };
+
+  deleteOne = async (filter: { [key: string]: any }) => {
+    this.#unregisteredUserModel.deleteOne(filter);
+  };
 }
