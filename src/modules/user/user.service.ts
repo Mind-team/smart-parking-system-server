@@ -1,47 +1,46 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { RegisteredUserDocument } from '../schemas/registered-user.schema';
-import { Model } from 'mongoose';
-import { RegisteredUserRecord } from '../infrastructure/records/registered-user-record.infrastructure';
+import { RegisteredUserRecord } from '../../infrastructure/records/registered-user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from './types/sign-in-data.type';
-import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
-import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
-import { FilledSuccessfulResponse } from '../infrastructure/server-responses/filled-successful-response.infrastructure';
+import { FailedResponse } from '../../infrastructure/server-responses/failed-response.infrastructure';
+import { SuccessfulResponse } from '../../infrastructure/server-responses/successful-response.infrastructure';
+import { FilledSuccessfulResponse } from '../../infrastructure/server-responses/filled-successful-response.infrastructure';
 import { SignUpData } from './types/sign-up-data.type';
-import { UniquePlatesArray } from '../models/unique-plates-array.model';
-import { UserFactory } from '../infrastructure/user-factory.infrastructure';
-import { User } from '../models/interfaces/user.interface';
-import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
-import { RussianParkingOwnerFactory } from '../infrastructure/russian-parking-owner-factory.infrastructure';
-import { ParkingOwnerDocument } from '../schemas/parking-owner.schema';
-import { ParkingRecord } from '../infrastructure/records/parking-record.infrastructure';
+import { UniquePlatesArray } from '../../models/unique-plates-array.model';
+import { UserFactory } from '../../infrastructure/user-factory.infrastructure';
+import { User } from '../../models/interfaces/user.interface';
+import { RussianParkingOwnerFactory } from '../../infrastructure/russian-parking-owner-factory.infrastructure';
+import { ParkingRecord } from '../../infrastructure/records/parking-record.infrastructure';
+import { Collection } from '../../infrastructure/collection.infrastructure';
+import { RegisteredUserContent } from '../../models/interfaces/registered-user-content.interface';
+import { RegisteredUsersMongoService } from '../mongo-db/registered-users-mongo.service';
+import { UnregisteredUsersMongoService } from '../mongo-db/unregistered-users-mongo.service';
+import { UnregisteredUserContent } from '../../models/interfaces/unregistered-user-content.interface';
+import { ParkingOwnerMongoService } from '../mongo-db/parking-owner-mongo.service';
+import { ParkingOwnerContent } from '../../models/interfaces/parking-owner-content.interface';
 
 @Injectable()
 export class UserService {
-  readonly #registeredUserModel: Model<RegisteredUserDocument>;
-  readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
-  readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
+  readonly #registeredUsersCollection: Collection<RegisteredUserContent>;
+  readonly #unregisteredUsersCollection: Collection<UnregisteredUserContent>;
+  readonly #parkingOwnerCollection: Collection<ParkingOwnerContent>;
   readonly #userFactory: UserFactory;
   readonly #parkingOwnerFactory: RussianParkingOwnerFactory;
 
   constructor(
-    @InjectModel('RegisteredUser')
-    registeredUserModel: Model<RegisteredUserDocument>,
-    @InjectModel('UnregisteredUser')
-    unregisteredUserModel: Model<UnregisteredUserDocument>,
-    @InjectModel('parking-owner')
-    parkingOwnerModel: Model<ParkingOwnerDocument>,
+    registeredUsersCollection: RegisteredUsersMongoService,
+    unregisteredUsersCollection: UnregisteredUsersMongoService,
+    parkingOwnerCollection: ParkingOwnerMongoService,
     @Inject('UserFactory')
     userFactory: UserFactory,
     @Inject('ParkingOwnerFactory')
     parkingOwnerFactory: RussianParkingOwnerFactory,
   ) {
-    this.#registeredUserModel = registeredUserModel;
-    this.#unregisteredUserModel = unregisteredUserModel;
+    this.#registeredUsersCollection = registeredUsersCollection;
+    this.#unregisteredUsersCollection = unregisteredUsersCollection;
     this.#userFactory = userFactory;
     this.#parkingOwnerFactory = parkingOwnerFactory;
-    this.#parkingOwnerModel = parkingOwnerModel;
+    this.#parkingOwnerCollection = parkingOwnerCollection;
   }
 
   signIn = async ({ phoneNumber, password }: SignInData) => {
@@ -68,12 +67,12 @@ export class UserService {
         password,
         await bcrypt.genSalt(),
       );
-      const existentInfo = await this.#unregisteredUserModel.findOne({
+      const existentInfo = await this.#unregisteredUsersCollection.findOne({
         plates,
       });
-      const parkings = await this.#mapParkingDocument(
-        existentInfo.parkings ?? [],
-      );
+      const parkings = existentInfo?.parkings
+        ? await this.#mapParkingDocument(existentInfo.parkings)
+        : [];
       const user = this.#userFactory.user(
         this.#userFactory.phoneNumber(phoneNumber),
         hashedPassword,
@@ -81,8 +80,8 @@ export class UserService {
         parkings,
         email,
       );
-      await this.#unregisteredUserModel.deleteOne({ plates });
-      await new this.#registeredUserModel(user.content()).save();
+      await this.#unregisteredUsersCollection.deleteOne({ plates });
+      await this.#registeredUsersCollection.save(user.content());
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
@@ -101,7 +100,7 @@ export class UserService {
     try {
       const user = await this.#findUser(phoneNumber, password);
       user.addPlate(this.#userFactory.plate(plate));
-      await this.#registeredUserModel.updateOne(
+      await this.#registeredUsersCollection.updateOne(
         { plates: plate },
         user.content(),
       );
@@ -117,7 +116,6 @@ export class UserService {
   lastParkingHistoryElement = async ({ phoneNumber, password }: SignInData) => {
     try {
       const user = await this.#findUser(phoneNumber, password);
-      console.log(user.content());
       const userRecord = user.content();
       if (userRecord.parkings.length === 0) {
         return new FilledSuccessfulResponse(HttpStatus.OK, 'Success', {});
@@ -136,7 +134,7 @@ export class UserService {
     phoneNumber: string,
     password: string,
   ): Promise<User<'Registered'>> => {
-    const userRecord = await this.#registeredUserModel.findOne({
+    const userRecord = await this.#registeredUsersCollection.findOne({
       phoneNumber: this.#userFactory.phoneNumber(phoneNumber).value,
     });
     if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
@@ -144,7 +142,7 @@ export class UserService {
     }
     const parkings = await Promise.all(
       userRecord.parkings.map(async (parking) => {
-        const parkingOwnerRecord = await this.#parkingOwnerModel.findById(
+        const parkingOwnerRecord = await this.#parkingOwnerCollection.findById(
           parking.parkingOwnerId,
         );
         const owner = this.#parkingOwnerFactory.owner(
@@ -176,7 +174,7 @@ export class UserService {
   #mapParkingDocument = async (parkings: NonNullable<ParkingRecord[]>) => {
     return Promise.all(
       parkings.map(async (parking) => {
-        const ownerRecord = await this.#parkingOwnerModel.findById(
+        const ownerRecord = await this.#parkingOwnerCollection.findById(
           parking.parkingOwnerId,
         );
         const owner = this.#parkingOwnerFactory.owner(

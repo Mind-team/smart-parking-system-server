@@ -1,43 +1,43 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { RegisteredUserDocument } from '../schemas/registered-user.schema';
+import { RegisteredUserDocument } from '../mongo-db/schemas/registered-user.schema';
 import { EntryCarParkingRecord } from './types/entry-car-parking-record.type';
-import { SuccessfulResponse } from '../infrastructure/server-responses/successful-response.infrastructure';
-import { FailedResponse } from '../infrastructure/server-responses/failed-response.infrastructure';
+import { SuccessfulResponse } from '../../infrastructure/server-responses/successful-response.infrastructure';
+import { FailedResponse } from '../../infrastructure/server-responses/failed-response.infrastructure';
 import { DepartureCarParkingRecord } from './types/departure-car-parking-record.type';
-import { UniquePlatesArray } from '../models/unique-plates-array.model';
-import { UserFactory } from '../infrastructure/user-factory.infrastructure';
-import { UnregisteredUserDocument } from '../schemas/unregistered-user.schema';
-import { ParkingOwnerFactory } from '../infrastructure/parking-owner-factory.infrastructure';
-import { ParkingOwnerDocument } from '../schemas/parking-owner.schema';
-import { User } from '../models/interfaces/user.interface';
+import { UniquePlatesArray } from '../../models/unique-plates-array.model';
+import { UserFactory } from '../../infrastructure/user-factory.infrastructure';
+import { ParkingOwnerFactory } from '../../infrastructure/parking-owner-factory.infrastructure';
+import { User } from '../../models/interfaces/user.interface';
+import { RegisteredUsersMongoService } from '../mongo-db/registered-users-mongo.service';
+import { Collection } from '../../infrastructure/collection.infrastructure';
+import { RegisteredUserContent } from '../../models/interfaces/registered-user-content.interface';
+import { UnregisteredUsersMongoService } from '../mongo-db/unregistered-users-mongo.service';
+import { UnregisteredUserContent } from '../../models/interfaces/unregistered-user-content.interface';
+import { ParkingOwnerMongoService } from '../mongo-db/parking-owner-mongo.service';
+import { ParkingOwnerContent } from '../../models/interfaces/parking-owner-content.interface';
 
 @Injectable()
 export class ParkingService {
-  readonly #registeredUserModel: Model<RegisteredUserDocument>;
-  readonly #unregisteredUserModel: Model<UnregisteredUserDocument>;
+  readonly #registeredUsersCollection: Collection<RegisteredUserContent>;
+  readonly #unregisteredUsersCollection: Collection<UnregisteredUserContent>;
+  readonly #parkingOwnerModel: Collection<ParkingOwnerContent>;
   readonly #userFactory: UserFactory;
   readonly #parkingOwnerFactory: ParkingOwnerFactory;
-  readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
 
   constructor(
-    @InjectModel('RegisteredUser')
-    registeredUserModel: Model<RegisteredUserDocument>,
-    @InjectModel('UnregisteredUser')
-    unregisteredUserModel: Model<UnregisteredUserDocument>,
-    @InjectModel('parking-owner')
-    parkingOwnerModel: Model<ParkingOwnerDocument>,
+    registeredUsersCollection: RegisteredUsersMongoService,
+    unregisteredUsersCollection: UnregisteredUsersMongoService,
+    parkingOwnerCollection: ParkingOwnerMongoService,
     @Inject('UserFactory')
     userFactory: UserFactory,
     @Inject('ParkingOwnerFactory')
     parkingOwnerFactory: ParkingOwnerFactory,
   ) {
-    this.#registeredUserModel = registeredUserModel;
-    this.#unregisteredUserModel = unregisteredUserModel;
+    this.#registeredUsersCollection = registeredUsersCollection;
+    this.#unregisteredUsersCollection = unregisteredUsersCollection;
     this.#userFactory = userFactory;
     this.#parkingOwnerFactory = parkingOwnerFactory;
-    this.#parkingOwnerModel = parkingOwnerModel;
+    this.#parkingOwnerModel = parkingOwnerCollection;
   }
 
   registerCarEntry = async ({
@@ -103,17 +103,17 @@ export class ParkingService {
   #userDocumentByPlate = async (
     plate: string,
   ): Promise<
-    | [RegisteredUserDocument, 'registered']
-    | [UnregisteredUserDocument, 'unregistered']
+    | [RegisteredUserContent, 'registered']
+    | [UnregisteredUserContent, 'unregistered']
     | [null, 'null']
   > => {
-    const user = await this.#registeredUserModel.findOne({
+    const user = await this.#registeredUsersCollection.findOne({
       plates: this.#userFactory.plate(plate).value,
     });
     if (user) {
       return [user, 'registered'];
     }
-    const unregisteredUser = await this.#unregisteredUserModel.findOne({
+    const unregisteredUser = await this.#unregisteredUsersCollection.findOne({
       plates: this.#userFactory.plate(plate).value,
     });
     if (unregisteredUser) {
@@ -123,7 +123,7 @@ export class ParkingService {
   };
 
   #mapUserDocument = async (
-    userDocument: RegisteredUserDocument | UnregisteredUserDocument,
+    userDocument: RegisteredUserContent | UnregisteredUserContent,
     userType: 'registered' | 'unregistered',
     parkingOwnerId: string,
   ) => {
@@ -168,15 +168,16 @@ export class ParkingService {
     }
   };
 
-  #createUnregisteredUser = async (plate: string) =>
-    await new this.#unregisteredUserModel(
-      this.#userFactory
-        .unregisteredUser(
-          new UniquePlatesArray([this.#userFactory.plate(plate)]),
-          [],
-        )
-        .content(),
-    ).save();
+  #createUnregisteredUser = async (plate: string) => {
+    const user = this.#userFactory
+      .unregisteredUser(
+        new UniquePlatesArray([this.#userFactory.plate(plate)]),
+        [],
+      )
+      .content();
+    await this.#unregisteredUsersCollection.save(user);
+    return user;
+  };
 
   #parkingOwnerById = async (id: string) => {
     const parkingOwnerRecord = await this.#parkingOwnerModel.findOne({
@@ -198,12 +199,12 @@ export class ParkingService {
   ) => {
     const userContent = user.content();
     if (type === 'registered') {
-      await this.#registeredUserModel.updateOne(
+      await this.#registeredUsersCollection.updateOne(
         { plates: userContent.plates },
-        userContent,
+        userContent as RegisteredUserContent,
       );
     } else {
-      await this.#unregisteredUserModel.updateOne(
+      await this.#unregisteredUsersCollection.updateOne(
         { plates: userContent.plates },
         userContent,
       );
