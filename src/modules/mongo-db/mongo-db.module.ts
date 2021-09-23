@@ -6,7 +6,6 @@ import { UnregisteredUserSchema } from './schemas/unregistered-user.schema';
 import { UnregisteredUsersMongoService } from './unregistered-users-mongo.service';
 import { ParkingOwnerSchema } from './schemas/parking-owner.schema';
 import { ParkingOwnerMongoService } from './parking-owner-mongo.service';
-import { ParkingOwnerService } from '../parking-owner/parking-owner.service';
 
 @Module({
   imports: [

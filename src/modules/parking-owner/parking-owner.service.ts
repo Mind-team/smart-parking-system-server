@@ -6,28 +6,33 @@ import { ParkingOwnerDocument } from '../mongo-db/schemas/parking-owner.schema';
 import { ParkingOwnerFactory } from '../../infrastructure/parking-owner-factory.infrastructure';
 import { FailedResponse } from '../../infrastructure/server-responses/failed-response.infrastructure';
 import { SuccessfulResponse } from '../../infrastructure/server-responses/successful-response.infrastructure';
+import { Collection } from '../../infrastructure/collection.infrastructure';
+import { ParkingOwnerContent } from '../../models/interfaces/parking-owner-content.interface';
+import { ParkingOwnerMongoService } from '../mongo-db/parking-owner-mongo.service';
 
 @Injectable()
 export class ParkingOwnerService {
-  readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
+  readonly #parkingOwnerCollection: Collection<ParkingOwnerContent>;
   readonly #parkingOwnerFactory: ParkingOwnerFactory;
 
   constructor(
-    @InjectModel('parking-owner')
-    parkingOwnerModel: Model<ParkingOwnerDocument>,
+    parkingOwnerModel: ParkingOwnerMongoService,
     @Inject('ParkingOwnerFactory')
     parkingOwnerFactory: ParkingOwnerFactory,
   ) {
-    this.#parkingOwnerModel = parkingOwnerModel;
+    this.#parkingOwnerCollection = parkingOwnerModel;
     this.#parkingOwnerFactory = parkingOwnerFactory;
   }
 
   async signUp({ title, costCalculationFunction }: SignUp) {
     try {
-      await new this.#parkingOwnerModel({
+      // TODO: Fix
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      await this.#parkingOwnerCollection.save({
         title,
         costCalculationFunction,
-      }).save();
+      });
       return new SuccessfulResponse(
         HttpStatus.CREATED,
         'Successful registration',
