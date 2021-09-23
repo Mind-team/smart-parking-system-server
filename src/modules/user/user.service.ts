@@ -1,7 +1,4 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { RegisteredUserDocument } from '../mongo-db/schemas/registered-user.schema';
-import { Model } from 'mongoose';
 import { RegisteredUserRecord } from '../../infrastructure/records/registered-user-record.infrastructure';
 import * as bcrypt from 'bcrypt';
 import { SignInData } from './types/sign-in-data.type';
@@ -12,9 +9,7 @@ import { SignUpData } from './types/sign-up-data.type';
 import { UniquePlatesArray } from '../../models/unique-plates-array.model';
 import { UserFactory } from '../../infrastructure/user-factory.infrastructure';
 import { User } from '../../models/interfaces/user.interface';
-import { UnregisteredUserDocument } from '../mongo-db/schemas/unregistered-user.schema';
 import { RussianParkingOwnerFactory } from '../../infrastructure/russian-parking-owner-factory.infrastructure';
-import { ParkingOwnerDocument } from '../mongo-db/schemas/parking-owner.schema';
 import { ParkingRecord } from '../../infrastructure/records/parking-record.infrastructure';
 import { Collection } from '../../infrastructure/collection.infrastructure';
 import { RegisteredUserContent } from '../../models/interfaces/registered-user-content.interface';

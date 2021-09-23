@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Collection } from '../../infrastructure/collection.infrastructure';
 import { ParkingOwnerContent } from '../../models/interfaces/parking-owner-content.interface';
 import { Model } from 'mongoose';
-import { UnregisteredUserDocument } from './schemas/unregistered-user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { ParkingOwnerDocument } from './schemas/parking-owner.schema';
 

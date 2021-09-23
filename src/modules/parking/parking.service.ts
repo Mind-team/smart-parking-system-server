@@ -1,6 +1,4 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { RegisteredUserDocument } from '../mongo-db/schemas/registered-user.schema';
 import { EntryCarParkingRecord } from './types/entry-car-parking-record.type';
 import { SuccessfulResponse } from '../../infrastructure/server-responses/successful-response.infrastructure';
@@ -8,9 +6,7 @@ import { FailedResponse } from '../../infrastructure/server-responses/failed-res
 import { DepartureCarParkingRecord } from './types/departure-car-parking-record.type';
 import { UniquePlatesArray } from '../../models/unique-plates-array.model';
 import { UserFactory } from '../../infrastructure/user-factory.infrastructure';
-import { UnregisteredUserDocument } from '../mongo-db/schemas/unregistered-user.schema';
 import { ParkingOwnerFactory } from '../../infrastructure/parking-owner-factory.infrastructure';
-import { ParkingOwnerDocument } from '../mongo-db/schemas/parking-owner.schema';
 import { User } from '../../models/interfaces/user.interface';
 import { RegisteredUsersMongoService } from '../mongo-db/registered-users-mongo.service';
 import { Collection } from '../../infrastructure/collection.infrastructure';
