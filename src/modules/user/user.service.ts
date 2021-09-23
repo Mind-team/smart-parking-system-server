@@ -21,20 +21,21 @@ import { RegisteredUserContent } from '../../models/interfaces/registered-user-c
 import { RegisteredUsersMongoService } from '../mongo-db/registered-users-mongo.service';
 import { UnregisteredUsersMongoService } from '../mongo-db/unregistered-users-mongo.service';
 import { UnregisteredUserContent } from '../../models/interfaces/unregistered-user-content.interface';
+import { ParkingOwnerMongoService } from '../mongo-db/parking-owner-mongo.service';
+import { ParkingOwnerContent } from '../../models/interfaces/parking-owner-content.interface';
 
 @Injectable()
 export class UserService {
   readonly #registeredUsersCollection: Collection<RegisteredUserContent>;
   readonly #unregisteredUsersCollection: Collection<UnregisteredUserContent>;
-  readonly #parkingOwnerModel: Model<ParkingOwnerDocument>;
+  readonly #parkingOwnerCollection: Collection<ParkingOwnerContent>;
   readonly #userFactory: UserFactory;
   readonly #parkingOwnerFactory: RussianParkingOwnerFactory;
 
   constructor(
     registeredUsersCollection: RegisteredUsersMongoService,
     unregisteredUsersCollection: UnregisteredUsersMongoService,
-    @InjectModel('parking-owner')
-    parkingOwnerModel: Model<ParkingOwnerDocument>,
+    parkingOwnerCollection: ParkingOwnerMongoService,
     @Inject('UserFactory')
     userFactory: UserFactory,
     @Inject('ParkingOwnerFactory')
@@ -44,7 +45,7 @@ export class UserService {
     this.#unregisteredUsersCollection = unregisteredUsersCollection;
     this.#userFactory = userFactory;
     this.#parkingOwnerFactory = parkingOwnerFactory;
-    this.#parkingOwnerModel = parkingOwnerModel;
+    this.#parkingOwnerCollection = parkingOwnerCollection;
   }
 
   signIn = async ({ phoneNumber, password }: SignInData) => {
@@ -146,7 +147,7 @@ export class UserService {
     }
     const parkings = await Promise.all(
       userRecord.parkings.map(async (parking) => {
-        const parkingOwnerRecord = await this.#parkingOwnerModel.findById(
+        const parkingOwnerRecord = await this.#parkingOwnerCollection.findById(
           parking.parkingOwnerId,
         );
         const owner = this.#parkingOwnerFactory.owner(
@@ -178,7 +179,7 @@ export class UserService {
   #mapParkingDocument = async (parkings: NonNullable<ParkingRecord[]>) => {
     return Promise.all(
       parkings.map(async (parking) => {
-        const ownerRecord = await this.#parkingOwnerModel.findById(
+        const ownerRecord = await this.#parkingOwnerCollection.findById(
           parking.parkingOwnerId,
         );
         const owner = this.#parkingOwnerFactory.owner(

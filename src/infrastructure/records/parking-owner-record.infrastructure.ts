@@ -1,5 +1,5 @@
 export interface ParkingOwnerRecord {
-  id: string;
+  _id: string;
   title: string;
   costCalculationFunction: string;
 }

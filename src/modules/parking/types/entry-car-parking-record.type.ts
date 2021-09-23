@@ -4,7 +4,7 @@ import { ParkingOwnerRecord } from '../../../infrastructure/records/parking-owne
 type FromParkingRecord = Pick<ParkingRecord, 'carPlate' | 'entryCarTime'>;
 
 type FromParkingOwnerRecord = {
-  parkingOwnerId: ParkingOwnerRecord['id'];
+  parkingOwnerId: ParkingOwnerRecord['_id'];
 };
 
 export type EntryCarParkingRecord = FromParkingRecord & FromParkingOwnerRecord;
