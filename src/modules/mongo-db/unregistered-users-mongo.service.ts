@@ -38,6 +38,6 @@ export class UnregisteredUsersMongoService
   };
 
   deleteOne = async (filter: { [key: string]: any }) => {
-    this.#unregisteredUserModel.deleteOne(filter);
+    await this.#unregisteredUserModel.deleteOne(filter);
   };
 }
