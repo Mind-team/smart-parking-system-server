@@ -120,7 +120,6 @@ export class UserService {
   lastParkingHistoryElement = async ({ phoneNumber, password }: SignInData) => {
     try {
       const user = await this.#findUser(phoneNumber, password);
-      console.log(user.content());
       const userRecord = user.content();
       if (userRecord.parkings.length === 0) {
         return new FilledSuccessfulResponse(HttpStatus.OK, 'Success', {});
