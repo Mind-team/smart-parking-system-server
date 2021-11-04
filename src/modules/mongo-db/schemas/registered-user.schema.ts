@@ -5,6 +5,9 @@ import { ParkingRecordSchema } from './parking-record.schema';
 export const RegisteredUserSchema = new mongoose.Schema<
   mongoose.Document<RegisteredUserRecord>
 >({
+  // TODO: Fix
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   phoneNumber: { type: String, require: true, unique: true },
   password: { type: String, require: true, minLength: 6 },
   email: { type: String, unique: false, sparse: true },
