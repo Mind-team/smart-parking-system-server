@@ -1,6 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UsePipes } from '@nestjs/common';
 import { UserService } from './user.service';
-import { SignInDto } from './dto/sign-in.dto';
+import { SignInDto, SignInDtoJoiSchema } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AddPlateToUserDto } from './dto/add-plate-to-user.dto';
 import {
@@ -9,6 +9,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
 
 @ApiTags('User')
 @Controller('user')
@@ -16,6 +17,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('signIn')
+  @UsePipes(new JoiValidationPipe(SignInDtoJoiSchema))
   @ApiOkResponse({ description: 'User has successfully logged in' })
   @ApiBadRequestResponse({ description: 'Incorrect phone number or password' })
   async signInUser(@Body() { phoneNumber, password }: SignInDto) {

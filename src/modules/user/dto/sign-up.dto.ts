@@ -20,6 +20,7 @@ export class SignUpDto {
     description: 'User email',
     required: false,
   })
+  // TODO FUTURE: try use joi.email
   email?: string;
 
   @ApiProperty({
