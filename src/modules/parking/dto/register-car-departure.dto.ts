@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import * as Joi from 'joi';
 
 export class RegisterCarDepartureDto {
   @ApiProperty({
@@ -22,3 +23,9 @@ export class RegisterCarDepartureDto {
   })
   departureCarTime: number;
 }
+
+export const RegisterCarDepartureDtoJoiSchema = Joi.object({
+  parkingOwnerId: Joi.string().required(),
+  carPlate: Joi.string().required(),
+  departureCarTime: Joi.number().required(),
+});

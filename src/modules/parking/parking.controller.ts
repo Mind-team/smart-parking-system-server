@@ -1,12 +1,19 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { ParkingService } from './parking.service';
-import { RegisterCarEntryDto } from './dto/register-car-entry.dto';
-import { RegisterCarDepartureDto } from './dto/register-car-departure.dto';
+import {
+  RegisterCarEntryDto,
+  RegisterCarEntryDtoJoiSchema,
+} from './dto/register-car-entry.dto';
+import {
+  RegisterCarDepartureDto,
+  RegisterCarDepartureDtoJoiSchema,
+} from './dto/register-car-departure.dto';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
 
 @ApiTags('Parking')
 @Controller('parking')
@@ -14,6 +21,7 @@ export class ParkingController {
   constructor(private readonly parkingService: ParkingService) {}
 
   @Post('registerCarEntry')
+  @UsePipes(new JoiValidationPipe(RegisterCarEntryDtoJoiSchema))
   @ApiCreatedResponse({
     description: 'A record that the transport has stopped by has been created',
   })
@@ -26,6 +34,7 @@ export class ParkingController {
   }
 
   @Post('registerCarDeparture')
+  @UsePipes(new JoiValidationPipe(RegisterCarDepartureDtoJoiSchema))
   @ApiCreatedResponse({
     description: 'A record that the transport has left has been created',
   })
