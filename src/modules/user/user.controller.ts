@@ -1,8 +1,11 @@
 import { Controller, Post, Body, UsePipes } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignInDto, SignInDtoJoiSchema } from './dto/sign-in.dto';
-import { SignUpDto } from './dto/sign-up.dto';
-import { AddPlateToUserDto } from './dto/add-plate-to-user.dto';
+import { SignUpDto, SignUpDtoJoiSchema } from './dto/sign-up.dto';
+import {
+  AddPlateToUserDto,
+  AddPlateToUserDtoJoiSchema,
+} from './dto/add-plate-to-user.dto';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -28,6 +31,7 @@ export class UserController {
   }
 
   @Post('signUp')
+  @UsePipes(new JoiValidationPipe(SignUpDtoJoiSchema))
   @ApiCreatedResponse({
     description: 'New user has been created (in registered users collection)',
   })
@@ -42,6 +46,7 @@ export class UserController {
   }
 
   @Post('addPlate')
+  @UsePipes(new JoiValidationPipe(AddPlateToUserDtoJoiSchema))
   @ApiOkResponse({ description: 'Plate was successfully added to the user' })
   @ApiBadRequestResponse({ description: 'Plate is already in use' })
   async addPlate(@Body() { phoneNumber, password, plate }: AddPlateToUserDto) {
@@ -53,6 +58,7 @@ export class UserController {
   }
 
   @Post('lastParkingHistoryElement')
+  @UsePipes(new JoiValidationPipe(SignInDtoJoiSchema))
   @ApiOkResponse({ description: 'Success' })
   @ApiBadRequestResponse({ description: 'Something went wrong' })
   async lastParkingHistoryElement(

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import * as Joi from 'joi';
 
 export class SignUpDto {
   @ApiProperty({
@@ -30,3 +31,10 @@ export class SignUpDto {
   })
   plates: string[];
 }
+
+export const SignUpDtoJoiSchema = Joi.object({
+  phoneNumber: Joi.string().required(),
+  password: Joi.string().required().min(6),
+  email: Joi.string(),
+  plates: Joi.array().items(Joi.string()),
+});
