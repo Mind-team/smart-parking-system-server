@@ -1,6 +1,6 @@
 {
   "name": "smart-parking-system-server",
-  "version": "next",
+  "version": "2.2.0",
   "description": "SPS Server",
   "author": "M.I.N.D Server Team",
   "private": true,
