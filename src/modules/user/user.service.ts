@@ -57,7 +57,7 @@ export class UserService {
 
   signUp = async ({ phoneNumber, password, email, plates }: SignUpData) => {
     try {
-      if (plates.length === 0) {
+      if (!plates.length) {
         return new FailedResponse(
           HttpStatus.BAD_REQUEST,
           'Please enter your plate',
@@ -97,6 +97,8 @@ export class UserService {
     plate,
   }: SignInData & { plate: string }) => {
     // TODO: Проверка, что номер записался в пользователя
+    // TODO: Проверка, что нельзя записать существующий номер
+    // TODO: Проверка, что такого номера нет у другого пользователя
     try {
       const user = await this.#findUser(phoneNumber, password);
       user.addPlate(this.#userFactory.plate(plate));

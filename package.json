@@ -1,6 +1,6 @@
 {
   "name": "smart-parking-system-server",
-  "version": "2.1.0",
+  "version": "next",
   "description": "SPS Server",
   "author": "M.I.N.D Server Team",
   "private": true,
@@ -26,11 +26,13 @@
     "@nestjs/core": "^8.1.2",
     "@nestjs/mongoose": "^9.0.1",
     "@nestjs/platform-express": "^8.1.2",
+    "@nestjs/swagger": "^5.1.4",
     "bcrypt": "^5.0.1",
     "mongoose": "^6.0.12",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.4.0",
+    "swagger-ui-express": "^4.1.6",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
