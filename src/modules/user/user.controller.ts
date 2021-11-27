@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UsePipes } from '@nestjs/common';
+import { Controller, Post, Body, UsePipes, Version } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignInDto, SignInDtoJoiSchema } from './dto/sign-in.dto';
 import { SignUpDto, SignUpDtoJoiSchema } from './dto/sign-up.dto';
@@ -20,6 +20,7 @@ import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Version('3')
   @Post('signIn')
   @UsePipes(new JoiValidationPipe(SignInDtoJoiSchema))
   @ApiOperation({ summary: 'User login request' })
@@ -32,6 +33,7 @@ export class UserController {
     });
   }
 
+  @Version('3')
   @Post('signUp')
   @UsePipes(new JoiValidationPipe(SignUpDtoJoiSchema))
   @ApiOperation({ summary: 'User registration request' })
@@ -48,6 +50,7 @@ export class UserController {
     });
   }
 
+  @Version('3')
   @Post('addPlate')
   @UsePipes(new JoiValidationPipe(AddPlateToUserDtoJoiSchema))
   @ApiOperation({ summary: 'Adding new plate to user' })
@@ -61,6 +64,7 @@ export class UserController {
     });
   }
 
+  @Version('3')
   @Post('lastParkingHistoryElement')
   @UsePipes(new JoiValidationPipe(SignInDtoJoiSchema))
   @ApiOperation({ summary: 'Get user last parking history element' })
