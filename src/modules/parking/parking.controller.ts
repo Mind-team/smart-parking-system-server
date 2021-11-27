@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, Version } from '@nestjs/common';
 import { ParkingService } from './parking.service';
 import {
   RegisterCarEntryDto,
@@ -20,6 +20,7 @@ import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
 export class ParkingController {
   constructor(private readonly parkingService: ParkingService) {}
 
+  @Version('3')
   @Post('registerCarEntry')
   @UsePipes(new JoiValidationPipe(RegisterCarEntryDtoJoiSchema))
   @ApiCreatedResponse({
@@ -33,6 +34,7 @@ export class ParkingController {
     });
   }
 
+  @Version('3')
   @Post('registerCarDeparture')
   @UsePipes(new JoiValidationPipe(RegisterCarDepartureDtoJoiSchema))
   @ApiCreatedResponse({
