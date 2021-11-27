@@ -10,6 +10,7 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
@@ -21,6 +22,7 @@ export class UserController {
 
   @Post('signIn')
   @UsePipes(new JoiValidationPipe(SignInDtoJoiSchema))
+  @ApiOperation({ summary: 'User login request' })
   @ApiOkResponse({ description: 'User has successfully logged in' })
   @ApiBadRequestResponse({ description: 'Incorrect phone number or password' })
   async signInUser(@Body() { phoneNumber, password }: SignInDto) {
@@ -32,6 +34,7 @@ export class UserController {
 
   @Post('signUp')
   @UsePipes(new JoiValidationPipe(SignUpDtoJoiSchema))
+  @ApiOperation({ summary: 'User registration request' })
   @ApiCreatedResponse({
     description: 'New user has been created (in registered users collection)',
   })
@@ -47,6 +50,7 @@ export class UserController {
 
   @Post('addPlate')
   @UsePipes(new JoiValidationPipe(AddPlateToUserDtoJoiSchema))
+  @ApiOperation({ summary: 'Adding new plate to user' })
   @ApiOkResponse({ description: 'Plate was successfully added to the user' })
   @ApiBadRequestResponse({ description: 'Plate is already in use' })
   async addPlate(@Body() { phoneNumber, password, plate }: AddPlateToUserDto) {
@@ -59,6 +63,7 @@ export class UserController {
 
   @Post('lastParkingHistoryElement')
   @UsePipes(new JoiValidationPipe(SignInDtoJoiSchema))
+  @ApiOperation({ summary: 'Get user last parking history element' })
   @ApiOkResponse({ description: 'Success' })
   @ApiBadRequestResponse({ description: 'Something went wrong' })
   async lastParkingHistoryElement(

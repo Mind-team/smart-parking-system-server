@@ -5,11 +5,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
 
+  const APP_VERSION = process.env.npm_package_version;
+
   const config = new DocumentBuilder()
     .setTitle('SPS: Server')
     .setDescription('SPS: Server API description')
-    .setVersion('1.0')
-    .addTag('sps-server')
+    .setVersion(APP_VERSION)
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

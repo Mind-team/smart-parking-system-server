@@ -2,6 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import * as Joi from 'joi';
 
 export class SignInDto {
+  @ApiProperty({
+    examples: ['89555605005', '+79555605002'],
+  })
   phoneNumber: string;
 
   @ApiProperty({
