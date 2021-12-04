@@ -1,9 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HTTPLoggerInterceptor } from './interceptors/http-logger.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
+
+  app.useGlobalInterceptors(new HTTPLoggerInterceptor());
 
   const APP_VERSION = process.env.npm_package_version;
 
