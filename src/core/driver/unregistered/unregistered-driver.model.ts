@@ -2,6 +2,7 @@ import { IUnregisteredDriver } from './unregistered-driver.interface';
 import { IUnregisteredDriverData } from './unregistered-driver-data.interface';
 import { NewUnregisteredDriverConstructor } from './new-unregistered-driver-constructor.type';
 import { ExistingUnregisteredDriverConstructor } from './existing-unregistered-driver-constructor.type';
+import { IParkingProcess } from '../../parking-process';
 
 export class UnregisteredDriver implements IUnregisteredDriver {
   private readonly _id: string;
@@ -25,5 +26,9 @@ export class UnregisteredDriver implements IUnregisteredDriver {
       carPlates: [this.carPlate],
       parkingProcessIds: this.parkingProcessIds,
     };
+  }
+
+  addCompletedParkingProcess(parkingProcess: IParkingProcess): void {
+    this.parkingProcessIds.push(parkingProcess.data()._id);
   }
 }
