@@ -33,6 +33,9 @@ export class ParkingProcess implements IParkingProcess {
     return;
   }
 
+  /**
+   * @param asCompleted {boolean} -
+   */
   data(asCompleted = false): IParkingProcessData {
     if (asCompleted && !this.isCompleted) {
     }
