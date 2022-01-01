@@ -2,10 +2,11 @@ import { IParkingProcess } from './parking-process.interface';
 import { NewParkingProcessConstructor } from './new-parking-process-constructor.type';
 import { ExistingParkingProcessConstructor } from './existing-parking-process-constructor.type';
 import { IParkingProcessData } from './parking-process-data.interface';
+import { IDriver } from '../driver';
 
 export class ParkingProcess implements IParkingProcess {
   private readonly parking: any; // TODO: Parking Model
-  private readonly driver: any; // TODO: Driver Model
+  private readonly driver: IDriver;
   private readonly entryCarTime: Date;
   private readonly departureCarTime: Date;
   private readonly isCompleted: boolean;
@@ -33,9 +34,6 @@ export class ParkingProcess implements IParkingProcess {
     return;
   }
 
-  /**
-   * @param asCompleted {boolean} -
-   */
   data(asCompleted = false): IParkingProcessData {
     if (asCompleted && !this.isCompleted) {
     }

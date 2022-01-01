@@ -1,7 +1,7 @@
 import { IRegisteredDriverData } from './registered-driver-data.interface';
-import { IDriver } from '../driver.interface';
+import { _IDriver } from '../driver.interface';
 
-export type IRegisteredDriver = IDriver<IRegisteredDriverData>;
+export type IRegisteredDriver = _IDriver<IRegisteredDriverData>;
 
 // Сейчас сделал type, чтобы линтер не ругался на equal типа и супертипа
 // export interface IRegisteredDriver extends IDriver<IRegisteredDriverData> {
