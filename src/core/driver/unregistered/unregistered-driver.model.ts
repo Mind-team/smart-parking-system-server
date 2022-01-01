@@ -4,6 +4,7 @@ import { NewUnregisteredDriverConstructor } from './new-unregistered-driver-cons
 import { ExistingUnregisteredDriverConstructor } from './existing-unregistered-driver-constructor.type';
 
 export class UnregisteredDriver implements IUnregisteredDriver {
+  private readonly _id: string;
   private readonly carPlate: string;
   private readonly parkingProcessIds: string[];
 
@@ -15,11 +16,13 @@ export class UnregisteredDriver implements IUnregisteredDriver {
     this.carPlate = config.carPlate;
     this.parkingProcessIds =
       'parkingProcessIds' in config ? config.parkingProcessIds : [];
+    this._id = '_id' in config && config._id ? config._id : ''; // TODO: id generator
   }
 
   data(): IUnregisteredDriverData {
     return {
-      carPlate: this.carPlate,
+      _id: this._id,
+      carPlates: [this.carPlate],
       parkingProcessIds: this.parkingProcessIds,
     };
   }

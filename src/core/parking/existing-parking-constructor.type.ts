@@ -1,5 +1,7 @@
-import { IParkingData } from './parking-data.interface';
 import { NewParkingConstructor } from './new-parking-constructor.type';
+import { IParkingProcess } from '../parking-process';
 
-export type ExistingParkingConstructor = NewParkingConstructor &
-  Pick<IParkingData, 'parkingProcessesIds'>;
+export type ExistingParkingConstructor = NewParkingConstructor & {
+  parkingProcesses: IParkingProcess[];
+  _id: string;
+};

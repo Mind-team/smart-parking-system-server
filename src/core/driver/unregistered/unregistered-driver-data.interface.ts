@@ -1,4 +1,5 @@
 export interface IUnregisteredDriverData {
-  carPlate: string;
+  _id: string;
+  carPlates: string[];
   parkingProcessIds: string[];
 }

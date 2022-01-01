@@ -1,6 +1,8 @@
 export interface IUncompletedParkingProcessData {
+  _id: string;
   parkingId: string;
   driver: {
+    _id: string;
     carPlate: string;
   };
   payment: {

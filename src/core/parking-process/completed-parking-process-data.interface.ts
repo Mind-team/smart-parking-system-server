@@ -1,6 +1,8 @@
 export interface ICompletedParkingProcessData {
+  _id: string;
   parkingId: string;
   driver: {
+    _id: string;
     carPlate: string;
   };
   payment: {
