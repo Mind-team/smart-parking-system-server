@@ -1,8 +1,9 @@
 import { IDriver } from '../driver';
+import { IParking } from '../parking';
 
 export type NewParkingProcessConstructor = {
   currency: string;
-  parking: any; // TODO: Parking Model
-  driver: IDriver; // TODO: Driver Model
+  parking: IParking;
+  driver: IDriver;
   entryCarTime: string;
 };
