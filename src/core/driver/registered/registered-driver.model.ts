@@ -3,6 +3,7 @@ import { NewRegisteredDriverConstructor } from './new-registered-driver-construc
 import { ExistingRegisteredDriverConstructor } from './existing-registered-driver-constructor.type';
 import { IRegisteredDriverData } from './registered-driver-data.interface';
 import { IParkingProcess } from '../../parking-process';
+import { v4 as uuid } from 'uuid';
 
 export class RegisteredDriver implements IRegisteredDriver {
   private readonly _id: string;
@@ -16,13 +17,19 @@ export class RegisteredDriver implements IRegisteredDriver {
     config:
       | NewRegisteredDriverConstructor
       | ExistingRegisteredDriverConstructor,
+    options: {
+      idGenerator: () => string;
+    } = {
+      idGenerator: uuid,
+    },
   ) {
     this.carPlates = config.carPlates;
     this.phoneNumber = config.phoneNumber;
     this.password = config.password;
     this.email = config.email;
     this.parkingProcessIds = config.parkingProcessIds;
-    this._id = '_id' in config && config._id ? config._id : ''; // TODO: id generator
+    this._id =
+      '_id' in config && config._id ? config._id : options.idGenerator();
   }
 
   data(): IRegisteredDriverData {

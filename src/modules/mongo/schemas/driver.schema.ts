@@ -9,14 +9,14 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 export class MongoDriver
   implements IUnregisteredDriverData, IRegisteredDriverData
 {
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, unique: true })
   _id: string;
 
-  @Prop({ type: [String], required: true })
+  @Prop({ type: [String], required: true, unique: true })
   carPlates: string[];
 
-  @Prop({ type: String, required: false })
-  email: string;
+  @Prop({ type: String, required: false, sparse: true })
+  email?: string;
 
   @Prop({ type: [String], required: true, default: [] })
   parkingProcessIds: string[];
@@ -24,7 +24,7 @@ export class MongoDriver
   @Prop({ type: String, required: true })
   password: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, unique: true })
   phoneNumber: string;
 }
 
