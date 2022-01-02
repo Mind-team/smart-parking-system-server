@@ -8,9 +8,11 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import { DriverService } from './driver.service';
 
+@ApiTags('driver')
 @Controller('driver')
 export class DriverController {
   constructor(private readonly service: DriverService) {}

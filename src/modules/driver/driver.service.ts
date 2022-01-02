@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { IRegisteredDriverData, RegisteredDriver } from '../../core/driver';
 import { DriverMongoService } from '../mongo';
 import { NewRegisteredDriverConstructor } from '../../core/driver/registered/new-registered-driver-constructor.type';
@@ -26,6 +26,10 @@ export class DriverService {
       phoneNumber: config.phoneNumber,
     };
     const newDriverModel = new RegisteredDriver(newDriverConfig);
-    await this.driverMongoService.save(newDriverModel.data());
+    try {
+      await this.driverMongoService.save(newDriverModel.data());
+    } catch (e) {
+      throw new BadRequestException('Что-то пошло не так');
+    }
   }
 }
