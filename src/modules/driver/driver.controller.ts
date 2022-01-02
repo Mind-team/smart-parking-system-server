@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes, Version } from '@nestjs/common';
+import { Body, Controller, Get, Post, UsePipes, Version } from '@nestjs/common';
 import {
   RegisterDriverDto,
   RegisterDriverJoiSchema,
@@ -28,4 +28,9 @@ export class DriverController {
   async registerDriver(@Body() data: RegisterDriverDto) {
     await this.service.registerDriver(data);
   }
+
+  // @Version('4')
+  // @Get()
+  // @ApiOperation({ summary: 'Получение данных водителя' })
+  // async getDriver()
 }

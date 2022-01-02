@@ -24,6 +24,6 @@ export class ParkingController {
   })
   @ApiBadRequestResponse({ description: 'Парковка не создана' })
   async createParking(@Body() data: CreateParkingDto) {
-    //await this.service
+    await this.service.createParking(data);
   }
 }
