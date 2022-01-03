@@ -32,5 +32,7 @@ export class DriverController {
   // @Version('4')
   // @Get()
   // @ApiOperation({ summary: 'Получение данных водителя' })
-  // async getDriver()
+  // async getDriver() {
+  //
+  // }
 }

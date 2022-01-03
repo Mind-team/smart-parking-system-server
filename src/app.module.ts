@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongoModule } from './modules/mongo';
 import { ParkingModule } from './modules/parking/parking.module';
 import { MappersModule } from './modules/mappers/mappers.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MappersModule } from './modules/mappers/mappers.module';
     DriverModule,
     ParkingModule,
     MappersModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
