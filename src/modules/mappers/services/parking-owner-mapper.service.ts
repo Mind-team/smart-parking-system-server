@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ParkingOwner } from '../../../core/parking-owner';
-import { ExistingParkingOwnerConstructor } from '../../../core/parking-owner';
-import { ParkingOwnerMongoService } from '../../mongo';
+import {
+  ParkingOwner,
+  ExistingParkingOwnerConstructor,
+  NewParkingOwnerConstructor,
+  IParkingOwner,
+} from '../../../core/parking-owner';
+import { MongoParkingOwner, ParkingOwnerMongoService } from '../../mongo';
 
 @Injectable()
 export class ParkingOwnerMapperService {
@@ -18,5 +22,9 @@ export class ParkingOwnerMapperService {
     };
 
     return new ParkingOwner(config);
+  }
+
+  toDB(model: IParkingOwner): MongoParkingOwner {
+    return model.data();
   }
 }

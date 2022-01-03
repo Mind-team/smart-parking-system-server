@@ -3,11 +3,14 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { IRegisteredDriverData, RegisteredDriver } from '../../core/driver';
+import {
+  IRegisteredDriverData,
+  RegisteredDriver,
+  NewRegisteredDriverConstructor,
+} from '../../core/driver';
 import { DriverMongoService } from '../mongo';
-import { NewRegisteredDriverConstructor } from '../../core/driver/registered/new-registered-driver-constructor.type';
 import { JwtWrapperService } from '../auth';
-import { RegisteredDriverMapperService } from '../mappers/services/registered-driver-mapper.service';
+import { RegisteredDriverMapperService } from '../mappers';
 
 @Injectable()
 export class DriverService {
@@ -16,6 +19,7 @@ export class DriverService {
     private readonly driverMongoService: DriverMongoService,
     private readonly jwtService: JwtWrapperService,
   ) {}
+
   /**
    * Регистрация водителя. Проверят пользовался ли уже водитель нашей системой.
    * Если да - переносит всю информацию
@@ -35,18 +39,16 @@ export class DriverService {
       password: config.password,
       phoneNumber: config.phoneNumber,
     };
-    const modelData = new RegisteredDriver(newDriverConfig).data();
+    const model = new RegisteredDriver(newDriverConfig);
+    const modelData = model.data();
     const tokens = this.jwtService.generateTokens({
       id: modelData._id,
       phone: modelData.phoneNumber,
     });
     try {
-      const mongoDriver = await this.registeredDriverMapperService.toDB(
-        modelData,
-        {
-          refreshToken: tokens.refreshToken,
-        },
-      );
+      const mongoDriver = await this.registeredDriverMapperService.toDB(model, {
+        refreshToken: tokens.refreshToken,
+      });
       await this.driverMongoService.save(mongoDriver);
       return {
         accessToken: tokens.accessToken,
@@ -59,8 +61,7 @@ export class DriverService {
 
   async driverData(data: { id: string }): Promise<IRegisteredDriverData> {
     try {
-      const mongo = await this.driverMongoService.findById(data.id);
-      const model = this.registeredDriverMapperService.fromDB(mongo);
+      const model = await this.registeredDriverMapperService.fromDB(data.id);
       return model.data();
     } catch (e) {
       throw new InternalServerErrorException('Что-то пошло не так');

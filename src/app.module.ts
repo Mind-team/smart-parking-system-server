@@ -6,6 +6,7 @@ import { MongoModule } from './modules/mongo';
 import { ParkingModule } from './modules/parking/parking.module';
 import { MappersModule } from './modules/mappers/mappers.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ParkingOwnerModule } from './modules/parking-owner/parking-owner.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
     ParkingModule,
     MappersModule,
     AuthModule,
+    ParkingOwnerModule,
   ],
   controllers: [],
   providers: [],

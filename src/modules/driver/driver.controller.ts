@@ -10,7 +10,8 @@ import {
 import {
   RegisterDriverRequestDto,
   RegisterDriverJoiSchema,
-} from './dto/register-driver';
+  RegisterDriverResponseDto,
+} from './dto';
 import { JoiValidationPipe } from '../../pipes';
 import {
   ApiBadRequestResponse,
@@ -20,9 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { DriverService } from './driver.service';
-import { RegisterDriverResponseDto } from './dto/register-driver/register-driver-response.dto';
-import { JwtAuthGuard } from '../auth';
-import { FromJwtDto } from '../auth/dto/from-jwt.dto';
+import { JwtAuthGuard, FromJwtDto } from '../auth';
 
 @ApiTags('driver')
 @Controller('driver')

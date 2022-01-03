@@ -1,25 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import {
-  NewRegisteredDriverConstructor,
-  RegisteredDriver,
-  ExistingRegisteredDriverConstructor,
-  IRegisteredDriver,
-} from '../../../core/driver';
-import { MongoDriver } from '../../mongo';
+import { RegisteredDriver, IRegisteredDriver } from '../../../core/driver';
+import { DriverMongoService, MongoDriver } from '../../mongo';
 
 @Injectable()
 export class RegisteredDriverMapperService {
+  constructor(private readonly driverMongoService: DriverMongoService) {}
+
   async toDB(
-    config:
-      | NewRegisteredDriverConstructor
-      | ExistingRegisteredDriverConstructor,
+    model: IRegisteredDriver,
     additional: { refreshToken: string },
   ): Promise<MongoDriver> {
-    const model = new RegisteredDriver(config);
     return { ...model.data(), refreshToken: additional.refreshToken };
   }
 
-  fromDB(driver: MongoDriver): IRegisteredDriver {
-    return new RegisteredDriver(driver);
+  async fromDB(id: string): Promise<IRegisteredDriver> {
+    const mongo = await this.driverMongoService.findById(id);
+    return new RegisteredDriver(mongo);
   }
 }
