@@ -26,6 +26,9 @@ export class MongoDriver
 
   @Prop({ type: String, required: true, unique: true })
   phoneNumber: string;
+
+  @Prop({ type: String, required: true })
+  refreshToken: string;
 }
 
 export type DriverDocument = MongoDriver & mongoose.Document;

@@ -1,4 +1,4 @@
-export class RegisterDriverDto {
+export class RegisterDriverRequestDto {
   phoneNumber: string;
   password: string;
   email?: string;
