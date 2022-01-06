@@ -1,24 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { DriverMongoService, ParkingMongoService } from '../mongo';
+import {
+  DriverMongoService,
+  ParkingMongoService,
+  ParkingProcessMongoService,
+} from '../mongo';
+import {
+  ParkingOwnerMapperService,
+  RegisteredDriverMapperService,
+  ParkingProcessMapperService,
+  ParkingMapperService,
+} from '../mappers';
 import {
   IParkingData,
   Parking,
   NewParkingConstructor,
 } from '../../core/parking';
 import {
-  ParkingOwnerMapperService,
-  RegisteredDriverMapperService,
-} from '../mappers';
-import {
   IDriver,
   IRegisteredDriver,
-  IRegisteredDriverData,
   RegisteredDriver,
   UnregisteredDriver,
 } from '../../core/driver';
-import { ParkingProcessMapperService } from '../mappers/services/parking-process-mapper.service';
-import { ParkingProcessMongoService } from '../mongo/services/parking-process-mongo.service';
-import { ParkingMapperService } from '../mappers/services/parking-mapper.service';
 
 @Injectable()
 export class ParkingService {
