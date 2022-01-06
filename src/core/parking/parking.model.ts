@@ -59,10 +59,16 @@ export class Parking implements IParking {
     this.parkingProcesses.push(
       new ParkingProcess({
         currency: 'RUB',
-        parking: this,
+        parkingId: this._id,
         driver: driver,
         entryCarTime: new Date().toISOString(),
       }),
+    );
+  }
+
+  parkingProcessByDriverId(driverId: string): IParkingProcess {
+    return this.parkingProcesses.find(
+      (process) => process.data().driver._id === driverId,
     );
   }
 }

@@ -18,6 +18,7 @@ import {
 import { ParkingProcess } from '../../core/parking-process';
 import { ParkingProcessMapperService } from '../mappers/services/parking-process-mapper.service';
 import { ParkingProcessMongoService } from '../mongo/services/parking-process-mongo.service';
+import { ParkingMapperService } from '../mappers/services/parking-mapper.service';
 
 @Injectable()
 export class ParkingService {
@@ -28,6 +29,7 @@ export class ParkingService {
     private readonly driverMapperService: RegisteredDriverMapperService,
     private readonly parkingProcessMapperService: ParkingProcessMapperService,
     private readonly parkingProcessMongoService: ParkingProcessMongoService,
+    private readonly parkingMapperService: ParkingMapperService,
   ) {}
 
   async createParking(
@@ -60,14 +62,13 @@ export class ParkingService {
     } else {
       driverModel = new RegisteredDriver(driverMongo);
     }
-    const newParkingProcess = new ParkingProcess({
-      currency: 'RUB',
-      parkingId: data.parkingId,
-      driver: driverModel,
-      entryCarTime: new Date().toISOString(),
-    });
+    const parkingModel = await this.parkingMapperService.fromDB(data.parkingId);
+    parkingModel.registerCarEntry(driverModel);
+    const parkingProcess = parkingModel.parkingProcessByDriverId(
+      driverModel.data()._id,
+    );
     await this.parkingProcessMongoService.save(
-      this.parkingProcessMapperService.toDB(newParkingProcess),
+      this.parkingProcessMapperService.toDB(parkingProcess),
     );
   }
 }
