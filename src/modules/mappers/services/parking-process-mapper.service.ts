@@ -6,6 +6,7 @@ import { IDriver } from '../../../core/driver';
 import { DriverMongoService, ParkingMongoService } from '../../mongo';
 import { RegisteredDriverMapperService } from './registered-driver-mapper.service';
 import { UnregisteredDriverMapperService } from './unregistered-driver-mapper.service';
+import { MongoParkingProcess } from '../../mongo/schemas/parking-process.schema';
 
 @Injectable()
 export class ParkingProcessMapperService {
@@ -36,5 +37,9 @@ export class ParkingProcessMapperService {
       entryCarTime: processDB.entryCarTime,
       departureCarTime: processDB.departureCarTime,
     });
+  }
+
+  toDB(model: IParkingProcess): MongoParkingProcess {
+    return model.data();
   }
 }

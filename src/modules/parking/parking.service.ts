@@ -10,10 +10,14 @@ import {
   RegisteredDriverMapperService,
 } from '../mappers';
 import {
+  IDriver,
   NewUnregisteredDriverConstructor,
+  RegisteredDriver,
   UnregisteredDriver,
 } from '../../core/driver';
 import { ParkingProcess } from '../../core/parking-process';
+import { ParkingProcessMapperService } from '../mappers/services/parking-process-mapper.service';
+import { ParkingProcessMongoService } from '../mongo/services/parking-process-mongo.service';
 
 @Injectable()
 export class ParkingService {
@@ -22,6 +26,8 @@ export class ParkingService {
     private readonly parkingOwnerMapperService: ParkingOwnerMapperService,
     private readonly driverMongoService: DriverMongoService,
     private readonly driverMapperService: RegisteredDriverMapperService,
+    private readonly parkingProcessMapperService: ParkingProcessMapperService,
+    private readonly parkingProcessMongoService: ParkingProcessMongoService,
   ) {}
 
   async createParking(
@@ -46,12 +52,22 @@ export class ParkingService {
     const driverMongo = await this.driverMongoService.findOne({
       carPlates: { $in: [data.transportPlate] },
     });
+    let driverModel: IDriver;
     if (!driverMongo) {
-      const newDriver = new UnregisteredDriver({
+      driverModel = new UnregisteredDriver({
         carPlate: data.transportPlate,
       });
+    } else {
+      driverModel = new RegisteredDriver(driverMongo);
     }
-    const parkingDB = await this.parkingMongoService.findById(data.parkingId);
-    const newParkingProcess = new ParkingProcess({ currency: 'RUB' });
+    const newParkingProcess = new ParkingProcess({
+      currency: 'RUB',
+      parkingId: data.parkingId,
+      driver: driverModel,
+      entryCarTime: new Date().toISOString(),
+    });
+    await this.parkingProcessMongoService.save(
+      this.parkingProcessMapperService.toDB(newParkingProcess),
+    );
   }
 }

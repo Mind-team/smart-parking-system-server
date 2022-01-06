@@ -2,13 +2,19 @@ import { Body, Controller, Post, UsePipes, Version } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { ParkingService } from './parking.service';
 import { JoiValidationPipe } from '../../pipes';
-import { CreateParkingJoiSchema } from './dto/create-parking/create-parking.schema';
-import { CreateParkingDto } from './dto/create-parking/create-parking.dto';
+import {
+  CreateParkingJoiSchema,
+  CreateParkingDto,
+  RegisterEntryJoiSchema,
+  RegisterEntryDto,
+} from './dto';
 
 @ApiTags('parking')
 @Controller('parking')
@@ -29,5 +35,13 @@ export class ParkingController {
 
   @Version('4')
   @Post('register-entry')
-  async registerTransportEntry() {}
+  @UsePipes(new JoiValidationPipe(RegisterEntryJoiSchema))
+  @ApiOperation({ summary: 'Регистрация въезда транспортного средства' })
+  @ApiOkResponse({ description: 'Успешная регистрация' })
+  @ApiInternalServerErrorResponse({
+    description: 'Въезд т.с. не был зарегистрирован',
+  })
+  async registerTransportEntry(@Body() data: RegisterEntryDto) {
+    await this.service.registerTransportEntry(data);
+  }
 }
