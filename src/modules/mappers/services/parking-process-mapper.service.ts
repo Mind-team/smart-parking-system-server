@@ -8,7 +8,7 @@ import { RegisteredDriverMapperService } from './registered-driver-mapper.servic
 import { UnregisteredDriverMapperService } from './unregistered-driver-mapper.service';
 
 @Injectable()
-export class parkingProcessMapperService {
+export class ParkingProcessMapperService {
   constructor(
     private readonly parkingProcessMongoService: ParkingProcessMongoService,
     private readonly parkingMongoService: ParkingMongoService,
@@ -16,25 +16,25 @@ export class parkingProcessMapperService {
     private readonly unregisteredDriverMapperService: UnregisteredDriverMapperService,
   ) {}
 
-  async fromDB(id: string): IParkingProcess {
+  async fromDB(id: string): Promise<IParkingProcess> {
     const processDB = await this.parkingProcessMongoService.findById(id);
     const parkingDB = await this.parkingMongoService.findById(
       processDB.parkingId,
     );
-    const driverModel =
-    const driverDB = await this.driverMongoService.findById(
+    // TODO: add unregistered driver support
+    const driverModel = await this.registeredDriverMapperService.fromDB(
       processDB.driver._id,
     );
-    if (!driverDB || !parkingDB || !processDB) {
+    if (!driverModel || !parkingDB || !processDB) {
       // TODO: Handle it
       throw new BadRequestException('ну гг че');
     }
     return new ParkingProcess({
       currency: 'RUB',
       parkingId: parkingDB._id,
-      driver: IDriver,
-      entryCarTime: string,
-      departureCarTime,
+      driver: driverModel,
+      entryCarTime: processDB.entryCarTime,
+      departureCarTime: processDB.departureCarTime,
     });
   }
 }
