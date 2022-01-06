@@ -3,10 +3,9 @@ import { NewParkingProcessConstructor } from './new-parking-process-constructor.
 import { ExistingParkingProcessConstructor } from './existing-parking-process-constructor.type';
 import { IParkingProcessData } from './parking-process-data.interface';
 import { IDriver } from '../driver';
-import { IParking } from '../parking';
 
 export class ParkingProcess implements IParkingProcess {
-  private readonly parking: IParking; // TODO: Parking Model
+  private readonly parkingId: string;
   private readonly driver: IDriver;
   private readonly entryCarTime: Date;
   private readonly departureCarTime: Date;
@@ -17,7 +16,7 @@ export class ParkingProcess implements IParkingProcess {
     config: NewParkingProcessConstructor | ExistingParkingProcessConstructor,
   ) {
     // TODO: добавить работу с payment
-    this.parking = config.parking;
+    this.parkingId = config.parkingId;
     this.driver = config.driver;
     this.entryCarTime = new Date(config.entryCarTime);
     if ('departureCarTime' in config && config.departureCarTime) {

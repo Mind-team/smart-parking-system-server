@@ -26,4 +26,8 @@ export class ParkingController {
   async createParking(@Body() data: CreateParkingDto) {
     await this.service.createParking(data);
   }
+
+  @Version('4')
+  @Post('register-entry')
+  async registerTransportEntry() {}
 }

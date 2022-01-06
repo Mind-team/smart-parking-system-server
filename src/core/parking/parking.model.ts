@@ -34,6 +34,7 @@ export class Parking implements IParking {
   }
 
   data(): IParkingData {
+    // TODO: Implement
     return undefined;
   }
 

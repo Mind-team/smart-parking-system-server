@@ -4,4 +4,5 @@ export interface IParkingData {
   name: string;
   address: string;
   parkingProcessesIds: string[];
+  parkingSpacesCount: number;
 }

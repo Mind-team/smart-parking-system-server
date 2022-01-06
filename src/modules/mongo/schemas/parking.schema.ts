@@ -18,6 +18,9 @@ export class MongoParking implements IParkingData {
 
   @Prop({ type: [String], required: true })
   parkingProcessesIds: string[];
+
+  @Prop({ type: Number, required: true })
+  parkingSpacesCount: number;
 }
 
 export type ParkingDocument = MongoParking & mongoose.Document;

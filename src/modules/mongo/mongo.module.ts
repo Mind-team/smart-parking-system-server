@@ -7,11 +7,14 @@ import { ParkingMongoService } from './services/parking-mongo.service';
 import { ParkingOwnerMongoService } from './services/parking-owner-mongo.service';
 import { ParkingSchema } from './schemas/parking.schema';
 import { ParkingOwnerSchema } from './schemas/parking-owner.schema';
+import { ParkingProcessMongoService } from './services/parking-process-mongo.service';
+import { ParkingProcessSchema } from './schemas/parking-process.schema';
 
 const services = [
   DriverMongoService,
   ParkingMongoService,
   ParkingOwnerMongoService,
+  ParkingProcessMongoService,
 ];
 
 @Module({
@@ -20,6 +23,7 @@ const services = [
       { name: Token.Driver, schema: DriverSchema },
       { name: Token.Parking, schema: ParkingSchema },
       { name: Token.ParkingOwner, schema: ParkingOwnerSchema },
+      { name: Token.ParkingProcess, schema: ParkingProcessSchema },
     ]),
   ],
   providers: services,
