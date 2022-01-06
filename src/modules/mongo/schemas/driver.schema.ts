@@ -23,6 +23,9 @@ export class MongoDriver {
 
   @Prop({ type: String, required: true })
   refreshToken: string;
+
+  @Prop({ type: String, required: false })
+  currentParkingProcessId: string | null;
 }
 
 export type DriverDocument = MongoDriver & mongoose.Document;

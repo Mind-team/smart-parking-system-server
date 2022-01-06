@@ -15,6 +15,7 @@ import {
   IParkingData,
   Parking,
   NewParkingConstructor,
+  IParking,
 } from '../../core/parking';
 import {
   IDriver,
@@ -22,6 +23,7 @@ import {
   RegisteredDriver,
   UnregisteredDriver,
 } from '../../core/driver';
+import { IParkingProcess } from '../../core/parking-process';
 
 @Injectable()
 export class ParkingService {
@@ -63,18 +65,37 @@ export class ParkingService {
     const parkingProcess = parkingModel.parkingProcessByDriverId(
       driverModel.data()._id,
     );
-    await this.parkingProcessMongoService.save(
-      this.parkingProcessMapperService.toDB(parkingProcess),
+
+    await this.updateDocuments(
+      parkingProcess,
+      parkingModel,
+      driverModel,
+      driverMongo,
     );
-    await this.parkingMongoService.updateOne(
-      { _id: parkingModel.data()._id },
-      parkingModel.data(),
+  }
+
+  // TODO: Некорректно работает с незарегистрированным тк driverMapperService: RegisteredDriverMapperService
+  async registerTransportDeparture(data: { transportPlate: string }) {
+    const [driverModel, driverMongo] = await this.getDriverModel(
+      data.transportPlate,
     );
-    await this.driverMongoService.updateOne(
-      { _id: driverModel.data()._id },
-      await this.driverMapperService.toDB(driverModel as IRegisteredDriver, {
-        refreshToken: driverMongo.refreshToken,
-      }),
+    const parkingProcessMongo = await this.parkingProcessMongoService.findById(
+      driverMongo.currentParkingProcessId,
+    );
+    const parkingModel = await this.parkingMapperService.fromDB(
+      parkingProcessMongo.parkingId,
+    );
+    const parkingProcessModel = parkingModel.parkingProcessByDriverId(
+      driverMongo.currentParkingProcessId,
+    );
+
+    parkingModel.registerCarDeparture(driverModel);
+
+    await this.updateDocuments(
+      parkingProcessModel,
+      parkingModel,
+      driverModel,
+      driverMongo,
     );
   }
 
@@ -93,5 +114,27 @@ export class ParkingService {
       ];
     }
     return [new RegisteredDriver(driverDocument), driverDocument];
+  }
+
+  private async updateDocuments(
+    parkingProcess: IParkingProcess,
+    parking: IParking,
+    driver: IDriver,
+    driverMongo: MongoDriver,
+  ) {
+    await this.parkingProcessMongoService.save(
+      this.parkingProcessMapperService.toDB(parkingProcess),
+    );
+    const parkingData = parking.data();
+    await this.parkingMongoService.updateOne(
+      { _id: parkingData._id },
+      parkingData,
+    );
+    await this.driverMongoService.updateOne(
+      { _id: driver.data()._id },
+      await this.driverMapperService.toDB(driver as IRegisteredDriver, {
+        refreshToken: driverMongo.refreshToken,
+      }),
+    );
   }
 }

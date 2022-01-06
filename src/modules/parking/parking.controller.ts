@@ -14,6 +14,8 @@ import {
   CreateParkingDto,
   RegisterEntryJoiSchema,
   RegisterEntryDto,
+  RegisterDepartureJoiSchema,
+  RegisterDepartureDto,
 } from './dto';
 
 @ApiTags('parking')
@@ -43,5 +45,17 @@ export class ParkingController {
   })
   async registerTransportEntry(@Body() data: RegisterEntryDto) {
     await this.service.registerTransportEntry(data);
+  }
+
+  @Version('4')
+  @Post('register-departure')
+  @UsePipes(new JoiValidationPipe(RegisterDepartureJoiSchema))
+  @ApiOperation({ summary: 'Регистрация выезда транспортного средства' })
+  @ApiOkResponse({ description: 'Успешная регистрация' })
+  @ApiInternalServerErrorResponse({
+    description: 'Выезд т.с. не был зарегистрирован',
+  })
+  async registerTransportDeparture(@Body() data: RegisterDepartureDto) {
+    await this.service.registerTransportDeparture(data);
   }
 }
