@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   DriverMongoService,
+  MongoDriver,
   ParkingMongoService,
   ParkingProcessMongoService,
 } from '../mongo';
@@ -49,22 +50,14 @@ export class ParkingService {
     await this.parkingMongoService.save(parkingModel.data());
   }
 
-  // TODO: Некорректно работает с незарегистрированным
+  // TODO: Некорректно работает с незарегистрированным тк driverMapperService: RegisteredDriverMapperService
   async registerTransportEntry(data: {
     parkingId: string;
     transportPlate: string;
   }) {
-    const driverMongo = await this.driverMongoService.findOne({
-      carPlates: { $in: [data.transportPlate] },
-    });
-    let driverModel: IDriver;
-    if (!driverMongo) {
-      driverModel = new UnregisteredDriver({
-        carPlate: data.transportPlate,
-      });
-    } else {
-      driverModel = new RegisteredDriver(driverMongo);
-    }
+    const [driverModel, driverMongo] = await this.getDriverModel(
+      data.transportPlate,
+    );
     const parkingModel = await this.parkingMapperService.fromDB(data.parkingId);
     parkingModel.registerCarEntry(driverModel);
     const parkingProcess = parkingModel.parkingProcessByDriverId(
@@ -85,11 +78,20 @@ export class ParkingService {
     );
   }
 
-  private async registerUnregisteredTransportEntry() {
-    return null;
-  }
-
-  private async registerRegisteredTransportEntry() {
-    return null;
+  private async getDriverModel(
+    transportPlate: string,
+  ): Promise<[IDriver, MongoDriver]> {
+    const driverDocument = await this.driverMongoService.findOne({
+      carPlates: { $in: [transportPlate] },
+    });
+    if (!driverDocument) {
+      return [
+        new UnregisteredDriver({
+          carPlate: transportPlate,
+        }),
+        driverDocument,
+      ];
+    }
+    return [new RegisteredDriver(driverDocument), driverDocument];
   }
 }
