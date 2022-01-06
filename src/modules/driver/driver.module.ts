@@ -3,10 +3,9 @@ import { DriverController } from './driver.controller';
 import { DriverService } from './driver.service';
 import { MongoModule } from '../mongo';
 import { AuthModule } from '../auth';
-import { MappersModule } from '../mappers';
 
 @Module({
-  imports: [MongoModule, AuthModule, MappersModule],
+  imports: [MongoModule, AuthModule],
   controllers: [DriverController],
   providers: [DriverService],
 })

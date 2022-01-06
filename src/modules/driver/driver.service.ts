@@ -10,7 +10,7 @@ import {
 } from '../../core/driver';
 import { DriverMongoService } from '../mongo';
 import { JwtWrapperService } from '../auth';
-import { RegisteredDriverMapperService } from '../mappers';
+import { RegisteredDriverMapperService } from '../mongo/mappers';
 
 @Injectable()
 export class DriverService {
@@ -68,7 +68,7 @@ export class DriverService {
       return model.data();
     } catch (e) {
       throw new InternalServerErrorException(
-        'Что-то пошло не так ---' + +e.message,
+        'Что-то пошло не так --- ' + e.message,
       );
     }
   }

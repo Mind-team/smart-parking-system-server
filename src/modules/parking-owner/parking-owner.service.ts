@@ -4,7 +4,7 @@ import {
   ParkingOwner,
 } from '../../core/parking-owner';
 import { ParkingOwnerMongoService } from '../mongo';
-import { ParkingOwnerMapperService } from '../mappers';
+import { ParkingOwnerMapperService } from '../mongo/mappers';
 import { JwtWrapperService } from '../auth';
 
 @Injectable()

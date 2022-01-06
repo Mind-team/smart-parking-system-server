@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import {
   ParkingOwner,
   ExistingParkingOwnerConstructor,
-  NewParkingOwnerConstructor,
   IParkingOwner,
 } from '../../../core/parking-owner';
-import { MongoParkingOwner, ParkingOwnerMongoService } from '../../mongo';
+import { ParkingOwnerMongoService } from '../services/parking-owner-mongo.service';
+import { MongoParkingOwner } from '../schemas/parking-owner.schema';
 
 @Injectable()
 export class ParkingOwnerMapperService {

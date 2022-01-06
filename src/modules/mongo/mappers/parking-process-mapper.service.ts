@@ -1,12 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { ParkingProcessMongoService } from '../../mongo/services/parking-process-mongo.service';
+import { ParkingProcessMongoService } from '../services/parking-process-mongo.service';
 import { IParkingProcess, ParkingProcess } from '../../../core/parking-process';
-import { IParking } from '../../../core/parking';
-import { IDriver } from '../../../core/driver';
-import { DriverMongoService, ParkingMongoService } from '../../mongo';
 import { RegisteredDriverMapperService } from './registered-driver-mapper.service';
 import { UnregisteredDriverMapperService } from './unregistered-driver-mapper.service';
-import { MongoParkingProcess } from '../../mongo/schemas/parking-process.schema';
+import { MongoParkingProcess } from '../schemas/parking-process.schema';
+import { ParkingMongoService } from '../services/parking-mongo.service';
 
 @Injectable()
 export class ParkingProcessMapperService {

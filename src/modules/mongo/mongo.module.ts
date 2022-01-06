@@ -9,12 +9,27 @@ import { ParkingSchema } from './schemas/parking.schema';
 import { ParkingOwnerSchema } from './schemas/parking-owner.schema';
 import { ParkingProcessMongoService } from './services/parking-process-mongo.service';
 import { ParkingProcessSchema } from './schemas/parking-process.schema';
+import {
+  ParkingMapperService,
+  ParkingOwnerMapperService,
+  ParkingProcessMapperService,
+  RegisteredDriverMapperService,
+  UnregisteredDriverMapperService,
+} from './mappers';
 
 const services = [
   DriverMongoService,
   ParkingMongoService,
   ParkingOwnerMongoService,
   ParkingProcessMongoService,
+  RegisteredDriverMapperService,
+];
+
+const mappers = [
+  ParkingOwnerMapperService,
+  ParkingMapperService,
+  ParkingProcessMapperService,
+  UnregisteredDriverMapperService,
 ];
 
 @Module({
@@ -26,7 +41,7 @@ const services = [
       { name: Token.ParkingProcess, schema: ParkingProcessSchema },
     ]),
   ],
-  providers: services,
-  exports: services,
+  providers: [...services, ...mappers],
+  exports: [...services, ...mappers],
 })
 export class MongoModule {}

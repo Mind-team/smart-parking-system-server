@@ -9,7 +9,7 @@ import {
   RegisteredDriverMapperService,
   ParkingProcessMapperService,
   ParkingMapperService,
-} from '../mappers';
+} from '../mongo/mappers';
 import {
   IParkingData,
   Parking,
@@ -83,5 +83,13 @@ export class ParkingService {
         refreshToken: driverMongo.refreshToken,
       }),
     );
+  }
+
+  private async registerUnregisteredTransportEntry() {
+    return null;
+  }
+
+  private async registerRegisteredTransportEntry() {
+    return null;
   }
 }

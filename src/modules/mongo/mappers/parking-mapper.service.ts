@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ParkingMongoService, ParkingOwnerMongoService } from '../../mongo';
 import {
   ExistingParkingConstructor,
   IParking,
@@ -7,6 +6,8 @@ import {
 } from '../../../core/parking';
 import { ParkingOwnerMapperService } from './parking-owner-mapper.service';
 import { ParkingProcessMapperService } from './parking-process-mapper.service';
+import { ParkingMongoService } from '../services/parking-mongo.service';
+import { ParkingOwnerMongoService } from '../services/parking-owner-mongo.service';
 
 @Injectable()
 export class ParkingMapperService {

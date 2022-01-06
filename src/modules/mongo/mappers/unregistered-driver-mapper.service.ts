@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { DriverMongoService, MongoDriver } from '../../mongo';
 import { IRegisteredDriver, RegisteredDriver } from '../../../core/driver';
+import { DriverMongoService } from '../services/driver-mongo.service';
 
 @Injectable()
 export class UnregisteredDriverMapperService {
