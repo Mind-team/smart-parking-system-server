@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid';
 export class ParkingOwner implements IParkingOwner {
   private readonly _id: string;
   private readonly name: string;
+  private readonly password: string;
   private readonly parkingsIds: string[];
 
   constructor(
@@ -18,6 +19,7 @@ export class ParkingOwner implements IParkingOwner {
     },
   ) {
     this.name = config.name;
+    this.password = config.password;
     this._id =
       '_id' in config && config._id ? config._id : options.idGenerator();
     this.parkingsIds =
@@ -28,6 +30,7 @@ export class ParkingOwner implements IParkingOwner {
     return {
       _id: this._id,
       name: this.name,
+      password: this.password,
       parkingsIds: this.parkingsIds,
     };
   }

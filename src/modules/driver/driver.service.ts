@@ -55,7 +55,7 @@ export class DriverService {
         refreshToken: tokens.refreshToken,
       };
     } catch (e) {
-      throw new BadRequestException('Что-то пошло не так');
+      throw new BadRequestException('Что-то пошло не так --- ' + e.message);
     }
   }
 
@@ -64,7 +64,9 @@ export class DriverService {
       const model = await this.registeredDriverMapperService.fromDB(data.id);
       return model.data();
     } catch (e) {
-      throw new InternalServerErrorException('Что-то пошло не так');
+      throw new InternalServerErrorException(
+        'Что-то пошло не так ---' + +e.message,
+      );
     }
   }
 }

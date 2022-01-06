@@ -34,7 +34,7 @@ export class JwtWrapperService implements IJwtService {
     );
   }
 
-  generateTokens(data: { id: string; phone: string }): {
+  generateTokens(data: any): {
     accessToken: string;
     refreshToken: string;
     accessTokenExpiredDate: string;

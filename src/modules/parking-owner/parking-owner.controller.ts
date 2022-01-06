@@ -10,6 +10,7 @@ import { JoiValidationPipe } from '../../pipes';
 import {
   RegisterParkingOwnerSchema,
   RegisterParkingOwnerRequestDto,
+  RegisterParkingOwnerResponseDto,
 } from './dto';
 
 @ApiTags('parking-owner')
@@ -27,7 +28,9 @@ export class ParkingOwnerController {
   @ApiInternalServerErrorResponse({
     description: 'Владелец паркинга не зарегистрирован',
   })
-  async registerParkingOwner(@Body() data: RegisterParkingOwnerRequestDto) {
-    await this.service.registerParkingOwner(data);
+  async registerParkingOwner(
+    @Body() data: RegisterParkingOwnerRequestDto,
+  ): Promise<RegisterParkingOwnerResponseDto> {
+    return await this.service.registerParkingOwner(data);
   }
 }

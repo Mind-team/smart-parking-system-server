@@ -19,12 +19,16 @@ export class ParkingOwnerMapperService {
       _id: mongo._id,
       name: mongo.name,
       parkingsIds: mongo.parkingsIds,
+      password: mongo.password,
     };
 
     return new ParkingOwner(config);
   }
 
-  toDB(model: IParkingOwner): MongoParkingOwner {
-    return model.data();
+  toDB(
+    model: IParkingOwner,
+    additional: { refreshToken: string },
+  ): MongoParkingOwner {
+    return { ...model.data(), refreshToken: additional.refreshToken };
   }
 }

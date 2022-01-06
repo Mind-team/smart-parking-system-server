@@ -12,6 +12,12 @@ export class MongoParkingOwner implements IParkingOwnerData {
 
   @Prop({ type: [String], required: true, default: [] })
   parkingsIds: string[];
+
+  @Prop({ type: String, required: true })
+  password: string;
+
+  @Prop({ type: String, required: true })
+  refreshToken: string;
 }
 
 export type ParkingOwnerDocument = MongoParkingOwner & mongoose.Document;
