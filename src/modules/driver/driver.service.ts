@@ -25,7 +25,10 @@ export class DriverService {
    * Если да - переносит всю информацию
    */
   async registerDriver(
-    config: Omit<IRegisteredDriverData, '_id' | 'parkingProcessIds'>,
+    config: Omit<
+      IRegisteredDriverData,
+      '_id' | 'parkingProcessIds' | 'currentParkingProcessId'
+    >,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     // TODO:
     // реализовать трансфер между незарегистрированным и заренистрированным

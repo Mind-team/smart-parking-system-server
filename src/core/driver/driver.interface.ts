@@ -7,7 +7,8 @@ export interface _IDriver<
 > {
   data: () => T;
   //addPlate: (plate) => void;
-  addCompletedParkingProcess: (parkingProcess: IParkingProcess) => void;
+  completeParkingProcess: () => void;
+  registerParkingProcess: (parkingProcessId: string) => void;
 }
 
 export type IDriver =

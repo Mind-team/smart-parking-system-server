@@ -11,11 +11,11 @@ import {
 } from '../mappers';
 import {
   IDriver,
-  NewUnregisteredDriverConstructor,
+  IRegisteredDriver,
+  IRegisteredDriverData,
   RegisteredDriver,
   UnregisteredDriver,
 } from '../../core/driver';
-import { ParkingProcess } from '../../core/parking-process';
 import { ParkingProcessMapperService } from '../mappers/services/parking-process-mapper.service';
 import { ParkingProcessMongoService } from '../mongo/services/parking-process-mongo.service';
 import { ParkingMapperService } from '../mappers/services/parking-mapper.service';
@@ -47,6 +47,7 @@ export class ParkingService {
     await this.parkingMongoService.save(parkingModel.data());
   }
 
+  // TODO: Некорректно работает с незарегистрированным
   async registerTransportEntry(data: {
     parkingId: string;
     transportPlate: string;
@@ -69,6 +70,16 @@ export class ParkingService {
     );
     await this.parkingProcessMongoService.save(
       this.parkingProcessMapperService.toDB(parkingProcess),
+    );
+    await this.parkingMongoService.updateOne(
+      { _id: parkingModel.data()._id },
+      parkingModel.data(),
+    );
+    await this.driverMongoService.updateOne(
+      { _id: driverModel.data()._id },
+      await this.driverMapperService.toDB(driverModel as IRegisteredDriver, {
+        refreshToken: driverMongo.refreshToken,
+      }),
     );
   }
 }

@@ -52,18 +52,18 @@ export class Parking implements IParking {
       (process) => process.data().driver._id === driver.data()._id,
     );
     process.complete();
-    driver.addCompletedParkingProcess(process);
+    driver.completeParkingProcess();
   }
 
   registerCarEntry(driver: IDriver): void {
-    this.parkingProcesses.push(
-      new ParkingProcess({
-        currency: 'RUB',
-        parkingId: this._id,
-        driver: driver,
-        entryCarTime: new Date().toISOString(),
-      }),
-    );
+    const parkingProcess = new ParkingProcess({
+      currency: 'RUB',
+      parkingId: this._id,
+      driver: driver,
+      entryCarTime: new Date().toISOString(),
+    });
+    driver.registerParkingProcess(parkingProcess.data()._id);
+    this.parkingProcesses.push(parkingProcess);
   }
 
   parkingProcessByDriverId(driverId: string): IParkingProcess {

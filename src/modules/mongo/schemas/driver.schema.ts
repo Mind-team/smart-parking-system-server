@@ -1,14 +1,8 @@
 import * as mongoose from 'mongoose';
-import {
-  IRegisteredDriverData,
-  IUnregisteredDriverData,
-} from '../../../core/driver';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
-export class MongoDriver
-  implements IUnregisteredDriverData, IRegisteredDriverData
-{
+export class MongoDriver {
   @Prop({ type: String, required: true, unique: true })
   _id: string;
 
