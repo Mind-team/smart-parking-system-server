@@ -3,20 +3,31 @@ import { NewParkingProcessConstructor } from './new-parking-process-constructor.
 import { ExistingParkingProcessConstructor } from './existing-parking-process-constructor.type';
 import { IParkingProcessData } from './parking-process-data.interface';
 import { IDriver } from '../driver';
+import { v4 as uuid } from 'uuid';
 
 export class ParkingProcess implements IParkingProcess {
+  private readonly _id: string;
   private readonly parkingId: string;
   private readonly driver: IDriver;
+  private readonly transportPlate: string;
   private readonly entryCarTime: Date;
   private readonly departureCarTime: Date;
-  private readonly isCompleted: boolean;
+  private isCompleted: boolean;
   private readonly payment: unknown; // TODO: Payment Model
 
   constructor(
     config: NewParkingProcessConstructor | ExistingParkingProcessConstructor,
+    options: {
+      idGenerator: () => string;
+    } = {
+      idGenerator: uuid,
+    },
   ) {
     // TODO: добавить работу с payment
     this.parkingId = config.parkingId;
+    this._id =
+      '_id' in config && config._id ? config._id : options.idGenerator();
+    this.transportPlate = config.transportPlate;
     this.driver = config.driver;
     this.entryCarTime = new Date(config.entryCarTime);
     if ('departureCarTime' in config && config.departureCarTime) {
@@ -31,12 +42,31 @@ export class ParkingProcess implements IParkingProcess {
   }
 
   complete(): void {
-    return;
+    this.isCompleted = true;
   }
 
   data(asCompleted = false): IParkingProcessData {
-    if (asCompleted && !this.isCompleted) {
+    const result = {
+      _id: this._id,
+      parkingId: this.parkingId,
+      driver: {
+        _id: this.driver.data()._id,
+        carPlate: this.transportPlate,
+      },
+      payment: {
+        currency: 'RUB',
+        value: null,
+      },
+      entryCarTime: this.entryCarTime.toISOString(),
+      departureCarTime: null,
+      isCompleted: false,
+    };
+    if (asCompleted || this.isCompleted) {
+      result.departureCarTime =
+        this.departureCarTime ?? new Date().toISOString();
+      result.isCompleted = true;
+      return result;
     }
-    return null;
+    return result;
   }
 }

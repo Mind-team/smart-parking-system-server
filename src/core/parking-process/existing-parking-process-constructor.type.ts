@@ -2,4 +2,5 @@ import { NewParkingProcessConstructor } from './new-parking-process-constructor.
 
 export type ExistingParkingProcessConstructor = NewParkingProcessConstructor & {
   departureCarTime: string;
+  _id: string;
 };

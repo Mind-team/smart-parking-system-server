@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import {
   DriverMongoService,
   MongoDriver,
@@ -61,7 +61,7 @@ export class ParkingService {
       data.transportPlate,
     );
     const parkingModel = await this.parkingMapperService.fromDB(data.parkingId);
-    parkingModel.registerCarEntry(driverModel);
+    parkingModel.registerCarEntry(driverModel, data.transportPlate);
     const parkingProcess = parkingModel.parkingProcessByDriverId(
       driverModel.data()._id,
     );
@@ -82,12 +82,24 @@ export class ParkingService {
     const parkingProcessMongo = await this.parkingProcessMongoService.findById(
       driverMongo.currentParkingProcessId,
     );
+    console.log('parkingProcessMongo', parkingProcessMongo);
     const parkingModel = await this.parkingMapperService.fromDB(
       parkingProcessMongo.parkingId,
     );
     const parkingProcessModel = parkingModel.parkingProcessByDriverId(
-      driverMongo.currentParkingProcessId,
+      driverMongo._id,
     );
+    console.log('parkingProcessModel', parkingProcessModel);
+
+    if (!parkingProcessModel) {
+      throw new InternalServerErrorException(
+        `Транспортное средство с номером ${
+          data.transportPlate
+        } не было зарегистрировано на въезде в паркинг ${
+          parkingModel.data()._id
+        }`,
+      );
+    }
 
     parkingModel.registerCarDeparture(driverModel);
 
@@ -122,9 +134,22 @@ export class ParkingService {
     driver: IDriver,
     driverMongo: MongoDriver,
   ) {
-    await this.parkingProcessMongoService.save(
-      this.parkingProcessMapperService.toDB(parkingProcess),
-    );
+    const parkingProcessData = parkingProcess.data();
+    console.log(parkingProcessData._id);
+    if (
+      await this.parkingProcessMongoService.findById(parkingProcessData._id)
+    ) {
+      console.log('if', true);
+      await this.parkingProcessMongoService.updateOne(
+        { _id: parkingProcessData._id },
+        this.parkingProcessMapperService.toDB(parkingProcess),
+      );
+    } else {
+      console.log('if', false);
+      await this.parkingProcessMongoService.save(
+        this.parkingProcessMapperService.toDB(parkingProcess),
+      );
+    }
     const parkingData = parking.data();
     await this.parkingMongoService.updateOne(
       { _id: parkingData._id },

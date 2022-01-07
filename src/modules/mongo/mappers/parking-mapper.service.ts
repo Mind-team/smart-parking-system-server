@@ -23,12 +23,14 @@ export class ParkingMapperService {
     const parkingOwnerModel = await this.parkingOwnerMapperService.fromDB(
       parkingDB.ownerId,
     );
+    console.log('parkingDB2', parkingDB);
     const parkingProcesses = await Promise.all(
       parkingDB.parkingProcessesIds.map(
         async (processId) =>
           await this.parkingProcessMapperService.fromDB(processId),
       ),
     );
+    console.log('parkingProcesses2', parkingProcesses);
     const config: ExistingParkingConstructor = {
       _id: parkingDB._id,
       name: parkingDB.name,

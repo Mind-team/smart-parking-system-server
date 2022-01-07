@@ -5,4 +5,5 @@ export type NewParkingProcessConstructor = {
   parkingId: string;
   driver: IDriver;
   entryCarTime: string;
+  transportPlate: string;
 };

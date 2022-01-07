@@ -29,11 +29,13 @@ export class ParkingProcessMapperService {
       throw new BadRequestException('ну гг че');
     }
     return new ParkingProcess({
+      _id: id,
       currency: 'RUB',
       parkingId: parkingDB._id,
       driver: driverModel,
       entryCarTime: processDB.entryCarTime,
       departureCarTime: processDB.departureCarTime,
+      transportPlate: processDB.driver.carPlate,
     });
   }
 

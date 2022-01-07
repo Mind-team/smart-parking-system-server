@@ -4,7 +4,7 @@ import { IParkingProcess } from '../parking-process';
 
 export interface IParking {
   data: () => IParkingData;
-  registerCarEntry: (driver: IDriver) => void;
+  registerCarEntry: (driver: IDriver, transportPlate: string) => void;
   registerCarDeparture: (driver: IDriver) => void;
   parkingSpacesCount: () => { all: number; free: number; occupied: number };
   parkingProcessByDriverId: (driverId: string) => IParkingProcess;

@@ -63,12 +63,13 @@ export class Parking implements IParking {
     driver.completeParkingProcess();
   }
 
-  registerCarEntry(driver: IDriver): void {
+  registerCarEntry(driver: IDriver, transportPlate: string): void {
     const parkingProcess = new ParkingProcess({
       currency: 'RUB',
       parkingId: this._id,
-      driver: driver,
       entryCarTime: new Date().toISOString(),
+      driver,
+      transportPlate,
     });
     driver.registerParkingProcess(parkingProcess.data()._id);
     this.parkingProcesses.push(parkingProcess);
