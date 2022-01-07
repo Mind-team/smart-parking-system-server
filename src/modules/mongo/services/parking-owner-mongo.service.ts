@@ -8,7 +8,7 @@ import { MongoParkingOwner } from '../schemas/parking-owner.schema';
 @Injectable()
 export class ParkingOwnerMongoService extends CollectionMongoBaseService<MongoParkingOwner> {
   constructor(
-    @InjectModel(Token.Parking)
+    @InjectModel(Token.ParkingOwner)
     model: Model<MongoParkingOwner>,
   ) {
     super(model);

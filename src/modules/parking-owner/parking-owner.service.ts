@@ -22,13 +22,15 @@ export class ParkingOwnerService {
     const model = new ParkingOwner(data);
     try {
       const modelData = model.data();
-      const tokens = this.jwtService.generateTokens({ id: modelData._id });
+      const { refreshToken, accessToken } = this.jwtService.generateTokens({
+        id: modelData._id,
+      });
       await this.parkingOwnerMongoService.save(
         this.parkingOwnerMapperService.toDB(model, {
-          refreshToken: tokens.refreshToken,
+          refreshToken,
         }),
       );
-      return tokens;
+      return { refreshToken, accessToken };
     } catch (e) {
       throw new InternalServerErrorException(
         'Что-то пошло не так --- ' + e.message,
