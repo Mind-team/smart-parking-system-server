@@ -34,8 +34,16 @@ export class Parking implements IParking {
   }
 
   data(): IParkingData {
-    // TODO: Implement
-    return undefined;
+    return {
+      _id: this._id,
+      ownerId: this.owner.data()._id,
+      name: this.name,
+      address: this.address,
+      parkingProcessesIds: this.parkingProcesses.map(
+        (process) => process.data()._id,
+      ),
+      parkingSpacesCount: this.allParkingSpacesCount,
+    };
   }
 
   parkingSpacesCount(): { all: number; free: number; occupied: number } {
