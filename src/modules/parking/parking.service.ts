@@ -82,14 +82,12 @@ export class ParkingService {
     const parkingProcessMongo = await this.parkingProcessMongoService.findById(
       driverMongo.currentParkingProcessId,
     );
-    console.log('parkingProcessMongo', parkingProcessMongo);
     const parkingModel = await this.parkingMapperService.fromDB(
       parkingProcessMongo.parkingId,
     );
     const parkingProcessModel = parkingModel.parkingProcessByDriverId(
       driverMongo._id,
     );
-    console.log('parkingProcessModel', parkingProcessModel);
 
     if (!parkingProcessModel) {
       throw new InternalServerErrorException(
@@ -135,17 +133,14 @@ export class ParkingService {
     driverMongo: MongoDriver,
   ) {
     const parkingProcessData = parkingProcess.data();
-    console.log(parkingProcessData._id);
     if (
       await this.parkingProcessMongoService.findById(parkingProcessData._id)
     ) {
-      console.log('if', true);
       await this.parkingProcessMongoService.updateOne(
         { _id: parkingProcessData._id },
         this.parkingProcessMapperService.toDB(parkingProcess),
       );
     } else {
-      console.log('if', false);
       await this.parkingProcessMongoService.save(
         this.parkingProcessMapperService.toDB(parkingProcess),
       );
