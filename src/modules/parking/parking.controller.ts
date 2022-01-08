@@ -69,6 +69,14 @@ export class ParkingController {
 
   @Version('4')
   @Get('pp/:id')
+  @ApiOperation({ summary: 'Получение информации о парковочном процессе' })
+  @ApiOkResponse({ description: 'Данные отправлены' })
+  @ApiBadRequestResponse({
+    description: 'парковочного процессса с таким id не существует',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Что-то не так в работе сервера',
+  })
   async getParkingProcess(@Param('id') parkingProcessId) {
     return await this.service.getParkingProcess(parkingProcessId);
   }

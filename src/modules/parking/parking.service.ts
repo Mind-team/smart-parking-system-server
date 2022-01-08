@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import {
   DriverMongoService,
   MongoDriver,
@@ -111,9 +115,13 @@ export class ParkingService {
 
   async getParkingProcess(parkingProcessId: string) {
     // TODO: check initiator ownership
-    return (
-      await this.parkingProcessMapperService.fromDB(parkingProcessId)
-    ).data();
+    const parkingProcess = await this.parkingProcessMapperService.fromDB(
+      parkingProcessId,
+    );
+    if (!parkingProcess) {
+      throw new BadRequestException('Неверный номер парковочного процесса');
+    }
+    return parkingProcess.data();
   }
 
   private async getDriverModel(
