@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UsePipes, Version } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UsePipes,
+  Version,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -57,5 +65,11 @@ export class ParkingController {
   })
   async registerTransportDeparture(@Body() data: RegisterDepartureDto) {
     await this.service.registerTransportDeparture(data);
+  }
+
+  @Version('4')
+  @Get('pp/:id')
+  async getParkingProcess(@Param('id') parkingProcessId) {
+    return await this.service.getParkingProcess(parkingProcessId);
   }
 }

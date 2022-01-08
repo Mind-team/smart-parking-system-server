@@ -109,6 +109,13 @@ export class ParkingService {
     );
   }
 
+  async getParkingProcess(parkingProcessId: string) {
+    // TODO: check initiator ownership
+    return (
+      await this.parkingProcessMapperService.fromDB(parkingProcessId)
+    ).data();
+  }
+
   private async getDriverModel(
     transportPlate: string,
   ): Promise<[IDriver, MongoDriver]> {
