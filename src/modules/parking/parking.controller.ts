@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  UseGuards,
   UsePipes,
   Version,
 } from '@nestjs/common';
@@ -25,6 +26,7 @@ import {
   RegisterDepartureJoiSchema,
   RegisterDepartureDto,
 } from './dto';
+import { FromJwtDto, JwtAuthGuard } from '../auth';
 
 @ApiTags('parking')
 @Controller('parking')
@@ -72,12 +74,29 @@ export class ParkingController {
   @ApiOperation({ summary: 'Получение информации о парковочном процессе' })
   @ApiOkResponse({ description: 'Данные отправлены' })
   @ApiBadRequestResponse({
-    description: 'парковочного процессса с таким id не существует',
+    description: 'Парковочного процессса с таким id не существует',
   })
   @ApiInternalServerErrorResponse({
     description: 'Что-то не так в работе сервера',
   })
   async getParkingProcess(@Param('id') parkingProcessId) {
     return await this.service.getParkingProcess(parkingProcessId);
+  }
+
+  @Version('4')
+  @Get('pp/last')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Получение информации о текущем/последнем парковочном процессе',
+  })
+  @ApiOkResponse({ description: 'Данные отправлены' })
+  @ApiBadRequestResponse({
+    description: 'Водителя с таким id не существует',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Что-то не так в работе сервера',
+  })
+  async getLastDriverParkingProcess(@Body() jwt: FromJwtDto) {
+    return await this.service.getLastDriverParkingProcess(jwt.decodedJwt.id);
   }
 }

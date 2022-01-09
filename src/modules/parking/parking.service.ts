@@ -124,6 +124,18 @@ export class ParkingService {
     return parkingProcess.data();
   }
 
+  async getLastDriverParkingProcess(driverId: string) {
+    const driverModel = await this.driverMapperService.fromDB(driverId);
+    if (!driverModel) {
+      throw new BadRequestException('Такого пользователя не существует');
+    }
+    return (
+      await this.parkingProcessMapperService.fromDB(
+        driverModel.lastParkingProcessId(),
+      )
+    ).data(true);
+  }
+
   private async getDriverModel(
     transportPlate: string,
   ): Promise<[IDriver, MongoDriver]> {
