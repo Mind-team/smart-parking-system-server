@@ -60,4 +60,11 @@ export class RegisteredDriver implements IRegisteredDriver {
   registerParkingProcess(parkingProcessId: string) {
     this.currentParkingProcessId = parkingProcessId;
   }
+
+  lastParkingProcessId(): string {
+    return (
+      this.currentParkingProcessId ??
+      this.parkingProcessIds[this.parkingProcessIds.length - 1]
+    );
+  }
 }

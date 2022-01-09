@@ -1,6 +1,6 @@
 import { IParkingProcessData } from './parking-process-data.interface';
 
 export interface IParkingProcess {
-  data: () => IParkingProcessData;
+  data: (asCompleted?: boolean) => IParkingProcessData;
   complete: () => void;
 }

@@ -45,4 +45,11 @@ export class UnregisteredDriver implements IUnregisteredDriver {
   registerParkingProcess(parkingProcessId: string): void {
     this.currentParkingProcessId = parkingProcessId;
   }
+
+  lastParkingProcessId(): string {
+    return (
+      this.currentParkingProcessId ??
+      this.parkingProcessIds[this.parkingProcessIds.length - 1]
+    );
+  }
 }
