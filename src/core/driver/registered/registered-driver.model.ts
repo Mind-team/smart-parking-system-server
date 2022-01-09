@@ -1,18 +1,15 @@
-import { IRegisteredDriver } from './registered-driver.interface';
 import { NewRegisteredDriverConstructor } from './new-registered-driver-constructor.type';
 import { ExistingRegisteredDriverConstructor } from './existing-registered-driver-constructor.type';
 import { IRegisteredDriverData } from './registered-driver-data.interface';
 import { v4 as uuid } from 'uuid';
+import { Driver } from '../driver.abstract';
 
-// TODO: Create superclass for Drivers
-export class RegisteredDriver implements IRegisteredDriver {
+export class RegisteredDriver extends Driver<IRegisteredDriverData> {
   private readonly _id: string;
   private readonly carPlates: string[];
   private readonly phoneNumber: string;
   private readonly password: string;
   private readonly email?: string;
-  private readonly parkingProcessIds: string[];
-  private currentParkingProcessId: string;
 
   constructor(
     config:
@@ -24,6 +21,7 @@ export class RegisteredDriver implements IRegisteredDriver {
       idGenerator: uuid,
     },
   ) {
+    super();
     this.carPlates = config.carPlates;
     this.phoneNumber = config.phoneNumber;
     this.password = config.password;
@@ -47,24 +45,5 @@ export class RegisteredDriver implements IRegisteredDriver {
       parkingProcessIds: this.parkingProcessIds,
       currentParkingProcessId: this.currentParkingProcessId,
     };
-  }
-
-  completeParkingProcess(): void {
-    if (!this.currentParkingProcessId) {
-      return;
-    }
-    this.parkingProcessIds.push(this.currentParkingProcessId);
-    this.currentParkingProcessId = null;
-  }
-
-  registerParkingProcess(parkingProcessId: string) {
-    this.currentParkingProcessId = parkingProcessId;
-  }
-
-  lastParkingProcessId(): string {
-    return (
-      this.currentParkingProcessId ??
-      this.parkingProcessIds[this.parkingProcessIds.length - 1]
-    );
   }
 }

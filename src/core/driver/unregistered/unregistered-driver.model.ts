@@ -1,20 +1,18 @@
-import { IUnregisteredDriver } from './unregistered-driver.interface';
 import { IUnregisteredDriverData } from './unregistered-driver-data.interface';
 import { NewUnregisteredDriverConstructor } from './new-unregistered-driver-constructor.type';
 import { ExistingUnregisteredDriverConstructor } from './existing-unregistered-driver-constructor.type';
+import { Driver } from '../driver.abstract';
 
-// TODO: Create superclass for Drivers
-export class UnregisteredDriver implements IUnregisteredDriver {
+export class UnregisteredDriver extends Driver<IUnregisteredDriverData> {
   private readonly _id: string;
   private readonly carPlate: string;
-  private readonly parkingProcessIds: string[];
-  private currentParkingProcessId: string;
 
   constructor(
     config:
       | NewUnregisteredDriverConstructor
       | ExistingUnregisteredDriverConstructor,
   ) {
+    super();
     this.carPlate = config.carPlate;
     this.parkingProcessIds =
       'parkingProcessIds' in config ? config.parkingProcessIds : [];
@@ -32,24 +30,5 @@ export class UnregisteredDriver implements IUnregisteredDriver {
       parkingProcessIds: this.parkingProcessIds,
       currentParkingProcessId: this.currentParkingProcessId,
     };
-  }
-
-  completeParkingProcess(): void {
-    if (!this.currentParkingProcessId) {
-      return;
-    }
-    this.parkingProcessIds.push(this.currentParkingProcessId);
-    this.currentParkingProcessId = null;
-  }
-
-  registerParkingProcess(parkingProcessId: string): void {
-    this.currentParkingProcessId = parkingProcessId;
-  }
-
-  lastParkingProcessId(): string {
-    return (
-      this.currentParkingProcessId ??
-      this.parkingProcessIds[this.parkingProcessIds.length - 1]
-    );
   }
 }
