@@ -51,4 +51,12 @@ export class DriverController {
   async getDriver(@Body() data: FromJwtDto) {
     return this.service.driverData(data.decodedJwt);
   }
+
+  @Version('4')
+  @Post('refresh')
+  @ApiOperation({ summary: 'Обновление токена' })
+  @ApiBadRequestResponse({ description: 'Пришел невалидный токен' })
+  async refreshToken(@Body() data: { refreshToken: string }) {
+    return await this.service.refreshToken(data.refreshToken);
+  }
 }

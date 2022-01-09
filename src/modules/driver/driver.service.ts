@@ -62,6 +62,32 @@ export class DriverService {
     }
   }
 
+  async refreshToken(token: string) {
+    const infoFromToken =
+      this.jwtService.decodeWithRefreshToken<{ id: string; phone: string }>(
+        token,
+      );
+    if (!infoFromToken.isValid) {
+      throw new BadRequestException('Invalid refresh token');
+    }
+    const driverDocument = await this.driverMongoService.findById(
+      infoFromToken.data.id,
+    );
+    if (!driverDocument || driverDocument.refreshToken !== token) {
+      throw new BadRequestException('Invalid refresh token');
+    }
+    const tokens = this.jwtService.generateTokens({
+      id: driverDocument._id,
+      phone: driverDocument.phoneNumber,
+    });
+    driverDocument.refreshToken = tokens.refreshToken;
+    await this.driverMongoService.updateOne(
+      { _id: driverDocument._id },
+      driverDocument,
+    );
+    return tokens;
+  }
+
   async driverData(data: { id: string }): Promise<IRegisteredDriverData> {
     try {
       const model = await this.registeredDriverMapperService.fromDB(data.id);

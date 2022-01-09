@@ -17,6 +17,7 @@ export class ParkingProcessMapperService {
 
   async fromDB(id: string): Promise<IParkingProcess> {
     const processDB = await this.parkingProcessMongoService.findById(id);
+    //TODO: добавить провреку на null. если null возвращать null либо эксепшен бросать
     const parkingDB = await this.parkingMongoService.findById(
       processDB.parkingId,
     );
