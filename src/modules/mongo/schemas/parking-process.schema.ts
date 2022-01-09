@@ -21,8 +21,6 @@ export class MongoParkingProcess {
     carPlate: string;
   };
 
-  // TODO: add payment
-
   @Prop({ type: String, required: true })
   entryCarTime: string;
 

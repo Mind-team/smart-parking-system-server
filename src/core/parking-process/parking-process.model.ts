@@ -13,7 +13,7 @@ export class ParkingProcess implements IParkingProcess {
   private readonly entryCarTime: Date;
   private readonly departureCarTime: Date;
   private isCompleted: boolean;
-  private readonly payment: unknown; // TODO: Payment Model
+  private readonly payment: unknown;
 
   constructor(
     config: NewParkingProcessConstructor | ExistingParkingProcessConstructor,
@@ -23,7 +23,6 @@ export class ParkingProcess implements IParkingProcess {
       idGenerator: uuid,
     },
   ) {
-    // TODO: добавить работу с payment
     this.parkingId = config.parkingId;
     this._id =
       '_id' in config && config._id ? config._id : options.idGenerator();
@@ -32,7 +31,7 @@ export class ParkingProcess implements IParkingProcess {
     this.entryCarTime = new Date(config.entryCarTime);
     if ('departureCarTime' in config && config.departureCarTime) {
       // Завершенный паркинг
-      this.departureCarTime = null; // TODO: config.departureCarTime
+      this.departureCarTime = new Date(config.departureCarTime);
       this.isCompleted = true;
       return;
     }

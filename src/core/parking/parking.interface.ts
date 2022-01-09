@@ -8,5 +8,4 @@ export interface IParking {
   registerCarDeparture: (driver: IDriver) => void;
   parkingSpacesCount: () => { all: number; free: number; occupied: number };
   parkingProcessByDriverId: (driverId: string) => IParkingProcess;
-  // TODO: add parkingProcessByDriverId & parkingProcessByDriverPlate
 }

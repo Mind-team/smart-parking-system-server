@@ -4,5 +4,4 @@ export interface IRegisteredDriverData extends IUnregisteredDriverData {
   phoneNumber: string;
   password: string;
   email?: string;
-  // TODO: payment какой нибудь
 }
