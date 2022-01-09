@@ -70,20 +70,6 @@ export class ParkingController {
   }
 
   @Version('4')
-  @Get('pp/:id')
-  @ApiOperation({ summary: 'Получение информации о парковочном процессе' })
-  @ApiOkResponse({ description: 'Данные отправлены' })
-  @ApiBadRequestResponse({
-    description: 'Парковочного процессса с таким id не существует',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Что-то не так в работе сервера',
-  })
-  async getParkingProcess(@Param('id') parkingProcessId) {
-    return await this.service.getParkingProcess(parkingProcessId);
-  }
-
-  @Version('4')
   @Get('pp/last')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
@@ -98,5 +84,19 @@ export class ParkingController {
   })
   async getLastDriverParkingProcess(@Body() jwt: FromJwtDto) {
     return await this.service.getLastDriverParkingProcess(jwt.decodedJwt.id);
+  }
+
+  @Version('4')
+  @Get('pp/:id')
+  @ApiOperation({ summary: 'Получение информации о парковочном процессе' })
+  @ApiOkResponse({ description: 'Данные отправлены' })
+  @ApiBadRequestResponse({
+    description: 'Парковочного процессса с таким id не существует',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Что-то не так в работе сервера',
+  })
+  async getParkingProcess(@Param('id') parkingProcessId) {
+    return await this.service.getParkingProcess(parkingProcessId);
   }
 }
