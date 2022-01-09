@@ -1,213 +1,187 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { RegisteredUserDocument } from '../mongo-db/schemas/registered-user.schema';
-import { EntryCarParkingRecord } from './types/entry-car-parking-record.type';
-import { SuccessfulResponse } from '../../infrastructure/server-responses/successful-response.infrastructure';
-import { FailedResponse } from '../../infrastructure/server-responses/failed-response.infrastructure';
-import { DepartureCarParkingRecord } from './types/departure-car-parking-record.type';
-import { UniquePlatesArray } from '../../models/unique-plates-array.model';
-import { UserFactory } from '../../infrastructure/user-factory.infrastructure';
-import { ParkingOwnerFactory } from '../../infrastructure/parking-owner-factory.infrastructure';
-import { User } from '../../models/interfaces/user.interface';
-import { RegisteredUsersMongoService } from '../mongo-db/registered-users-mongo.service';
-import { Collection } from '../../infrastructure/collection.infrastructure';
-import { RegisteredUserContent } from '../../models/interfaces/registered-user-content.interface';
-import { UnregisteredUsersMongoService } from '../mongo-db/unregistered-users-mongo.service';
-import { UnregisteredUserContent } from '../../models/interfaces/unregistered-user-content.interface';
-import { ParkingOwnerMongoService } from '../mongo-db/parking-owner-mongo.service';
-import { ParkingOwnerContent } from '../../models/interfaces/parking-owner-content.interface';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import {
+  DriverMongoService,
+  MongoDriver,
+  ParkingMongoService,
+  ParkingProcessMongoService,
+} from '../mongo';
+import {
+  ParkingOwnerMapperService,
+  RegisteredDriverMapperService,
+  ParkingProcessMapperService,
+  ParkingMapperService,
+} from '../mongo/mappers';
+import {
+  IParkingData,
+  Parking,
+  NewParkingConstructor,
+  IParking,
+} from '../../core/parking';
+import {
+  IDriver,
+  IRegisteredDriver,
+  RegisteredDriver,
+  UnregisteredDriver,
+} from '../../core/driver';
+import { IParkingProcess } from '../../core/parking-process';
 
 @Injectable()
 export class ParkingService {
-  readonly #registeredUsersCollection: Collection<RegisteredUserContent>;
-  readonly #unregisteredUsersCollection: Collection<UnregisteredUserContent>;
-  readonly #parkingOwnerModel: Collection<ParkingOwnerContent>;
-  readonly #userFactory: UserFactory;
-  readonly #parkingOwnerFactory: ParkingOwnerFactory;
-
   constructor(
-    registeredUsersCollection: RegisteredUsersMongoService,
-    unregisteredUsersCollection: UnregisteredUsersMongoService,
-    parkingOwnerCollection: ParkingOwnerMongoService,
-    @Inject('UserFactory')
-    userFactory: UserFactory,
-    @Inject('ParkingOwnerFactory')
-    parkingOwnerFactory: ParkingOwnerFactory,
+    private readonly parkingMongoService: ParkingMongoService,
+    private readonly parkingOwnerMapperService: ParkingOwnerMapperService,
+    private readonly driverMongoService: DriverMongoService,
+    private readonly driverMapperService: RegisteredDriverMapperService,
+    private readonly parkingProcessMapperService: ParkingProcessMapperService,
+    private readonly parkingProcessMongoService: ParkingProcessMongoService,
+    private readonly parkingMapperService: ParkingMapperService,
+  ) {}
+
+  async createParking(
+    data: Pick<IParkingData, 'ownerId' | 'name' | 'address'> & {
+      parkingSpacesCount: number;
+    },
   ) {
-    this.#registeredUsersCollection = registeredUsersCollection;
-    this.#unregisteredUsersCollection = unregisteredUsersCollection;
-    this.#userFactory = userFactory;
-    this.#parkingOwnerFactory = parkingOwnerFactory;
-    this.#parkingOwnerModel = parkingOwnerCollection;
+    const newParkingConfig: NewParkingConstructor = {
+      name: data.name,
+      address: data.address,
+      parkingSpacesCount: data.parkingSpacesCount,
+      owner: await this.parkingOwnerMapperService.fromDB(data.ownerId),
+    };
+    const parkingModel = new Parking(newParkingConfig);
+    await this.parkingMongoService.save(parkingModel.data());
   }
 
-  registerCarEntry = async ({
-    parkingOwnerId,
-    carPlate,
-    entryCarTime,
-  }: EntryCarParkingRecord) => {
-    try {
-      let [userDocument, type] = await this.#userDocumentByPlate(carPlate);
-      if (type === 'null') {
-        userDocument = await this.#createUnregisteredUser(carPlate);
-        type = 'unregistered';
-      }
-      const user = await this.#mapUserDocument(
-        userDocument,
-        type,
-        parkingOwnerId,
-      );
-      user.registerParking(
-        this.#userFactory.uncompletedParking(
-          await this.#parkingOwnerById(parkingOwnerId),
-          carPlate,
-          entryCarTime,
-        ),
-      );
-      await this.#saveUserToDB(user, type);
-      return new SuccessfulResponse(
-        HttpStatus.CREATED,
-        'Successfully registered the entry of the car',
-      );
-    } catch (e) {
-      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
-    }
-  };
-
-  registerCarDeparture = async ({
-    parkingOwnerId,
-    carPlate,
-    departureCarTime,
-  }: DepartureCarParkingRecord) => {
-    try {
-      const [userDocument, type] = await this.#userDocumentByPlate(carPlate);
-      if (type === 'null') {
-        return new FailedResponse(HttpStatus.BAD_REQUEST, ''); // TODO: HANDLE IT!
-      }
-      const user = await this.#mapUserDocument(
-        userDocument,
-        type,
-        parkingOwnerId,
-      );
-      const parking = user.lastParking('pop').complete(departureCarTime);
-      user.registerParking(parking);
-      await this.#saveUserToDB(user, type);
-      return new SuccessfulResponse(
-        HttpStatus.CREATED,
-        'The car departure was successfully registered',
-      );
-    } catch (e) {
-      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
-    }
-  };
-
-  #userDocumentByPlate = async (
-    plate: string,
-  ): Promise<
-    | [RegisteredUserContent, 'registered']
-    | [UnregisteredUserContent, 'unregistered']
-    | [null, 'null']
-  > => {
-    const user = await this.#registeredUsersCollection.findOne({
-      plates: this.#userFactory.plate(plate).value,
-    });
-    if (user) {
-      return [user, 'registered'];
-    }
-    const unregisteredUser = await this.#unregisteredUsersCollection.findOne({
-      plates: this.#userFactory.plate(plate).value,
-    });
-    if (unregisteredUser) {
-      return [unregisteredUser, 'unregistered'];
-    }
-    return [null, 'null'];
-  };
-
-  #mapUserDocument = async (
-    userDocument: RegisteredUserContent | UnregisteredUserContent,
-    userType: 'registered' | 'unregistered',
-    parkingOwnerId: string,
-  ) => {
-    const parkingOwner = await this.#parkingOwnerById(parkingOwnerId);
-    if (userType === 'registered') {
-      const user = userDocument as RegisteredUserDocument;
-      return this.#userFactory.user(
-        this.#userFactory.phoneNumber(user.phoneNumber),
-        user.password,
-        new UniquePlatesArray(
-          user.plates.map((value) => this.#userFactory.plate(value)),
-        ),
-        user.parkings.map((parking) =>
-          this.#userFactory.completedParking(
-            parkingOwner,
-            parking.carPlate,
-            parking.entryCarTime,
-            parking.departureCarTime,
-            parking.priceRub,
-            parking.isCompleted,
-          ),
-        ),
-        user.email,
-      );
-    }
-    if (userType === 'unregistered') {
-      return this.#userFactory.unregisteredUser(
-        new UniquePlatesArray(
-          userDocument.plates.map((value) => this.#userFactory.plate(value)),
-        ),
-        userDocument.parkings.map((parking) =>
-          this.#userFactory.completedParking(
-            parkingOwner,
-            parking.carPlate,
-            parking.entryCarTime,
-            parking.departureCarTime,
-            parking.priceRub,
-            parking.isCompleted,
-          ),
-        ),
-      );
-    }
-  };
-
-  #createUnregisteredUser = async (plate: string) => {
-    const user = this.#userFactory
-      .unregisteredUser(
-        new UniquePlatesArray([this.#userFactory.plate(plate)]),
-        [],
-      )
-      .content();
-    await this.#unregisteredUsersCollection.save(user);
-    return user;
-  };
-
-  #parkingOwnerById = async (id: string) => {
-    const parkingOwnerRecord = await this.#parkingOwnerModel.findOne({
-      _id: id,
-    });
-    if (!parkingOwnerRecord) {
-      throw new Error('There is no parking owner with this id');
-    }
-    return this.#parkingOwnerFactory.owner(
-      id,
-      parkingOwnerRecord.title,
-      parkingOwnerRecord.costCalculationFunction,
+  // TODO: Некорректно работает с незарегистрированным тк driverMapperService: RegisteredDriverMapperService
+  async registerTransportEntry(data: {
+    parkingId: string;
+    transportPlate: string;
+  }) {
+    const [driverModel, driverMongo] = await this.getDriverModel(
+      data.transportPlate,
     );
-  };
+    const parkingModel = await this.parkingMapperService.fromDB(data.parkingId);
+    parkingModel.registerCarEntry(driverModel, data.transportPlate);
+    const parkingProcess = parkingModel.parkingProcessByDriverId(
+      driverModel.data()._id,
+    );
 
-  #saveUserToDB = async (
-    user: User<'Registered'> | User<'Unregistered'>,
-    type: 'registered' | 'unregistered',
-  ) => {
-    const userContent = user.content();
-    if (type === 'registered') {
-      await this.#registeredUsersCollection.updateOne(
-        { plates: userContent.plates },
-        userContent as RegisteredUserContent,
+    await this.updateDocuments(
+      parkingProcess,
+      parkingModel,
+      driverModel,
+      driverMongo,
+    );
+  }
+
+  // TODO: Некорректно работает с незарегистрированным тк driverMapperService: RegisteredDriverMapperService
+  async registerTransportDeparture(data: { transportPlate: string }) {
+    const [driverModel, driverMongo] = await this.getDriverModel(
+      data.transportPlate,
+    );
+    const parkingProcessMongo = await this.parkingProcessMongoService.findById(
+      driverMongo.currentParkingProcessId,
+    );
+    const parkingModel = await this.parkingMapperService.fromDB(
+      parkingProcessMongo.parkingId,
+    );
+    const parkingProcessModel = parkingModel.parkingProcessByDriverId(
+      driverMongo._id,
+    );
+
+    if (!parkingProcessModel) {
+      throw new InternalServerErrorException(
+        `Транспортное средство с номером ${
+          data.transportPlate
+        } не было зарегистрировано на въезде в паркинг ${
+          parkingModel.data()._id
+        }`,
+      );
+    }
+
+    parkingModel.registerCarDeparture(driverModel);
+
+    await this.updateDocuments(
+      parkingProcessModel,
+      parkingModel,
+      driverModel,
+      driverMongo,
+    );
+  }
+
+  async getParkingProcess(parkingProcessId: string) {
+    // TODO: check initiator ownership
+    const parkingProcess = await this.parkingProcessMapperService.fromDB(
+      parkingProcessId,
+    );
+    if (!parkingProcess) {
+      throw new BadRequestException('Неверный номер парковочного процесса');
+    }
+    return parkingProcess.data();
+  }
+
+  async getLastDriverParkingProcess(driverId: string) {
+    const driverModel = await this.driverMapperService.fromDB(driverId);
+    if (!driverModel) {
+      throw new BadRequestException('Такого пользователя не существует');
+    }
+    return (
+      await this.parkingProcessMapperService.fromDB(
+        driverModel.lastParkingProcessId(),
+      )
+    ).data(true);
+  }
+
+  private async getDriverModel(
+    transportPlate: string,
+  ): Promise<[IDriver, MongoDriver]> {
+    const driverDocument = await this.driverMongoService.findOne({
+      carPlates: { $in: [transportPlate] },
+    });
+    if (!driverDocument) {
+      return [
+        new UnregisteredDriver({
+          carPlate: transportPlate,
+        }),
+        driverDocument,
+      ];
+    }
+    return [new RegisteredDriver(driverDocument), driverDocument];
+  }
+
+  private async updateDocuments(
+    parkingProcess: IParkingProcess,
+    parking: IParking,
+    driver: IDriver,
+    driverMongo: MongoDriver,
+  ) {
+    const parkingProcessData = parkingProcess.data();
+    if (
+      await this.parkingProcessMongoService.findById(parkingProcessData._id)
+    ) {
+      await this.parkingProcessMongoService.updateOne(
+        { _id: parkingProcessData._id },
+        this.parkingProcessMapperService.toDB(parkingProcess),
       );
     } else {
-      await this.#unregisteredUsersCollection.updateOne(
-        { plates: userContent.plates },
-        userContent,
+      await this.parkingProcessMongoService.save(
+        this.parkingProcessMapperService.toDB(parkingProcess),
       );
     }
-  };
+    const parkingData = parking.data();
+    await this.parkingMongoService.updateOne(
+      { _id: parkingData._id },
+      parkingData,
+    );
+    await this.driverMongoService.updateOne(
+      { _id: driver.data()._id },
+      await this.driverMapperService.toDB(driver as IRegisteredDriver, {
+        refreshToken: driverMongo.refreshToken,
+      }),
+    );
+  }
 }

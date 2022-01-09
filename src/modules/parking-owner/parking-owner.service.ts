@@ -1,41 +1,40 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { SignUp } from './types/sign-up.type';
-import { ParkingOwnerFactory } from '../../infrastructure/parking-owner-factory.infrastructure';
-import { FailedResponse } from '../../infrastructure/server-responses/failed-response.infrastructure';
-import { SuccessfulResponse } from '../../infrastructure/server-responses/successful-response.infrastructure';
-import { Collection } from '../../infrastructure/collection.infrastructure';
-import { ParkingOwnerContent } from '../../models/interfaces/parking-owner-content.interface';
-import { ParkingOwnerMongoService } from '../mongo-db/parking-owner-mongo.service';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  NewParkingOwnerConstructor,
+  ParkingOwner,
+} from '../../core/parking-owner';
+import { ParkingOwnerMongoService } from '../mongo';
+import { ParkingOwnerMapperService } from '../mongo/mappers';
+import { JwtWrapperService } from '../auth';
 
 @Injectable()
 export class ParkingOwnerService {
-  readonly #parkingOwnerCollection: Collection<ParkingOwnerContent>;
-  readonly #parkingOwnerFactory: ParkingOwnerFactory;
-
   constructor(
-    parkingOwnerModel: ParkingOwnerMongoService,
-    @Inject('ParkingOwnerFactory')
-    parkingOwnerFactory: ParkingOwnerFactory,
-  ) {
-    this.#parkingOwnerCollection = parkingOwnerModel;
-    this.#parkingOwnerFactory = parkingOwnerFactory;
-  }
+    private readonly parkingOwnerMongoService: ParkingOwnerMongoService,
+    private readonly parkingOwnerMapperService: ParkingOwnerMapperService,
+    private readonly jwtService: JwtWrapperService,
+  ) {}
 
-  async signUp({ title, costCalculationFunction }: SignUp) {
+  async registerParkingOwner(data: NewParkingOwnerConstructor): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const model = new ParkingOwner(data);
     try {
-      // TODO: Fix
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      await this.#parkingOwnerCollection.save({
-        title,
-        costCalculationFunction,
+      const modelData = model.data();
+      const { refreshToken, accessToken } = this.jwtService.generateTokens({
+        id: modelData._id,
       });
-      return new SuccessfulResponse(
-        HttpStatus.CREATED,
-        'Successful registration',
+      await this.parkingOwnerMongoService.save(
+        this.parkingOwnerMapperService.toDB(model, {
+          refreshToken,
+        }),
       );
+      return { refreshToken, accessToken };
     } catch (e) {
-      return new FailedResponse(HttpStatus.BAD_REQUEST, e.message);
+      throw new InternalServerErrorException(
+        'Что-то пошло не так --- ' + e.message,
+      );
     }
   }
 }

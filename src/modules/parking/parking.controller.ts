@@ -1,50 +1,102 @@
-import { Body, Controller, Post, UsePipes, Version } from '@nestjs/common';
-import { ParkingService } from './parking.service';
 import {
-  RegisterCarEntryDto,
-  RegisterCarEntryDtoJoiSchema,
-} from './dto/register-car-entry.dto';
-import {
-  RegisterCarDepartureDto,
-  RegisterCarDepartureDtoJoiSchema,
-} from './dto/register-car-departure.dto';
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  UsePipes,
+  Version,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { JoiValidationPipe } from '../../pipes/joi-validation.pipe';
+import { ParkingService } from './parking.service';
+import { JoiValidationPipe } from '../../pipes';
+import {
+  CreateParkingJoiSchema,
+  CreateParkingDto,
+  RegisterEntryJoiSchema,
+  RegisterEntryDto,
+  RegisterDepartureJoiSchema,
+  RegisterDepartureDto,
+} from './dto';
+import { FromJwtDto, JwtAuthGuard } from '../auth';
 
-@ApiTags('Parking')
+@ApiTags('parking')
 @Controller('parking')
 export class ParkingController {
-  constructor(private readonly parkingService: ParkingService) {}
+  constructor(private readonly service: ParkingService) {}
 
-  @Version('3')
-  @Post('registerCarEntry')
-  @UsePipes(new JoiValidationPipe(RegisterCarEntryDtoJoiSchema))
+  @Version('4')
+  @Post('create')
+  @UsePipes(new JoiValidationPipe(CreateParkingJoiSchema))
+  @ApiOperation({ summary: 'Создание парковки' })
   @ApiCreatedResponse({
-    description: 'A record that the transport has stopped by has been created',
+    description: 'Парковка создана',
   })
-  @ApiBadRequestResponse({ description: 'Internal error' })
-  async registerCarEntry(@Body() data: RegisterCarEntryDto) {
-    return this.parkingService.registerCarEntry({
-      ...data,
-      entryCarTime: new Date(data.entryCarTime),
-    });
+  @ApiBadRequestResponse({ description: 'Парковка не создана' })
+  async createParking(@Body() data: CreateParkingDto) {
+    await this.service.createParking(data);
   }
 
-  @Version('3')
-  @Post('registerCarDeparture')
-  @UsePipes(new JoiValidationPipe(RegisterCarDepartureDtoJoiSchema))
-  @ApiCreatedResponse({
-    description: 'A record that the transport has left has been created',
+  @Version('4')
+  @Post('register-entry')
+  @UsePipes(new JoiValidationPipe(RegisterEntryJoiSchema))
+  @ApiOperation({ summary: 'Регистрация въезда транспортного средства' })
+  @ApiOkResponse({ description: 'Успешная регистрация' })
+  @ApiInternalServerErrorResponse({
+    description: 'Въезд т.с. не был зарегистрирован',
   })
-  @ApiBadRequestResponse({ description: 'Internal error' })
-  async registerCarDeparture(@Body() data: RegisterCarDepartureDto) {
-    return this.parkingService.registerCarDeparture({
-      ...data,
-      departureCarTime: new Date(data.departureCarTime),
-    });
+  async registerTransportEntry(@Body() data: RegisterEntryDto) {
+    await this.service.registerTransportEntry(data);
+  }
+
+  @Version('4')
+  @Post('register-departure')
+  @UsePipes(new JoiValidationPipe(RegisterDepartureJoiSchema))
+  @ApiOperation({ summary: 'Регистрация выезда транспортного средства' })
+  @ApiOkResponse({ description: 'Успешная регистрация' })
+  @ApiInternalServerErrorResponse({
+    description: 'Выезд т.с. не был зарегистрирован',
+  })
+  async registerTransportDeparture(@Body() data: RegisterDepartureDto) {
+    await this.service.registerTransportDeparture(data);
+  }
+
+  @Version('4')
+  @Get('pp/last')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Получение информации о текущем/последнем парковочном процессе',
+  })
+  @ApiOkResponse({ description: 'Данные отправлены' })
+  @ApiBadRequestResponse({
+    description: 'Водителя с таким id не существует',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Что-то не так в работе сервера',
+  })
+  async getLastDriverParkingProcess(@Body() jwt: FromJwtDto) {
+    return await this.service.getLastDriverParkingProcess(jwt.decodedJwt.id);
+  }
+
+  @Version('4')
+  @Get('pp/:id')
+  @ApiOperation({ summary: 'Получение информации о парковочном процессе' })
+  @ApiOkResponse({ description: 'Данные отправлены' })
+  @ApiBadRequestResponse({
+    description: 'Парковочного процессса с таким id не существует',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Что-то не так в работе сервера',
+  })
+  async getParkingProcess(@Param('id') parkingProcessId) {
+    return await this.service.getParkingProcess(parkingProcessId);
   }
 }

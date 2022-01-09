@@ -1,15 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ParkingOwnerController } from './parking-owner.controller';
 import { ParkingOwnerService } from './parking-owner.service';
-import { RussianParkingOwnerFactory } from '../../infrastructure/russian-parking-owner-factory.infrastructure';
-import { MongoDbModule } from '../mongo-db/mongo-db.module';
+import { MongoModule } from '../mongo';
+import { AuthModule } from '../auth';
 
 @Module({
-  imports: [MongoDbModule],
+  imports: [MongoModule, AuthModule],
   controllers: [ParkingOwnerController],
-  providers: [
-    ParkingOwnerService,
-    { provide: 'ParkingOwnerFactory', useClass: RussianParkingOwnerFactory },
-  ],
+  providers: [ParkingOwnerService],
 })
 export class ParkingOwnerModule {}
