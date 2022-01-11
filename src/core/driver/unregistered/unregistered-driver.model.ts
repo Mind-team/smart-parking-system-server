@@ -3,6 +3,7 @@ import { NewUnregisteredDriverConstructor } from './new-unregistered-driver-cons
 import { ExistingUnregisteredDriverConstructor } from './existing-unregistered-driver-constructor.type';
 import { Driver } from '../driver.abstract';
 import { v4 as uuid } from 'uuid';
+import { DriverType } from '../driver-type.enum';
 
 export class UnregisteredDriver extends Driver<IUnregisteredDriverData> {
   private readonly _id: string;
@@ -36,6 +37,11 @@ export class UnregisteredDriver extends Driver<IUnregisteredDriverData> {
       carPlates: [this.carPlate],
       parkingProcessIds: this.parkingProcessIds,
       currentParkingProcessId: this.currentParkingProcessId,
+      type: DriverType.Unregistered,
     };
+  }
+
+  override type(): DriverType {
+    return DriverType.Unregistered;
   }
 }

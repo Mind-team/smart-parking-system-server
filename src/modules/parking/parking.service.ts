@@ -10,20 +10,24 @@ import {
   ParkingProcessMongoService,
 } from '../mongo';
 import {
-  ParkingOwnerMapperService,
-  RegisteredDriverMapperService,
-  ParkingProcessMapperService,
   ParkingMapperService,
+  ParkingOwnerMapperService,
+  ParkingProcessMapperService,
+  RegisteredDriverMapperService,
+  UnregisteredDriverMapperService,
 } from '../mongo/mappers';
 import {
-  IParkingData,
-  Parking,
-  NewParkingConstructor,
   IParking,
+  IParkingData,
+  NewParkingConstructor,
+  Parking,
 } from '../../core/parking';
 import {
+  DriverType,
+  ExistingUnregisteredDriverConstructor,
   IDriver,
   IRegisteredDriver,
+  IUnregisteredDriver,
   RegisteredDriver,
   UnregisteredDriver,
 } from '../../core/driver';
@@ -35,10 +39,11 @@ export class ParkingService {
     private readonly parkingMongoService: ParkingMongoService,
     private readonly parkingOwnerMapperService: ParkingOwnerMapperService,
     private readonly driverMongoService: DriverMongoService,
-    private readonly driverMapperService: RegisteredDriverMapperService,
+    private readonly registeredDriverMapperService: RegisteredDriverMapperService,
     private readonly parkingProcessMapperService: ParkingProcessMapperService,
     private readonly parkingProcessMongoService: ParkingProcessMongoService,
     private readonly parkingMapperService: ParkingMapperService,
+    private readonly unregisteredMapperService: UnregisteredDriverMapperService,
   ) {}
 
   async createParking(
@@ -56,7 +61,6 @@ export class ParkingService {
     await this.parkingMongoService.save(parkingModel.data());
   }
 
-  // TODO: Некорректно работает с незарегистрированным тк driverMapperService: RegisteredDriverMapperService
   async registerTransportEntry(data: {
     parkingId: string;
     transportPlate: string;
@@ -78,11 +82,11 @@ export class ParkingService {
     );
   }
 
-  // TODO: Некорректно работает с незарегистрированным тк driverMapperService: RegisteredDriverMapperService
   async registerTransportDeparture(data: { transportPlate: string }) {
     const [driverModel, driverMongo] = await this.getDriverModel(
       data.transportPlate,
     );
+    console.log('prev', driverModel.data());
     const parkingProcessMongo = await this.parkingProcessMongoService.findById(
       driverMongo.currentParkingProcessId,
     );
@@ -125,7 +129,9 @@ export class ParkingService {
   }
 
   async getLastDriverParkingProcess(driverId: string) {
-    const driverModel = await this.driverMapperService.fromDB(driverId);
+    const driverModel = await this.registeredDriverMapperService.fromDB(
+      driverId,
+    );
     if (!driverModel) {
       throw new BadRequestException('Такого пользователя не существует');
     }
@@ -143,14 +149,24 @@ export class ParkingService {
       carPlates: { $in: [transportPlate] },
     });
     if (!driverDocument) {
-      return [
-        new UnregisteredDriver({
-          carPlate: transportPlate,
-        }),
-        driverDocument,
-      ];
+      const model = new UnregisteredDriver({
+        carPlate: transportPlate,
+      });
+      await this.driverMongoService.save(
+        await this.unregisteredMapperService.toDB(model),
+      );
+      return [model, driverDocument];
     }
-    return [new RegisteredDriver(driverDocument), driverDocument];
+    if (driverDocument.type === DriverType.Registered) {
+      return [new RegisteredDriver(driverDocument), driverDocument];
+    }
+    const existing: ExistingUnregisteredDriverConstructor = {
+      _id: driverDocument._id,
+      carPlate: driverDocument.carPlates[0],
+      parkingProcessIds: driverDocument.parkingProcessIds,
+      currentParkingProcessId: driverDocument.currentParkingProcessId,
+    };
+    return [new UnregisteredDriver(existing), driverDocument];
   }
 
   private async updateDocuments(
@@ -177,11 +193,20 @@ export class ParkingService {
       { _id: parkingData._id },
       parkingData,
     );
+    const updatedDriver =
+      driver.type() === DriverType.Registered
+        ? await this.registeredDriverMapperService.toDB(
+            driver as IRegisteredDriver,
+            {
+              refreshToken: driverMongo.refreshToken,
+            },
+          )
+        : await this.unregisteredMapperService.toDB(
+            driver as IUnregisteredDriver,
+          );
     await this.driverMongoService.updateOne(
       { _id: driver.data()._id },
-      await this.driverMapperService.toDB(driver as IRegisteredDriver, {
-        refreshToken: driverMongo.refreshToken,
-      }),
+      updatedDriver,
     );
   }
 }

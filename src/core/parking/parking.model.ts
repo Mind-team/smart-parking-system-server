@@ -56,6 +56,8 @@ export class Parking implements IParking {
   }
 
   registerCarDeparture(driver: IDriver): void {
+    console.log('pp', this.parkingProcesses);
+    console.log('driver', driver.data());
     const process = this.parkingProcesses.find(
       (process) => process.data().driver._id === driver.data()._id,
     );

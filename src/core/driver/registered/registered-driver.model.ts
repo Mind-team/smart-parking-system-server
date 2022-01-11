@@ -3,6 +3,7 @@ import { ExistingRegisteredDriverConstructor } from './existing-registered-drive
 import { IRegisteredDriverData } from './registered-driver-data.interface';
 import { v4 as uuid } from 'uuid';
 import { Driver } from '../driver.abstract';
+import { DriverType } from '../driver-type.enum';
 
 export class RegisteredDriver extends Driver<IRegisteredDriverData> {
   private readonly _id: string;
@@ -44,6 +45,11 @@ export class RegisteredDriver extends Driver<IRegisteredDriverData> {
       email: this.email,
       parkingProcessIds: this.parkingProcessIds,
       currentParkingProcessId: this.currentParkingProcessId,
+      type: DriverType.Registered,
     };
+  }
+
+  override type(): DriverType {
+    return DriverType.Registered;
   }
 }

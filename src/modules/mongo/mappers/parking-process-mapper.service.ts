@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ParkingProcessMongoService } from '../services/parking-process-mongo.service';
 import { IParkingProcess, ParkingProcess } from '../../../core/parking-process';
 import { RegisteredDriverMapperService } from './registered-driver-mapper.service';
 import { UnregisteredDriverMapperService } from './unregistered-driver-mapper.service';
 import { MongoParkingProcess } from '../schemas/parking-process.schema';
 import { ParkingMongoService } from '../services/parking-mongo.service';
+import { DriverMapperService } from './driver-mapper.service';
 
 @Injectable()
 export class ParkingProcessMapperService {
@@ -13,22 +14,23 @@ export class ParkingProcessMapperService {
     private readonly parkingMongoService: ParkingMongoService,
     private readonly registeredDriverMapperService: RegisteredDriverMapperService,
     private readonly unregisteredDriverMapperService: UnregisteredDriverMapperService,
+    private readonly driverMapperService: DriverMapperService,
   ) {}
 
   async fromDB(id: string): Promise<IParkingProcess> {
     const processDB = await this.parkingProcessMongoService.findById(id);
-    //TODO: добавить провреку на null. если null возвращать null либо эксепшен бросать
+    if (!processDB) {
+      throw new Error(`Parking process with ${id} id does not exist`);
+    }
     const parkingDB = await this.parkingMongoService.findById(
       processDB.parkingId,
     );
-    // TODO: add unregistered driver support
-    const driverModel = await this.registeredDriverMapperService.fromDB(
+    if (!parkingDB) {
+      throw new Error(`Parking with ${processDB.parkingId} id does not exist`);
+    }
+    const driverModel = await this.driverMapperService.fromDB(
       processDB.driver._id,
     );
-    if (!driverModel || !parkingDB || !processDB) {
-      // TODO: Handle it
-      throw new BadRequestException('ну гг че');
-    }
     return new ParkingProcess({
       _id: id,
       currency: 'RUB',

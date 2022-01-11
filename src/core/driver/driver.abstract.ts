@@ -1,6 +1,7 @@
 import { _IDriver } from './driver.interface';
 import { IRegisteredDriverData } from './registered/registered-driver-data.interface';
 import { IUnregisteredDriverData } from './unregistered/unregistered-driver-data.interface';
+import { DriverType } from './driver-type.enum';
 
 export abstract class Driver<
   T extends IRegisteredDriverData | IUnregisteredDriverData,
@@ -29,4 +30,6 @@ export abstract class Driver<
   }
 
   abstract data(): T;
+
+  abstract type(): DriverType;
 }

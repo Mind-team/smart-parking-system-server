@@ -24,10 +24,9 @@ export class ParkingMapperService {
       parkingDB.ownerId,
     );
     const parkingProcesses = await Promise.all(
-      parkingDB.parkingProcessesIds.map(
-        async (processId) =>
-          await this.parkingProcessMapperService.fromDB(processId),
-      ),
+      parkingDB.parkingProcessesIds.map(async (processId) => {
+        return await this.parkingProcessMapperService.fromDB(processId);
+      }),
     );
     const config: ExistingParkingConstructor = {
       _id: parkingDB._id,

@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { RegisteredDriver, IRegisteredDriver } from '../../../core/driver';
+import {
+  DriverType,
+  IRegisteredDriver,
+  RegisteredDriver,
+} from '../../../core/driver';
 import { DriverMongoService } from '../services/driver-mongo.service';
 import { MongoDriver } from '../schemas/driver.schema';
 
@@ -16,6 +20,9 @@ export class RegisteredDriverMapperService {
 
   async fromDB(id: string): Promise<IRegisteredDriver> {
     const mongo = await this.driverMongoService.findById(id);
+    if (!mongo || mongo.type === DriverType.Unregistered) {
+      return null;
+    }
     return new RegisteredDriver(mongo);
   }
 }

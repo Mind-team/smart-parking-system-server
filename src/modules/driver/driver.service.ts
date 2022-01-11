@@ -27,7 +27,7 @@ export class DriverService {
   async registerDriver(
     config: Omit<
       IRegisteredDriverData,
-      '_id' | 'parkingProcessIds' | 'currentParkingProcessId'
+      '_id' | 'parkingProcessIds' | 'currentParkingProcessId' | 'type'
     >,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     // TODO:

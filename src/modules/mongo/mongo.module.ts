@@ -16,6 +16,7 @@ import {
   RegisteredDriverMapperService,
   UnregisteredDriverMapperService,
 } from './mappers';
+import { DriverMapperService } from './mappers/driver-mapper.service';
 
 const services = [
   DriverMongoService,
@@ -23,6 +24,7 @@ const services = [
   ParkingOwnerMongoService,
   ParkingProcessMongoService,
   RegisteredDriverMapperService,
+  DriverMapperService,
 ];
 
 const mappers = [

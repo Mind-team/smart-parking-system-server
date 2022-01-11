@@ -9,3 +9,4 @@ export { NewRegisteredDriverConstructor } from './registered/new-registered-driv
 export { ExistingRegisteredDriverConstructor } from './registered/existing-registered-driver-constructor.type';
 export { NewUnregisteredDriverConstructor } from './unregistered/new-unregistered-driver-constructor.type';
 export { ExistingUnregisteredDriverConstructor } from './unregistered/existing-unregistered-driver-constructor.type';
+export { DriverType } from './driver-type.enum';
