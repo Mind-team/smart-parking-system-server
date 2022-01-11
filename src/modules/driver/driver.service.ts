@@ -10,13 +10,17 @@ import {
 } from '../../core/driver';
 import { DriverMongoService } from '../mongo';
 import { JwtWrapperService } from '../auth';
-import { RegisteredDriverMapperService } from '../mongo/mappers';
+import {
+  ParkingProcessMapperService,
+  RegisteredDriverMapperService,
+} from '../mongo/mappers';
 
 @Injectable()
 export class DriverService {
   constructor(
     private readonly registeredDriverMapperService: RegisteredDriverMapperService,
     private readonly driverMongoService: DriverMongoService,
+    private readonly parkingProcessMapperService: ParkingProcessMapperService,
     private readonly jwtService: JwtWrapperService,
   ) {}
 
@@ -97,5 +101,20 @@ export class DriverService {
         'Что-то пошло не так --- ' + e.message,
       );
     }
+  }
+
+  async parkingProcesses(
+    data: { driverId: string },
+    settings?: { startIndex: number; endIndex: number },
+  ) {
+    // TODO: перенести это мб в бизнес модель, учесть маппинг паркинг процессов
+    // TODO: чтобы не было кольцевых зависимостей
+    // TODO: учитывать settings
+    const mongo = await this.driverMongoService.findById(data.driverId);
+    return await Promise.all(
+      mongo.parkingProcessIds.map(async (id: string) =>
+        (await this.parkingProcessMapperService.fromDB(id)).data(),
+      ),
+    );
   }
 }

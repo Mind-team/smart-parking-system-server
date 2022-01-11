@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   UseGuards,
   UsePipes,
   Version,
@@ -18,6 +19,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { DriverService } from './driver.service';
@@ -58,5 +60,18 @@ export class DriverController {
   @ApiBadRequestResponse({ description: 'Пришел невалидный токен' })
   async refreshToken(@Body() data: { refreshToken: string }) {
     return await this.service.refreshToken(data.refreshToken);
+  }
+
+  @Version('4')
+  @Get('pp')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Получение парковочных процессов водителя' })
+  @ApiOkResponse({ description: 'Парковочные процессы водителя отправлены' })
+  @ApiBadRequestResponse({
+    description: 'Парковочные процессы водителя не отправлены',
+  })
+  @ApiQuery({ name: 'driverId', type: 'string' })
+  async parkingProcesses(@Query('driverId') driverId) {
+    return await this.service.parkingProcesses({ driverId });
   }
 }
