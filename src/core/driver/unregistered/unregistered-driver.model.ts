@@ -4,8 +4,12 @@ import { ExistingUnregisteredDriverConstructor } from './existing-unregistered-d
 import { Driver } from '../driver.abstract';
 import { v4 as uuid } from 'uuid';
 import { DriverType } from '../driver-type.enum';
+import { IUnregisteredDriver } from './unregistered-driver.interface';
 
-export class UnregisteredDriver extends Driver<IUnregisteredDriverData> {
+export class UnregisteredDriver
+  extends Driver<IUnregisteredDriverData>
+  implements IUnregisteredDriver
+{
   private readonly _id: string;
   private readonly carPlate: string;
 

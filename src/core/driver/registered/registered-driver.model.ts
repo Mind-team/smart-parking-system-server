@@ -4,8 +4,12 @@ import { IRegisteredDriverData } from './registered-driver-data.interface';
 import { v4 as uuid } from 'uuid';
 import { Driver } from '../driver.abstract';
 import { DriverType } from '../driver-type.enum';
+import { IRegisteredDriver } from './registered-driver.interface';
 
-export class RegisteredDriver extends Driver<IRegisteredDriverData> {
+export class RegisteredDriver
+  extends Driver<IRegisteredDriverData>
+  implements IRegisteredDriver
+{
   private readonly _id: string;
   private readonly carPlates: string[];
   private readonly phoneNumber: string;
