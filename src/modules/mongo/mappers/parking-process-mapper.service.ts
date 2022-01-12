@@ -34,7 +34,7 @@ export class ParkingProcessMapperService {
     return new ParkingProcess({
       _id: id,
       currency: 'RUB',
-      parkingId: parkingDB._id,
+      parking: { _id: parkingDB._id, title: parkingDB.name },
       driver: driverModel,
       entryCarTime: processDB.entryCarTime,
       departureCarTime: processDB.departureCarTime,
@@ -43,6 +43,7 @@ export class ParkingProcessMapperService {
   }
 
   toDB(model: IParkingProcess): MongoParkingProcess {
-    return model.data();
+    const modelData = model.data();
+    return { ...modelData, parkingId: modelData.parking._id };
   }
 }
