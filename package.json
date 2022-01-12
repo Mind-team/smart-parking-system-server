@@ -4,6 +4,9 @@
   "description": "SPS Server",
   "author": "M.I.N.D Server Team",
   "private": true,
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
