@@ -2,7 +2,7 @@ import { IDriver } from '../driver';
 
 export type NewParkingProcessConstructor = {
   currency: string;
-  parkingId: string;
+  parking: { _id: string; title: string };
   driver: IDriver;
   entryCarTime: string;
   transportPlate: string;

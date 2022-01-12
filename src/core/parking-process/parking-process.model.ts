@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid';
 
 export class ParkingProcess implements IParkingProcess {
   private readonly _id: string;
-  private readonly parkingId: string;
+  private readonly parking: { _id: string; title: string };
   private readonly driver: IDriver;
   private readonly transportPlate: string;
   private readonly entryCarTime: Date;
@@ -23,7 +23,7 @@ export class ParkingProcess implements IParkingProcess {
       idGenerator: uuid,
     },
   ) {
-    this.parkingId = config.parkingId;
+    this.parking = config.parking;
     this._id =
       '_id' in config && config._id ? config._id : options.idGenerator();
     this.transportPlate = config.transportPlate;
@@ -47,7 +47,7 @@ export class ParkingProcess implements IParkingProcess {
   data(asCompleted = false): IParkingProcessData {
     const result = {
       _id: this._id,
-      parkingId: this.parkingId,
+      parking: this.parking,
       driver: {
         _id: this.driver.data()._id,
         carPlate: this.transportPlate,
