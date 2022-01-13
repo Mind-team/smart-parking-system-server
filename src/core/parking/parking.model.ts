@@ -78,8 +78,13 @@ export class Parking implements IParking {
   }
 
   parkingProcessByDriverId(driverId: string): IParkingProcess {
-    return this.parkingProcesses.find(
-      (process) => process.data().driver._id === driverId,
-    );
+    // https://github.com/Mind-team/smart-parking-system-server/issues/68
+    // return this.parkingProcesses.find(
+    //   (process) => process.data().driver._id === driverId,
+    // );
+    return this.parkingProcesses.find((process) => {
+      const data = process.data();
+      return data.driver._id === driverId && !data.isCompleted;
+    });
   }
 }
