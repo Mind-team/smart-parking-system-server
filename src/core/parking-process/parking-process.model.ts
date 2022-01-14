@@ -64,10 +64,12 @@ export class ParkingProcess implements IParkingProcess {
       result.departureCarTime =
         this.departureCarTime ?? new Date().toISOString();
       result.payment.value = this.calcPrice(
-        (this.departureCarTime?.getMilliseconds() ??
-          new Date().getMilliseconds()) - this.entryCarTime.getMilliseconds(),
+        (this.departureCarTime?.getTime() ?? new Date().getTime()) -
+          this.entryCarTime.getTime(),
       );
-      result.isCompleted = true;
+      if (asCompleted) {
+        result.isCompleted = true;
+      }
       return result;
     }
     return result;
