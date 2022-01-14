@@ -58,7 +58,7 @@ export class ParkingProcess implements IParkingProcess {
       },
       entryCarTime: this.entryCarTime.toISOString(),
       departureCarTime: null,
-      isCompleted: false,
+      isCompleted: this.isCompleted,
     };
     if (asCompleted || this.isCompleted) {
       result.departureCarTime =
