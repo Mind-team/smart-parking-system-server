@@ -56,11 +56,7 @@ export class Parking implements IParking {
   }
 
   registerCarDeparture(driver: IDriver): void {
-    console.log('pp', this.parkingProcesses);
-    console.log('driver', driver.data());
-    const process = this.parkingProcesses.find(
-      (process) => process.data().driver._id === driver.data()._id,
-    );
+    const process = this.parkingProcessByDriverId(driver.data()._id);
     process.complete();
     driver.completeParkingProcess();
   }
@@ -77,6 +73,7 @@ export class Parking implements IParking {
     this.parkingProcesses.push(parkingProcess);
   }
 
+  // TODO: подразумевается поиск незаврешенного процесса, поправить название
   parkingProcessByDriverId(driverId: string): IParkingProcess {
     // https://github.com/Mind-team/smart-parking-system-server/issues/68
     // return this.parkingProcesses.find(

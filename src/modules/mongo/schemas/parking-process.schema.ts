@@ -29,6 +29,17 @@ export class MongoParkingProcess {
 
   @Prop({ type: Boolean, required: true, default: false })
   isCompleted: boolean;
+
+  @Prop({
+    type: {
+      currency: { type: String, required: true },
+      value: { type: Number, required: false },
+    },
+  })
+  payment: {
+    currency: string;
+    value: number;
+  };
 }
 
 export type ParkingProcessDocument = MongoParkingProcess & mongoose.Document;
