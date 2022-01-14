@@ -86,7 +86,6 @@ export class ParkingService {
     const [driverModel, driverMongo] = await this.getDriverModel(
       data.transportPlate,
     );
-    console.log('prev', driverModel.data());
     const parkingProcessMongo = await this.parkingProcessMongoService.findById(
       driverMongo.currentParkingProcessId,
     );

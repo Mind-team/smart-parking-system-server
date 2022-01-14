@@ -63,9 +63,20 @@ export class ParkingProcess implements IParkingProcess {
     if (asCompleted || this.isCompleted) {
       result.departureCarTime =
         this.departureCarTime ?? new Date().toISOString();
+      result.payment.value = this.calcPrice(
+        (this.departureCarTime?.getMilliseconds() ??
+          new Date().getMilliseconds()) - this.entryCarTime.getMilliseconds(),
+      );
       result.isCompleted = true;
       return result;
     }
     return result;
+  }
+
+  // TODO: костыль чтобы выставлялась сумма за паркинг
+  // TODO: убрать когда сделаем систему формирования платежа
+  private calcPrice(time: number) {
+    const secs = time / 1000;
+    return secs * 0.1;
   }
 }
