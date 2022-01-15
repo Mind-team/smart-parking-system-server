@@ -67,10 +67,6 @@ export class ParkingProcess implements IParkingProcess {
         (this.departureCarTime?.getTime() ?? new Date().getTime()) -
           this.entryCarTime.getTime(),
       );
-      if (asCompleted) {
-        result.isCompleted = true;
-      }
-      return result;
     }
     return result;
   }
