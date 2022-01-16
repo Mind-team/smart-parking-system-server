@@ -1,9 +1,28 @@
-export abstract class IMapper<T extends { data: () => any }, U> {
+export abstract class IMapper<Model, Document> {
   abstract fromDB(
     id: string,
     additional?: {
       data?: { [param: string]: unknown };
       documents?: { [documentName: string]: unknown };
+      models?: { [modelName: string]: unknown };
     },
-  ): T;
+  ): Model;
+
+  abstract fromDocument(
+    document: Document,
+    additional?: {
+      data?: { [param: string]: unknown };
+      documents?: { [documentName: string]: unknown };
+      models?: { [modelName: string]: unknown };
+    },
+  ): Model;
+
+  abstract toDocument(
+    model: Model,
+    additional?: {
+      data?: { [param: string]: unknown };
+      documents?: { [documentName: string]: unknown };
+      models?: { [modelName: string]: unknown };
+    },
+  ): Document;
 }
