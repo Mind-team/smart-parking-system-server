@@ -11,7 +11,12 @@ import {
 import {
   RegisterDriverRequestDto,
   RegisterDriverJoiSchema,
+  LoginDriverResponseDto,
   RegisterDriverResponseDto,
+  LoginDriverRequestDto,
+  LoginDriverJoiSchema,
+  SendConfirmationCodeRequestDto,
+  SendConfirmationCodeJoiSchema,
 } from './dto';
 import { JoiValidationPipe } from '../../pipes';
 import {
@@ -42,6 +47,28 @@ export class DriverController {
     @Body() data: RegisterDriverRequestDto,
   ): Promise<RegisterDriverResponseDto> {
     return this.service.registerDriver(data);
+  }
+
+  @Version('4')
+  @Post('login')
+  @UsePipes(new JoiValidationPipe(LoginDriverJoiSchema))
+  @ApiOperation({ summary: 'Логин пользователя' })
+  @ApiCreatedResponse({
+    description: 'Все удачно, выдали токены',
+    type: LoginDriverResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Ошибочка' })
+  async loginDriver(
+    @Body() data: LoginDriverRequestDto,
+  ): Promise<LoginDriverResponseDto> {
+    return this.service.loginDriver(data.phoneNumber, data.confirmationCode);
+  }
+
+  @Version('4')
+  @Post('send-confirmation-code')
+  @UsePipes(new JoiValidationPipe(SendConfirmationCodeJoiSchema))
+  async sendCode(@Body() data: SendConfirmationCodeRequestDto) {
+    this.service.sendConfirmationSMSCode(data.phoneNumber);
   }
 
   @Version('4')

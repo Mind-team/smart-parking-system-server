@@ -14,6 +14,7 @@ import {
   ParkingProcessMapperService,
   RegisteredDriverMapperService,
 } from '../mongo/mappers';
+import { SMSConfirmationService } from '../confirmation';
 
 @Injectable()
 export class DriverService {
@@ -22,7 +23,12 @@ export class DriverService {
     private readonly driverMongoService: DriverMongoService,
     private readonly parkingProcessMapperService: ParkingProcessMapperService,
     private readonly jwtService: JwtWrapperService,
+    private readonly smsConfirmationService: SMSConfirmationService,
   ) {}
+
+  sendConfirmationSMSCode(phone: string) {
+    this.smsConfirmationService.sendConfirmationCode(phone);
+  }
 
   /**
    * Регистрация водителя. Проверят пользовался ли уже водитель нашей системой.
@@ -64,6 +70,22 @@ export class DriverService {
     } catch (e) {
       throw new BadRequestException('Что-то пошло не так --- ' + e.message);
     }
+  }
+
+  async loginDriver(phoneNumber: string, confirmationCode: string) {
+    if (
+      !this.smsConfirmationService.isConfirmationCodeTrue(
+        phoneNumber,
+        confirmationCode,
+      )
+    ) {
+      throw new BadRequestException('Неверный код');
+    }
+    const driverMongo = await this.driverMongoService.findOne({ phoneNumber });
+    if (!driverMongo) {
+      throw new BadRequestException('Вам нужно зарегистрироваться');
+    }
+    return await this.refreshToken(driverMongo.refreshToken);
   }
 
   async refreshToken(token: string) {

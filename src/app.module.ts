@@ -6,6 +6,7 @@ import { MongoModule } from './modules/mongo';
 import { ParkingModule } from './modules/parking';
 import { AuthModule } from './modules/auth';
 import { ParkingOwnerModule } from './modules/parking-owner';
+import { ConfirmationModule } from './modules/confirmation/confirmation.module';
 
 @Module({
   imports: [
@@ -16,8 +17,8 @@ import { ParkingOwnerModule } from './modules/parking-owner';
     ParkingModule,
     AuthModule,
     ParkingOwnerModule,
+    ConfirmationModule,
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}
