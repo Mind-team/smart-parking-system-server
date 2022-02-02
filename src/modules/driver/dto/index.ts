@@ -6,3 +6,4 @@ export * from './login-driver/login-driver-response.dto';
 export * from './login-driver/login-driver.schema';
 export * from './send-confirmation-code/send-confirmation-code-request.dto';
 export * from './send-confirmation-code/send-confirmation-code.schema';
+export * from './get-parking-processes/get-parking-processes-response.dto';
