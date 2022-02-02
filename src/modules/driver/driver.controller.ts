@@ -17,6 +17,7 @@ import {
   LoginDriverJoiSchema,
   SendConfirmationCodeRequestDto,
   SendConfirmationCodeJoiSchema,
+  GetParkingProcessesResponseDto,
 } from './dto';
 import { JoiValidationPipe } from '../../pipes';
 import {
@@ -26,6 +27,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { DriverService } from './driver.service';
 import { JwtAuthGuard, FromJwtDto } from '../auth';
@@ -90,15 +92,20 @@ export class DriverController {
   }
 
   @Version('4')
-  @Get('pp')
+  @Get('parking-processes')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Получение парковочных процессов водителя' })
-  @ApiOkResponse({ description: 'Парковочные процессы водителя отправлены' })
+  @ApiOkResponse({
+    description: 'Парковочные процессы водителя отправлены',
+    type: GetParkingProcessesResponseDto,
+  })
   @ApiBadRequestResponse({
     description: 'Парковочные процессы водителя не отправлены',
   })
-  @ApiQuery({ name: 'driverId', type: 'string' })
-  async parkingProcesses(@Query('driverId') driverId) {
-    return await this.service.parkingProcesses({ driverId });
+  @ApiUnauthorizedResponse({
+    description: 'Не передали токен, либо невалидный',
+  })
+  async parkingProcesses(@Body() fromJwt: FromJwtDto) {
+    return await this.service.parkingProcesses(fromJwt.decodedJwt.id);
   }
 }

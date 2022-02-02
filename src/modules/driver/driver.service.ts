@@ -126,17 +126,24 @@ export class DriverService {
   }
 
   async parkingProcesses(
-    data: { driverId: string },
+    driverId: string,
     settings?: { startIndex: number; endIndex: number },
   ) {
     // TODO: перенести это мб в бизнес модель, учесть маппинг паркинг процессов
     // TODO: чтобы не было кольцевых зависимостей
     // TODO: учитывать settings
-    const mongo = await this.driverMongoService.findById(data.driverId);
+    const mongo = await this.driverMongoService.findById(driverId);
+    if (!mongo) {
+      throw new BadRequestException('Данного водителя не существует');
+    }
     return await Promise.all(
-      mongo.parkingProcessIds.map(async (id: string) =>
-        (await this.parkingProcessMapperService.fromDB(id)).data(),
-      ),
+      mongo.parkingProcessIds.map(async (id: string) => {
+        try {
+          return (await this.parkingProcessMapperService.fromDB(id)).data();
+        } catch (e) {
+          throw e;
+        }
+      }),
     );
   }
 }
